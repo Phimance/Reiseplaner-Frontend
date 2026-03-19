@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'api_service.dart';
-import 'main.dart'; // Um später zum MainScreen zu navigieren
+import '../../../api/auth/api_service.dart';
+import '../../../main.dart'; // Um später zum MainScreen zu navigieren
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
