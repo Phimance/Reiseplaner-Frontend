@@ -37,14 +37,15 @@ class _ReiseHeaderState extends State<ReiseHeader> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Text(
-          'Reiseplaner',
+          'Südfrankreichseminar', // Hier später mit Auswahl arbeiten
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         IconButton(
-          icon: const Icon(Icons.settings),
+          icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 38),
           onPressed: () {
 
           },

@@ -54,12 +54,38 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const double headerHeight = 72;
+
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: Stack(
+        children: [
+          // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
+          Padding(
+            padding: const EdgeInsets.only(top: headerHeight),
+            child: _screens[_currentIndex],
+          ),
+          // Floating Header oben
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: headerHeight + MediaQuery.of(context).padding.top,
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                left: 16,
+                right: 32,
+              ),
+              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+              alignment: Alignment.centerLeft,
+              child: const ReiseHeader(),
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const ReiseHeader(),
           Container(
             height: 16,
             color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
