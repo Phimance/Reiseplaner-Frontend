@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../api/auth/api_service.dart';
+import '../../../core/app_state.dart';
 import '../../../main.dart'; // Um später zum MainScreen zu navigieren
 
 class LoginScreen extends StatefulWidget {
@@ -25,8 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final exists = await _apiService.loginBenutzer(name);
 
       if (exists) {
-        // 2a. Nutzer existiert -> Ab zum MainScreen!
+        // 2a. Nutzer existiert -> Gruppen laden & ab zum MainScreen!
         if (mounted) {
+          await context.read<AppState>().initNachLogin(name);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MainScreen()),
@@ -63,8 +66,9 @@ class _LoginScreenState extends State<LoginScreen> {
               try {
                 // Nutzer registrieren
                 await _apiService.registerBenutzer(name);
-                // Direkt danach einloggen
+                // Direkt danach einloggen & Gruppen laden
                 if (mounted) {
+                  await context.read<AppState>().initNachLogin(name);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const MainScreen()),

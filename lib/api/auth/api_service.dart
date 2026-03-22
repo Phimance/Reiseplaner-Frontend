@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io' show Platform; // Behebt den "Platform" Fehler
 import 'package:http/http.dart' as http;
+import '../models/gruppe.dart';
 
 class ApiService {
   // Wenn du die App auf Windows startest, nutzt er 127.0.0.1. 
@@ -65,6 +66,20 @@ class ApiService {
       return true; // Erfolgreich erstellt
     } else {
       throw Exception('Fehler bei der Registrierung: Status ${response.statusCode}');
+    }
+  }
+
+  // --- NEU: Gruppen eines Benutzers laden ---
+
+  /// Ruft alle Gruppen eines Benutzers ab über GET /api/gruppe/benutzer/{name}
+  Future<List<Gruppe>> getGruppenByBenutzer(String name) async {
+    final response = await http.get(Uri.parse('$_baseUrl/gruppe/benutzer/$name'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList.map((json) => Gruppe.fromJson(json)).toList();
+    } else {
+      throw Exception('Fehler beim Laden der Gruppen: Status ${response.statusCode}');
     }
   }
 }

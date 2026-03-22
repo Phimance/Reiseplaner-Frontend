@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
-import 'api/auth/api_service.dart'; // Hier importieren wir deine neue API-Datei!
+import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
 
@@ -14,11 +15,14 @@ class ReiseplanerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Reiseplaner',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: const LoginScreen(),
+    return ChangeNotifierProvider(
+      create: (_) => AppState(),
+      child: MaterialApp(
+        title: 'Reiseplaner',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.darkTheme,
+        home: const LoginScreen(),
+      ),
     );
   }
 }
