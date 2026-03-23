@@ -65,7 +65,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
           Padding(
-            padding: const EdgeInsets.only(top: headerHeight),
+            padding: const EdgeInsets.only(top: headerHeight, left: 16, right: 16),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben

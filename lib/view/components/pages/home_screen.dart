@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../core/Widgets/Button.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -36,13 +36,17 @@ class _HomeScreenState extends State<HomeScreen> {
   // 4. Structure: The Build Method
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : const SizedBox.shrink(), // Placeholder for content
+    return Center(
+      child: _isLoading
+          ? const CircularProgressIndicator()
+      // Beispielbutton
+          : ReiseButton(
+            title: 'Ausgabe hinzufügen',
+            icon: Icons.add,
+            onPressed: () {
+              // Aktion hier
+            },
+          )
     );
   }
 }

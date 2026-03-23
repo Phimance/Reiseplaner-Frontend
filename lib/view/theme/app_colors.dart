@@ -16,13 +16,14 @@ class AppColors {
   static const Color secondaryDark = Color(0xFF388E3C); // Dunkles Grün
 
   // ── Hintergrund & Oberflächen ─────────────────────────
-  static const Color background    = Color(0xFF313131); // Tiefes Schwarz
-  static const Color surface       = Color(0xFF363636); // Dunkelgraue Oberfläche
-  static const Color card          = Color(0xFF444444); // Card-Hintergrund
-  static const Color cardHighlight = Color(0xFF444444); // Leicht helleres Card
+  static const Color background    = Color(0xFF1E1E1E); // Tiefes Schwarz
+  static const Color surface       = Color(0xFF232323); // Dunkelgraue Oberfläche
+  static const Color card          = Color(0xFF232323); // Card-Hintergrund
+  static const Color cardBorder = Color(0xFF292929); // Leicht helleres Card
+  static const Color cardHighlighted = Color(0xFF252525); // Hervorgehobenes Card
 
   // ── Text ──────────────────────────────────────────────
-  static const Color textPrimary   = Color(0xFFFFFFFF); // Weiß
+  static const Color textPrimary   = Color(0xFFECECEC); // Weiß
   static const Color textSecondary = Color(0xFFB0B0B0); // Gedämpftes Grau
   static const Color textOnPrimary = Color(0xFF000000); // Schwarz auf Orange
   static const Color textHint      = Color(0xFF757575); // Hint-Grau
@@ -39,7 +40,7 @@ class AppColors {
   static const Color shadow        = Color(0x80000000); // Schwarz 50 %
 
   // ── Bottom Navigation ─────────────────────────────────
-  static const Color navBar        = Color(0xFF1E1E1E); // Nav-Hintergrund
+  static const Color navBar        = Color(0xFF151515); // Nav-Hintergrund
   static const Color navActive     = Color(0xFFFF9800); // Aktives Icon (Orange)
   static const Color navInactive   = Color(0xFF757575); // Inaktives Icon
 }
