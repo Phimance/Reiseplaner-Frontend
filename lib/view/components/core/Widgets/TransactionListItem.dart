@@ -76,31 +76,48 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24), // Stark abgerundete Ecken wie im Bild
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 8),
-          ...items,
-          if (onShowMore != null) ...[
-            const Divider(color: Colors.transparent, height: 8),
-            TextButton(
-              onPressed: onShowMore,
-              child: const Text(
-                'mehr anzeigen',
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 16,
-                ),
-              ),
+    return SizedBox(
+      width: double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 4,
+              offset: Offset(0, 2),
             ),
-            const SizedBox(height: 8),
-          ]
-        ],
+          ],
+        ),
+        child: Card(
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          color: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24), // Stark abgerundete Ecken wie im Bild
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              ...items,
+              if (onShowMore != null) ...[
+                const Divider(color: Colors.transparent, height: 8),
+                TextButton(
+                  onPressed: onShowMore,
+                  child: const Text(
+                    'mehr anzeigen',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ]
+            ],
+          ),
+        ),
       ),
     );
   }

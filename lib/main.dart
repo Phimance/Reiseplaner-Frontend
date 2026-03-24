@@ -63,9 +63,9 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Hauptinhalt, korrigiertes Pading
+          // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding),
+            padding: EdgeInsets.only(top: totalTopPadding, left: 16, right: 16),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/Widgets/TransactionListItem.dart';
+import '../core/Widgets/Button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,7 +42,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   TransactionCard(
@@ -67,6 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                     onShowMore: () => print('Mehr anzeigen geklickt'),
                   ),
+                  const SizedBox(height: 12),
+                  ReiseButton(
+                    title: 'Ausgabe hinzufügen',
+                    icon: Icons.add,
+                    onPressed: () {
+                      // Aktion hier
+                    },
+                  )
                 ],
               ),
             ),
