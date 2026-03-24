@@ -14,12 +14,14 @@ class AppColors {
   static const Color secondary     = Color(0xFF4CAF50); // Grün – "Du bekommst"-Betrag
   static const Color secondaryLight = Color(0xFF81C784); // Helles Grün
   static const Color secondaryDark = Color(0xFF388E3C); // Dunkles Grün
+  static const Color amountGreen   = Color(0xFF82FFA3); // Hellgrün für Beträge
 
   // ── Hintergrund & Oberflächen ─────────────────────────
-  static const Color background    = Color(0xFF313131); // Tiefes Schwarz
-  static const Color surface       = Color(0xFF363636); // Dunkelgraue Oberfläche
-  static const Color card          = Color(0xFF444444); // Card-Hintergrund
-  static const Color cardHighlight = Color(0xFF444444); // Leicht helleres Card
+  static const Color background    = Color(0xFF1E1E1E); // Tiefes Schwarz
+  static const Color surface       = Color(0xFF232323); // Dunkelgraue Oberfläche
+  static const Color card          = Color(0xFF232323); // Card-Hintergrund
+  static const Color cardBorder = Color(0xFF292929); // Leicht helleres Card
+  static const Color cardHighlighted = Color(0xFF252525); // Hervorgehobenes Card
 
   // ── Text ──────────────────────────────────────────────
   static const Color textPrimary   = Color(0xFFFFFFFF); // Weiß

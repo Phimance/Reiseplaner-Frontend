@@ -1,12 +1,9 @@
 import 'dart:convert';
-import 'dart:io' show Platform; // Behebt den "Platform" Fehler
 import 'package:http/http.dart' as http;
 import '../models/gruppe.dart';
 
 class ApiService {
-  // Wenn du die App auf Windows startest, nutzt er 127.0.0.1. 
-  // Wenn du später zum Android-Emulator wechselst, nutzt er automatisch 10.0.2.2.
-  final String _baseUrl = Platform.isAndroid ? 'http://10.0.2.2:8081/api' : 'http://127.0.0.1:8081/api';
+  final String _baseUrl = 'http://ubuntu.p-stephan.de:8081/api';
 
   // 1. Simpler GET-Request
   Future<dynamic> getGruppen() async {
