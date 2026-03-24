@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/Widgets/TransactionListItem.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -37,12 +38,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : const SizedBox.shrink(), // Placeholder for content
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TransactionCard(
+                    items: const [
+                      TransactionListItem(
+                        icon: Icons.directions_car_filled_outlined,
+                        title: 'Hin- und Rückflug',
+                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
+                        amount: '250,25€',
+                      ),
+                      TransactionListItem(
+                        icon: Icons.directions_car_filled_outlined,
+                        title: 'Hin- und Rückflug',
+                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
+                        amount: '250,25€',
+                      ),
+                      TransactionListItem(
+                        icon: Icons.directions_car_filled_outlined,
+                        title: 'Hin- und Rückflug',
+                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
+                        amount: '250,25€',
+                      ),
+                    ],
+                    onShowMore: () => print('Mehr anzeigen geklickt'),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

@@ -39,33 +39,33 @@ class _MainScreenState extends State<MainScreen> {
   double standardIconSize = 28;
   double highlightedIconSize = 34;
 
-  // Hier ist unsere angepasste Liste der Bildschirme! Jetzt wieder mit 2 Elementen.
   final List<Widget> _screens = [
     const HomeScreen(),
     const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
+      child: Text('Bildschirm 2', style: TextStyle(fontSize: 20)),
     ),
     const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
+      child: Text('Bildschirm 3', style: TextStyle(fontSize: 20)),
     ),
     const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
+      child: Text('Bildschirm 4', style: TextStyle(fontSize: 20)),
     ),
     const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
+      child: Text('Bildschirm 5', style: TextStyle(fontSize: 20)),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     const double headerHeight = 72;
+    final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
 
     return Scaffold(
       body: Stack(
         children: [
-          // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
+          // Hauptinhalt, korrigiertes Pading
           Padding(
-            padding: const EdgeInsets.only(top: headerHeight),
+            padding: EdgeInsets.only(top: totalTopPadding),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
@@ -74,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
             left: 0,
             right: 0,
             child: Container(
-              height: headerHeight + MediaQuery.of(context).padding.top,
+              height: totalTopPadding,
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top,
                 left: 16,
