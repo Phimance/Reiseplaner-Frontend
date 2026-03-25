@@ -59,13 +59,33 @@ class _MainScreenState extends State<MainScreen> {
         child: Text('Bildschirm 5 (Profil)', style: TextStyle(fontSize: 20)),
       ),
     ];
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const Center(
+      child: Text('Bildschirm 2', style: TextStyle(fontSize: 20)),
+    ),
+    const Center(
+      child: Text('Bildschirm 3', style: TextStyle(fontSize: 20)),
+    ),
+    const Center(
+      child: Text('Bildschirm 4', style: TextStyle(fontSize: 20)),
+    ),
+    const Center(
+      child: Text('Bildschirm 5', style: TextStyle(fontSize: 20)),
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    const double headerHeight = 72;
+    final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
 
     return Scaffold(
       body: Stack(
         children: [
           // Hauptinhalt mit korrektem Abstand
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding),
+            padding: EdgeInsets.only(top: totalTopPadding, left: 16, right: 16),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
