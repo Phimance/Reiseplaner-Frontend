@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
+import 'package:reiseplaner/view/components/pages/notes_screen.dart'; // Import für Notizen
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
@@ -39,33 +40,32 @@ class _MainScreenState extends State<MainScreen> {
   double standardIconSize = 28;
   double highlightedIconSize = 34;
 
-  // Hier ist unsere angepasste Liste der Bildschirme! Jetzt wieder mit 2 Elementen.
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
-    ),
-    const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
-    ),
-    const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
-    ),
-    const Center(
-      child: Text('Hier kommt später mehr hin!', style: TextStyle(fontSize: 20)),
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     const double headerHeight = 72;
+    // Gesamtes oberes Padding inkl. Statusleiste
+    final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
+
+    final List<Widget> _screens = [
+      const HomeScreen(),
+      const Center(
+        child: Text('Bildschirm 2 (Vergleich)', style: TextStyle(fontSize: 20)),
+      ),
+      const NotesScreen(), // Hier ist dein neuer Notizen-Bildschirm!
+      const Center(
+        child: Text('Bildschirm 4 (Kalender)', style: TextStyle(fontSize: 20)),
+      ),
+      const Center(
+        child: Text('Bildschirm 5 (Profil)', style: TextStyle(fontSize: 20)),
+      ),
+    ];
 
     return Scaffold(
       body: Stack(
         children: [
-          // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
+          // Hauptinhalt mit korrektem Abstand
           Padding(
-            padding: const EdgeInsets.only(top: headerHeight),
+            padding: EdgeInsets.only(top: totalTopPadding),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
@@ -74,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
             left: 0,
             right: 0,
             child: Container(
-              height: headerHeight + MediaQuery.of(context).padding.top,
+              height: totalTopPadding,
               padding: EdgeInsets.only(
                 top: MediaQuery.of(context).padding.top,
                 left: 16,
