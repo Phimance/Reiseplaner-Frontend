@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
+import '../../pages/reisegruppen/add_gruppe_screen.dart';
+import 'Button.dart';
 
 class ReiseHeader extends StatelessWidget {
   const ReiseHeader({super.key});
@@ -19,31 +21,39 @@ class ReiseHeader extends StatelessWidget {
         final gruppen = appState.gruppen;
         final aktive = appState.aktiveGruppe;
 
-        if (gruppen.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(24),
-            child: Text(
-              'Keine Gruppen vorhanden.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
-            ),
-          );
-        }
-
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 8),
-                child: Text(
-                  'Gruppe auswählen',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Gruppe auswählen',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SimpleButton(
+                      icon: Icons.add,
+                      size: 48,
+                      onPressed: () {
+                        Navigator.pop(sheetContext);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AddGruppeScreen(),
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                )
               ),
               const Divider(color: AppColors.divider),
               ...gruppen.map((gruppe) {

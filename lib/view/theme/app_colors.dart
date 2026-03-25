@@ -23,6 +23,9 @@ class AppColors {
   static const Color cardBorder = Color(0xFF292929); // Leicht helleres Card
   static const Color cardHighlighted = Color(0xFF252525); // Hervorgehobenes Card
 
+  // ── Inputfelder ───────────────────────────────────────
+  static const Color inputSurface          = Color(0xFF000000); // Card-Hintergrund
+
   // ── Text ──────────────────────────────────────────────
   static const Color textPrimary   = Color(0xFFFFFFFF); // Weiß
   static const Color textSecondary = Color(0xFFB0B0B0); // Gedämpftes Grau

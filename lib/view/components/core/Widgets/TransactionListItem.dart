@@ -53,9 +53,9 @@ class TransactionListItem extends StatelessWidget {
           Text(
             amount,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: amountColor,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: amountColor,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
