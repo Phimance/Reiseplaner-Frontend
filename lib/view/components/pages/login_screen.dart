@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../api/auth/api_service.dart';
 import '../../../core/app_state.dart';
 import '../../../main.dart'; // Um später zum MainScreen zu navigieren
+import 'package:reiseplaner/view/theme/app_colors.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -92,11 +94,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.fromLTRB(32.0, 175.0, 32.0, 32.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              const Icon(Icons.travel_explore, size: 80, color: Colors.teal),
+              const Icon(Icons.travel_explore, size: 80, color: AppColors.primary),
               const SizedBox(height: 20),
               const Text('Willkommen beim Reiseplaner', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), textAlign: TextAlign.center,),
               const SizedBox(height: 40),
@@ -114,10 +116,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _handleLogin,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Einloggen', style: TextStyle(fontSize: 18)),
+                      : const Text('Einloggen', style: TextStyle(fontSize: 18, color: AppColors.textOnPrimary)),
                 ),
               ),
             ],
