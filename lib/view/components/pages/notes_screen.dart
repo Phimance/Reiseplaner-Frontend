@@ -26,20 +26,25 @@ class _NotesScreenState extends State<NotesScreen> {
     final titelController = TextEditingController(text: existingNote?.name ?? '');
     final inhaltController = TextEditingController(text: existingNote?.inhalt ?? '');
 
-    // Debugging: ID der Notiz prüfen
-    if (isEditing) {
-      print('Bearbeite Notiz mit ID: ${existingNote.id}');
-    }
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: const Color(0xFF363636),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black54,
       builder: (context) {
-        return Padding(
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF363636),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 15,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
             left: 20,
@@ -97,7 +102,6 @@ class _NotesScreenState extends State<NotesScreen> {
                     if (titelController.text.isNotEmpty) {
                       final appState = context.read<AppState>();
                       if (isEditing) {
-                        // WICHTIG: Die ID muss hier zwingend gesetzt sein!
                         final updatedNote = Notiz(
                           id: existingNote.id,
                           name: titelController.text,
@@ -136,6 +140,37 @@ class _NotesScreenState extends State<NotesScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _confirmDelete(BuildContext context, Notiz notiz) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF363636),
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.black.withOpacity(0.5),
+        elevation: 10,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Notiz löschen', style: TextStyle(color: Colors.white)),
+        content: Text('Möchtest du die Notiz "${notiz.name}" wirklich löschen?', 
+          style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Abbrechen', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (notiz.id != null) {
+                await context.read<AppState>().deleteNotiz(notiz.id!);
+              }
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: const Text('Löschen', style: TextStyle(color: Colors.redAccent)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -197,6 +232,7 @@ class _NotesScreenState extends State<NotesScreen> {
                                       title: notiz.name,
                                       content: notiz.inhalt,
                                       onTap: () => _showNoteModal(context, existingNote: notiz),
+                                      onDelete: () => _confirmDelete(context, notiz),
                                     );
                                   },
                                 ),
