@@ -17,9 +17,24 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             const Spacer(),
+            Divider(color: AppColors.divider, thickness: 1),
+            const SizedBox(height: 20),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text("derzeit angemeldet als"),
+                const SizedBox(width: 8),
+                Padding(
+                  padding: EdgeInsetsGeometry.only(bottom: 3),
+                  child: Text("${context.read<AppState>().benutzername}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                )
+              ],
+            ),
+            SizedBox(height: 12),
             ReiseButton(
               title: 'Abmelden',
               icon: Icons.logout,
+              floatLeft: true,
               onPressed: () {
                 // Logout im AppState ausführen
                 context.read<AppState>().logout();
