@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/app_state.dart';
-import '../../../../view/theme/app_colors.dart';
+import '../../../theme/app_colors.dart';
 import '../../pages/reisegruppen/add_gruppe_screen.dart';
+import '../../pages/reisegruppen/edit_gruppe_screen.dart';
 import 'Button.dart';
 
 class ReiseHeader extends StatelessWidget {
@@ -70,6 +71,18 @@ class ReiseHeader extends StatelessWidget {
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.settings, color: AppColors.textSecondary, size: 22),
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditGruppeScreen(gruppe: gruppe),
+                        ),
+                      );
+                    },
+                  ),
                   onTap: () {
                     appState.setAktiveGruppe(gruppe);
                     Navigator.pop(sheetContext);
@@ -88,19 +101,31 @@ class ReiseHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final gruppenName = appState.aktiveGruppe?.name ?? 'Keine Gruppe';
+    final locationName = appState.aktiveGruppe?.location ?? 'unbekanntes Ziel';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Flexible(
-          child: Text(
-            gruppenName,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Spacer(),
+            Text(
+              gruppenName,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            Text(
+              locationName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+              Spacer(),
+      ],),
+        SizedBox(width: 24),
         IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 38),
           onPressed: () => _showGruppenAuswahl(context),

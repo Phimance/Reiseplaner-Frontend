@@ -76,9 +76,69 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Gruppe.fromJson(json)).toList();
+      final List<Gruppe> result = [];
+      for (int i = 0; i < jsonList.length; i++) {
+        try {
+          result.add(Gruppe.fromJson(jsonList[i] as Map<String, dynamic>));
+        } catch (e) {
+          print('⚠️ Fehler beim Parsen von Gruppe[$i]: $e');
+          print('   JSON: ${jsonList[i]}');
+        }
+      }
+      return result;
     } else {
       throw Exception('Fehler beim Laden der Gruppen: Status ${response.statusCode}');
+    }
+  }
+
+  // --- NEU: Transaktion erstellen ---
+
+  /// Erstellt eine Transaktion für eine Gruppe via POST /api/transaktion/gruppe/{gruppeId}
+  Future<dynamic> createTransaktion(String gruppeId, Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/transaktion/gruppe/$gruppeId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Fehler beim Erstellen der Transaktion: Status ${response.statusCode}');
+    }
+  }
+
+  // --- NEU: Gruppe aktualisieren ---
+
+  /// Aktualisiert eine Gruppe via PUT /api/gruppe/{id}
+  Future<dynamic> updateGruppe(String gruppeId, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/gruppe/$gruppeId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 409) {
+      throw Exception('409 Conflict: ${response.body}');
+    } else {
+      throw Exception('Fehler beim Aktualisieren: Status ${response.statusCode}');
+    }
+  }
+
+  // --- NEU: Gruppe löschen ---
+
+  /// Löscht eine Gruppe via DELETE /api/gruppe/{id}
+  Future<void> deleteGruppe(String gruppeId) async {
+    final response = await http.delete(Uri.parse('$_baseUrl/gruppe/$gruppeId'));
+
+    if (response.statusCode == 204 || response.statusCode == 200) {
+      return;
+    } else if (response.statusCode == 404) {
+      throw Exception('Gruppe nicht gefunden.');
+    } else {
+      throw Exception('Fehler beim Löschen: Status ${response.statusCode}');
     }
   }
 }
