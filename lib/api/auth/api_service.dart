@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/gruppe.dart';
+import '../models/models.dart';
 
 class ApiService {
   final String _baseUrl = 'http://ubuntu.p-stephan.de:8081/api';
@@ -26,6 +26,8 @@ class ApiService {
 
     if (response.statusCode == 201 || response.statusCode == 200) {
       return json.decode(response.body);
+    } else if (response.statusCode == 409) {
+      throw Exception('409 Conflict: ${response.body}');
     } else {
       throw Exception('Fehler beim Erstellen: Status ${response.statusCode}');
     }

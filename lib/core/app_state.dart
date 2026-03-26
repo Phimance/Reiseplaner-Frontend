@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../api/auth/api_service.dart';
-import '../api/models/gruppe.dart';
+import '../api/models/models.dart';
 
 /// Zentraler App-Zustand – speichert globale Informationen wie
 /// Benutzername, Gruppen-Liste und die aktuell ausgewählte Gruppe.

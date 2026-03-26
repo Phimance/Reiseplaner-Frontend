@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../core/app_state.dart';
 import '../core/Widgets/TransactionListItem.dart';
 import '../core/Widgets/Button.dart';
 
@@ -74,7 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onPressed: () {
                       // Aktion hier
                     },
-                  )
+                  ),
+                  Text('Planer-ID: ${context.watch<AppState>().aktiveGruppe?.planer?.id ?? "Keine Gruppe ausgewählt"}'),
+                  Text('Notizblock-ID: ${context.watch<AppState>().aktiveGruppe?.notizblocks[0]?.id ?? "Keine Gruppe ausgewählt"}'),
                 ],
               ),
             ),
