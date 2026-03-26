@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/app_state.dart';
 import '../core/Widgets/TransactionListItem.dart';
 import '../core/Widgets/Button.dart';
+import 'package:reiseplaner/view/components/core/Widgets/SummaryCard.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -46,6 +47,14 @@ class _HomeScreenState extends State<HomeScreen> {
           : SingleChildScrollView(
               child: Column(
                 children: [
+                  //test der summary card
+                  SummaryCard(
+                    title: 'Eze sur Mer',
+                    dateRange: '15.Juli - 19.Juli 2026',
+                    avatars: const ['P', 'M', 'M','P', 'M', 'M'],
+                    onSettings: () {},
+                  ),
+                  SizedBox(height: 12),
                   TransactionCard(
                     items: const [
                       TransactionListItem(
