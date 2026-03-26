@@ -101,19 +101,30 @@ class ReiseHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final gruppenName = appState.aktiveGruppe?.name ?? 'Keine Gruppe';
+    final locationName = appState.aktiveGruppe?.location ?? 'unbekanntes Ziel';
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Flexible(
-          child: Text(
-            gruppenName,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-          ),
-        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Spacer(),
+            Text(
+              gruppenName,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+            Text(
+              locationName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+              Spacer(),
+      ],),
         IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 38),
           onPressed: () => _showGruppenAuswahl(context),

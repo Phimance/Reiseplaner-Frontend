@@ -58,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const double headerHeight = 72;
+    const double headerHeight = 92;
     final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
 
     return Scaffold(
