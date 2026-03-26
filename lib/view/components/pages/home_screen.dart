@@ -77,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       // Aktion hier
                     },
                   ),
-                  Text('Planer-ID: ${context.watch<AppState>().aktiveGruppe?.planer?.id ?? "Keine Gruppe ausgewählt"}'),
+                  Text('Planer-ID: ${context.watch<AppState>().aktiveGruppe?.planer?.events[0].beschreibung ?? "Keine Gruppe ausgewählt"}'),
                   Text('Notizblock-ID: ${context.watch<AppState>().aktiveGruppe?.notizblocks[0]?.id ?? "Keine Gruppe ausgewählt"}'),
                 ],
               ),
