@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/app_state.dart';
-import '../../../../view/theme/app_colors.dart';
+import '../../../theme/app_colors.dart';
 import '../../pages/reisegruppen/add_gruppe_screen.dart';
+import '../../pages/reisegruppen/edit_gruppe_screen.dart';
 import 'Button.dart';
 
 class ReiseHeader extends StatelessWidget {
@@ -69,6 +70,18 @@ class ReiseHeader extends StatelessWidget {
                       color: isSelected ? AppColors.primary : AppColors.textPrimary,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.settings, color: AppColors.textSecondary, size: 22),
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EditGruppeScreen(gruppe: gruppe),
+                        ),
+                      );
+                    },
                   ),
                   onTap: () {
                     appState.setAktiveGruppe(gruppe);
