@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reiseplaner/view/components/pages/reisegruppen/add_transaktion_screen.dart';
 import '../../../core/app_state.dart';
 import '../core/Widgets/TransactionListItem.dart';
 import '../core/Widgets/Button.dart';
@@ -46,39 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  TransactionCard(
-                    items: const [
-                      TransactionListItem(
-                        icon: Icons.directions_car_filled_outlined,
-                        title: 'Hin- und Rückflug',
-                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                        amount: '250,25€',
-                      ),
-                      TransactionListItem(
-                        icon: Icons.directions_car_filled_outlined,
-                        title: 'Hin- und Rückflug',
-                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                        amount: '250,25€',
-                      ),
-                      TransactionListItem(
-                        icon: Icons.directions_car_filled_outlined,
-                        title: 'Hin- und Rückflug',
-                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                        amount: '250,25€',
-                      ),
-                    ],
-                    onShowMore: () => print('Mehr anzeigen geklickt'),
-                  ),
-                  const SizedBox(height: 12),
-                  ReiseButton(
-                    title: 'Ausgabe hinzufügen',
-                    icon: Icons.add,
-                    onPressed: () {
-                      // Aktion hier
-                    },
-                  ),
-                  Text('Planer-ID: ${context.watch<AppState>().aktiveGruppe?.planer?.events[0].beschreibung ?? "Keine Gruppe ausgewählt"}'),
-                  Text('Notizblock-ID: ${context.watch<AppState>().aktiveGruppe?.notizblocks[0]?.id ?? "Keine Gruppe ausgewählt"}'),
+                  Text('Planer-ID: ${context.watch<AppState>().aktiveGruppe?.planer?.events.isNotEmpty == true ? context.watch<AppState>().aktiveGruppe!.planer!.events[0].beschreibung : "Keine Events vorhanden"}'),
+                  Text('Notizblock-ID: ${context.watch<AppState>().aktiveGruppe?.notizblocks.isNotEmpty == true ? context.watch<AppState>().aktiveGruppe!.notizblocks[0].id : "Kein Notizblock vorhanden"}'),
                 ],
               ),
             ),

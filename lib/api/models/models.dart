@@ -23,27 +23,55 @@ class Gruppe {
   });
 
   factory Gruppe.fromJson(Map<String, dynamic> json) {
+    List<Benutzer> benutzerList = [];
+    try {
+      benutzerList = (json['benutzer'] as List<dynamic>?)
+              ?.map((e) => Benutzer.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+    } catch (e) {
+      print('⚠️ Fehler beim Parsen von benutzer: $e');
+    }
+
+    List<Transaktion> transaktionenList = [];
+    try {
+      transaktionenList = (json['transaktionen'] as List<dynamic>?)
+              ?.map((e) => Transaktion.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+    } catch (e) {
+      print('⚠️ Fehler beim Parsen von transaktionen: $e');
+    }
+
+    List<Notizblock> notizblocksList = [];
+    try {
+      notizblocksList = (json['notizblocks'] as List<dynamic>?)
+              ?.map((e) => Notizblock.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [];
+    } catch (e) {
+      print('⚠️ Fehler beim Parsen von notizblocks: $e');
+    }
+
+    Planer? planerObj;
+    try {
+      planerObj = json['planer'] != null
+          ? Planer.fromJson(json['planer'] as Map<String, dynamic>)
+          : null;
+    } catch (e) {
+      print('⚠️ Fehler beim Parsen von planer: $e');
+    }
+
     return Gruppe(
       id: json['id'] as String,
       name: json['name'] as String,
       location: json['location'] as String?,
       startDate: json['startDate'] as String?,
       endDate: json['endDate'] as String?,
-      benutzer: (json['benutzer'] as List<dynamic>?)
-              ?.map((e) => Benutzer.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      transaktionen: (json['transaktionen'] as List<dynamic>?)
-              ?.map((e) => Transaktion.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      notizblocks: (json['notizblocks'] as List<dynamic>?)
-              ?.map((e) => Notizblock.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      planer: json['planer'] != null
-          ? Planer.fromJson(json['planer'] as Map<String, dynamic>)
-          : null,
+      benutzer: benutzerList,
+      transaktionen: transaktionenList,
+      notizblocks: notizblocksList,
+      planer: planerObj,
     );
   }
 
@@ -97,16 +125,77 @@ class Benutzer {
 // ── Transaktion ───────────────────────────────────────────────
 
 class Transaktion {
-  final String id;
-  final Map<String, dynamic> raw;
+  final String? id;
+  final String transaktionsname;
+  final String bezahlername;
+  final double gesamtwert;
+  final List<Transaktionsperson> transaktionspersonen;
 
-  Transaktion({required this.id, required this.raw});
+  Transaktion({
+    this.id,
+    required this.transaktionsname,
+    required this.bezahlername,
+    required this.gesamtwert,
+    this.transaktionspersonen = const [],
+  });
 
   factory Transaktion.fromJson(Map<String, dynamic> json) {
-    return Transaktion(id: json['id'] as String, raw: json);
+    return Transaktion(
+      id: json['id'] as String?,
+      transaktionsname: json['transaktionsname'] as String,
+      bezahlername: json['bezahlername'] as String,
+      gesamtwert: (json['gesamtwert'] as num).toDouble(),
+      transaktionspersonen: (json['transaktionspersonen'] as List<dynamic>?)
+              ?.map((e) =>
+                  Transaktionsperson.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
   }
 
-  Map<String, dynamic> toJson() => raw;
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'transaktionsname': transaktionsname,
+        'bezahlername': bezahlername,
+        'gesamtwert': gesamtwert,
+        'transaktionspersonen':
+            transaktionspersonen.map((tp) => tp.toJson()).toList(),
+      };
+
+  @override
+  String toString() =>
+      'Transaktion(id: $id, transaktionsname: $transaktionsname, gesamtwert: $gesamtwert)';
+}
+
+// ── Transaktionsperson ────────────────────────────────────────
+
+class Transaktionsperson {
+  final String? id;
+  final String schuldner;
+  final double anteil;
+
+  Transaktionsperson({
+    this.id,
+    required this.schuldner,
+    required this.anteil,
+  });
+
+  factory Transaktionsperson.fromJson(Map<String, dynamic> json) {
+    return Transaktionsperson(
+      id: json['id']?.toString(),
+      schuldner: json['schuldner'] as String,
+      anteil: (json['anteil'] as num).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'schuldner': schuldner,
+        'anteil': anteil,
+      };
+
+  @override
+  String toString() => 'Transaktionsperson(schuldner: $schuldner, anteil: $anteil)';
 }
 
 // ── Notizblock ────────────────────────────────────────────────

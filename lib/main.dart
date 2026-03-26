@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
+import 'package:reiseplaner/view/components/pages/transaktions_screen.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
@@ -41,9 +42,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const Center(
-      child: Text('Bildschirm 2', style: TextStyle(fontSize: 20)),
-    ),
+    const TransaktionsScreen(),
     const Center(
       child: Text('Bildschirm 3', style: TextStyle(fontSize: 20)),
     ),

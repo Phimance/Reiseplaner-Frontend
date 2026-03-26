@@ -44,21 +44,26 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final gruppenJson = await _apiService.getGruppenByBenutzer(_benutzername);
-      _gruppen = gruppenJson;
+      print('🔄 Lade Gruppen für "$_benutzername"...');
+      final gruppenResult = await _apiService.getGruppenByBenutzer(_benutzername);
+      print('✅ ${gruppenResult.length} Gruppe(n) geladen: ${gruppenResult.map((g) => g.name).toList()}');
+      _gruppen = gruppenResult;
 
-      // Wenn noch keine Gruppe ausgewählt ist und Gruppen vorhanden,
-      // automatisch die erste auswählen.
+      // Aktive Gruppe per ID wiederfinden (nach Reload ist es ein neues Objekt)
+      if (_aktiveGruppe != null) {
+        final gefunden = _gruppen.where((g) => g.id == _aktiveGruppe!.id);
+        _aktiveGruppe = gefunden.isNotEmpty ? gefunden.first : null;
+      }
+
+      // Wenn immer noch keine aktive Gruppe → erste nehmen
       if (_aktiveGruppe == null && _gruppen.isNotEmpty) {
         _aktiveGruppe = _gruppen.first;
       }
 
-      // Falls die aktive Gruppe nicht mehr in der Liste ist, zurücksetzen.
-      if (_aktiveGruppe != null && !_gruppen.contains(_aktiveGruppe)) {
-        _aktiveGruppe = _gruppen.isNotEmpty ? _gruppen.first : null;
-      }
+      print('👉 Aktive Gruppe: ${_aktiveGruppe?.name ?? "keine"}');
     } catch (e) {
       _error = e.toString();
+      print('❌ Fehler beim Laden der Gruppen: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
