@@ -8,7 +8,6 @@ class SummaryCard extends StatelessWidget {
   final String dateRange;
   final List<String> avatars;
   final VoidCallback? onSettings;
-  final VoidCallback? onAdd;
   final Color backgroundColor;
   final Color avatarColor;
   final int maxVisibleAvatars;
@@ -21,12 +20,78 @@ class SummaryCard extends StatelessWidget {
     required this.dateRange,
     required this.avatars,
     this.onSettings,
-    this.onAdd,
     // ADVOCATUS DIABOLI: Nutze deine eigenen Konstanten als Default!
     this.backgroundColor = AppColors.card,
     this.avatarColor = AppColors.primary,
     this.maxVisibleAvatars = 3,
   });
+
+  static const double _avatarRadius = 16.0;
+  static const double _avatarOverlap = 10.0; // wie weit jeder Avatar unter dem nächsten versteckt wird
+
+  static const double _stackBottomPadding = 4.0;
+
+  Widget _buildAvatarStack(List<String> visible, int hiddenCount) {
+    final stackWidth = visible.isEmpty
+        ? 0.0
+        : _avatarRadius * 2 + (visible.length - 1) * (_avatarRadius * 2 - _avatarOverlap);
+
+    Widget avatarStack = SizedBox(
+      width: stackWidth,
+      height: _avatarRadius * 2 + _stackBottomPadding,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (int i = 0; i < visible.length; i++)
+            Positioned(
+              left: i * (_avatarRadius * 2 - _avatarOverlap),
+              top: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppColors.card, width: 2),
+                ),
+                child: CircleAvatar(
+                  radius: _avatarRadius,
+                  backgroundColor: avatarColor,
+                  child: Text(
+                    visible[i],
+                    style: const TextStyle(
+                      color: AppColors.textOnPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    if (hiddenCount <= 0) return avatarStack;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        avatarStack,
+        const SizedBox(width: 2),
+        CircleAvatar(
+          radius: _avatarRadius,
+          backgroundColor: AppColors.surface,
+          child: Text(
+            '+$hiddenCount',
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,16 +133,16 @@ class SummaryCard extends StatelessWidget {
                 ),
               ),
               if (onSettings != null)
-                GestureDetector(
-                  onTap: onSettings,
-                  child: Container(
-                    color: Colors.transparent, // Vergrößert die Klickfläche unsichtbar
-                    // Der geometrische Trick: right: 5
-                    // Der Plus-Button unten ist 32px breit (Radius 16).
-                    // Das Icon hier ist 22px breit.
-                    // Durch 5 Pixel rechtes Padding zentrieren wir die 22px exakt über den 32px!
-                    padding: const EdgeInsets.only(left: 16, top: 4, bottom: 4, right: 5),
-                    child: const Icon(Icons.settings, color: AppColors.textSecondary, size: 22),
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    highlightColor: AppColors.primary.withValues(alpha: 0.15),
+                    splashColor: AppColors.primary.withValues(alpha: 0.25),
+                    onTap: onSettings,
+                    child:
+                    Icon(Icons.settings, color: AppColors.textSecondary, size: 22),
                   ),
                 ),
             ],
@@ -114,46 +179,8 @@ class SummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
 
-              // --- AVATARS ---
-              ...visibleAvatars.map((a) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundColor: avatarColor, // Nutzt AppColors.primary
-                  child: Text(
-                    a,
-                    style: const TextStyle(
-                        color: AppColors.textOnPrimary, // Schwarz auf Orange!
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12
-                    ),
-                  ),
-                ),
-              )),
-              if (hiddenAvatarCount > 0)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: AppColors.surface, // Abhebung von der Card
-                    child: Text(
-                      '+$hiddenAvatarCount',
-                      style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 12),
-                    ),
-                  ),
-                ),
-              if (onAdd != null)
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: GestureDetector(
-                    onTap: onAdd,
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundColor: AppColors.secondary, // Z.B. Grün für "Hinzufügen"
-                      child: const Icon(Icons.add, color: AppColors.textPrimary, size: 20),
-                    ),
-                  ),
-                ),
+              // --- AVATARS (stacked like a deck of cards) ---
+              _buildAvatarStack(visibleAvatars, hiddenAvatarCount),
             ],
           ),
         ],

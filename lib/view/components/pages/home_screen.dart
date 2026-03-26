@@ -51,8 +51,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     dateRange: '15.Juli - 19.Juli 2026',
                     avatars: const ['P', 'M', 'M','P', 'M', 'M'],
                     onSettings: () {},
-                    onAdd: () {},
                   ),
+                  SizedBox(height: 12),
                   TransactionCard(
                     items: const [
                       TransactionListItem(
