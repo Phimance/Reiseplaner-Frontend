@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/app_state.dart';
 import '../core/Widgets/TransactionListItem.dart';
 import '../core/Widgets/Button.dart';
+import 'package:reiseplaner/view/components/core/Widgets/StatSummaryTile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
