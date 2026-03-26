@@ -44,18 +44,18 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final gruppenJson = await _apiService.getGruppenByBenutzer(_benutzername);
-      _gruppen = gruppenJson;
+      final gruppenResult = await _apiService.getGruppenByBenutzer(_benutzername);
+      _gruppen = gruppenResult;
 
-      // Wenn noch keine Gruppe ausgewählt ist und Gruppen vorhanden,
-      // automatisch die erste auswählen.
-      if (_aktiveGruppe == null && _gruppen.isNotEmpty) {
-        _aktiveGruppe = _gruppen.first;
+      // Aktive Gruppe per ID wiederfinden (nach Reload ist es ein neues Objekt)
+      if (_aktiveGruppe != null) {
+        final gefunden = _gruppen.where((g) => g.id == _aktiveGruppe!.id);
+        _aktiveGruppe = gefunden.isNotEmpty ? gefunden.first : null;
       }
 
-      // Falls die aktive Gruppe nicht mehr in der Liste ist, zurücksetzen.
-      if (_aktiveGruppe != null && !_gruppen.contains(_aktiveGruppe)) {
-        _aktiveGruppe = _gruppen.isNotEmpty ? _gruppen.first : null;
+      // Wenn immer noch keine aktive Gruppe → erste nehmen
+      if (_aktiveGruppe == null && _gruppen.isNotEmpty) {
+        _aktiveGruppe = _gruppen.first;
       }
     } catch (e) {
       _error = e.toString();
