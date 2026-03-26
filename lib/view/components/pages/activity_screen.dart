@@ -107,7 +107,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     width: 30,
     height: 30,
     ),
-    ],
+    ))],
       ),
     );
   }

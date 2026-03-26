@@ -74,7 +74,6 @@ class AppState extends ChangeNotifier {
   }
 
   /// Setzt die aktuell aktive Gruppe und lädt deren Events.
-  void setAktiveGruppe(Gruppe gruppe) {
   Future<void> ladeNotizen() async {
     if (_aktiveGruppe == null) return;
     _isLoading = true;
