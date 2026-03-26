@@ -58,56 +58,52 @@ class _ActivityScreenState extends State<ActivityScreen> {
         children: [
           events.isEmpty
               ? const Center(
-                  child: Text('Keine Events vorhanden. Füge ein neues Event hinzu!'),
-                )
-              : SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      SectionList(
-                        items: sortedDates.map((date) {
-                          return DaySection(
-                            day: date,
-                            items: groupedByDate[date] ?? [],
-                          );
-                        }).toList(),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
+                child: Text(
+                  'Keine Events vorhanden. Füge ein neues Event hinzu!',
                 ),
+              )
+              : SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SectionList(
+                      items:
+                          sortedDates.map((date) {
+                            return DaySection(
+                              day: date,
+                              items: groupedByDate[date] ?? [],
+                            );
+                          }).toList(),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+
           Positioned(
-            top: 16,
+            bottom: 16,
             right: 16,
             child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const AddActivityScreen()),
-                );
-              },
-              child: const Icon(Icons.add),
+              onPressed:
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddActivityScreen(),
+                    ),
+                  ),
+              backgroundColor: const Color(0xFF444444),
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: const BorderSide(color: Color(0xFF666666), width: 1),
+              ),
+              child: SvgPicture.asset(
+                'assets/icons/pen-icon.svg',
+                width: 30,
+                height: 30,
+              ),
             ),
           ),
-    Positioned(
-    bottom: 16,
-    right: 16,
-    child: FloatingActionButton(
-    onPressed: () => Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const AddActivityScreen()),
-    ),
-    backgroundColor: const Color(0xFF444444),
-    elevation: 8,
-    shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(16),
-    side: const BorderSide(color: Color(0xFF666666), width: 1),
-    ),
-    child: SvgPicture.asset(
-    'assets/icons/pen-icon.svg',
-    width: 30,
-    height: 30,
-    ),
-    ))],
+        ],
       ),
     );
   }
