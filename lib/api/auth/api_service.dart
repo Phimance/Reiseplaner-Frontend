@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/gruppe.dart';
+import '../models/models.dart';
 
 class ApiService {
   final String _baseUrl = 'http://ubuntu.p-stephan.de:8081/api';
