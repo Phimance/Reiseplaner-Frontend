@@ -64,6 +64,14 @@ class NotizService {
     throw Exception('Fehler beim Aktualisieren der Notiz: Status ${response.statusCode}');
   }
 
+  /// 5) Notiz löschen (DELETE)
+  Future<void> deleteNotiz(String id) async {
+    final response = await http.delete(Uri.parse('$_baseUrl/notiz/$id'));
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Fehler beim Löschen der Notiz: Status ${response.statusCode}');
+    }
+  }
+
   /// Alle Notizen eines Notizblocks laden
   Future<List<Notiz>> getNotizenByNotizblock(String notizblockId) async {
     final response = await http.get(Uri.parse('$_baseUrl/notiz/notizblock/$notizblockId'));

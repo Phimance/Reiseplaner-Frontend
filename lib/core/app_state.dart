@@ -133,6 +133,19 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// Löscht eine Notiz (DELETE)
+  Future<void> deleteNotiz(String id) async {
+    try {
+      print('Lösche Notiz ID: $id');
+      await _notizService.deleteNotiz(id);
+      await ladeNotizen(); // Liste neu laden
+    } catch (e) {
+      print('Fehler beim Löschen: $e');
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
   Future<void> setAktiveGruppe(Gruppe gruppe) async {
     _aktiveGruppe = gruppe;
     _notizen = [];

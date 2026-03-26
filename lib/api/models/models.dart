@@ -14,21 +14,32 @@ class Notiz {
   });
 
   factory Notiz.fromJson(Map<String, dynamic> json) {
+    final String foundName = (json['name'] ?? json['titel'] ?? '') as String;
+    // Wenn 'id' fehlt, nutzen wir den 'name' als ID (da Name = ID)
+    final foundId = (json['id'] ?? json['uuid'] ?? foundName).toString();
+
     return Notiz(
-      id: json['id'] as String?,
-      name: (json['name'] ?? '') as String,
+      id: foundId,
+      name: foundName,
       inhalt: (json['inhalt'] ?? '') as String,
-      notizblockId: json['notizblock'] != null ? json['notizblock']['id'] as String? : null,
+      notizblockId: json['notizblock'] != null 
+          ? (json['notizblock']['id'] ?? json['notizblock']['uuid'])?.toString() 
+          : json['notizblockId']?.toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      if (id != null) 'id': id,
+    final Map<String, dynamic> data = {
       'name': name,
       'inhalt': inhalt,
-      if (notizblockId != null) 'notizblock': {'id': notizblockId},
     };
+    
+    if (id != null) data['id'] = id;
+    if (notizblockId != null) {
+      data['notizblock'] = {'id': notizblockId};
+    }
+    
+    return data;
   }
 }
 
@@ -42,13 +53,13 @@ class Notizblock {
   Notizblock({required this.id, required this.name, this.notizen = const []});
 
   factory Notizblock.fromJson(Map<String, dynamic> json) {
+    var list = json['notizen'] as List? ?? [];
+    List<Notiz> notizenList = list.map((i) => Notiz.fromJson(i as Map<String, dynamic>)).toList();
+
     return Notizblock(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      notizen: (json['notizen'] as List<dynamic>?)
-              ?.map((e) => Notiz.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      id: (json['id'] ?? json['uuid'] ?? json['name']).toString(),
+      name: (json['name'] ?? '') as String,
+      notizen: notizenList,
     );
   }
 
@@ -86,7 +97,7 @@ class Gruppe {
 
   factory Gruppe.fromJson(Map<String, dynamic> json) {
     return Gruppe(
-      id: json['id'] as String,
+      id: (json['id'] ?? json['uuid']).toString(),
       name: json['name'] as String,
       location: json['location'] as String?,
       startDate: json['startDate'] as String?,
@@ -165,7 +176,7 @@ class Transaktion {
   Transaktion({required this.id, required this.raw});
 
   factory Transaktion.fromJson(Map<String, dynamic> json) {
-    return Transaktion(id: json['id'] as String, raw: json);
+    return Transaktion(id: (json['id'] ?? json['uuid']).toString(), raw: json);
   }
 
   Map<String, dynamic> toJson() => raw;
@@ -182,7 +193,7 @@ class Planer {
 
   factory Planer.fromJson(Map<String, dynamic> json) {
     return Planer(
-      id: json['id'] as String,
+      id: (json['id'] ?? json['uuid']).toString(),
       name: json['name'] as String,
       events: json['events'] as List<dynamic>? ?? [],
     );

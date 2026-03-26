@@ -4,13 +4,15 @@ import '../../../theme/app_colors.dart';
 class NoteCard extends StatelessWidget {
   final String title;
   final String content;
-  final VoidCallback? onTap; // Neuer Parameter für Klicks
+  final VoidCallback? onTap;
+  final VoidCallback? onDelete; // Neuer Callback für Löschen
 
   const NoteCard({
     super.key,
     required this.title,
     required this.content,
     this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -30,6 +32,7 @@ class NoteCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Akzentbalken
                 Container(
                   width: 5,
                   decoration: const BoxDecoration(
@@ -40,6 +43,7 @@ class NoteCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Inhalt
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -65,6 +69,17 @@ class NoteCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Lösch-Button
+                if (onDelete != null)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: IconButton(
+                        icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                        onPressed: onDelete,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

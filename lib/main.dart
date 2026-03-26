@@ -51,7 +51,7 @@ class _MainScreenState extends State<MainScreen> {
       const Center(
         child: Text('Bildschirm 2 (Vergleich)', style: TextStyle(fontSize: 20)),
       ),
-      const NotesScreen(), // Hier ist dein neuer Notizen-Bildschirm!
+      const NotesScreen(),
       const Center(
         child: Text('Bildschirm 4 (Kalender)', style: TextStyle(fontSize: 20)),
       ),
