@@ -141,4 +141,34 @@ class ApiService {
       throw Exception('Fehler beim Löschen: Status ${response.statusCode}');
     }
   }
+
+  Future<dynamic> updateTransaktion(String transaktionId, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/transaktion/$transaktionId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Fehler beim Aktualisieren der Transaktion: Status ${response.statusCode}');
+    }
+  }
+
+  // --- Transaktion löschen ---
+
+  /// Löscht eine Transaktion via DELETE /api/transaktion/{id}
+  Future<void> deleteTransaktion(String transaktionId) async {
+    final response = await http.delete(Uri.parse('$_baseUrl/transaktion/$transaktionId'));
+
+    if (response.statusCode == 204 || response.statusCode == 200) {
+      return;
+    } else if (response.statusCode == 404) {
+      throw Exception('Transaktion nicht gefunden.');
+    } else {
+      throw Exception('Fehler beim Löschen der Transaktion: Status ${response.statusCode}');
+    }
+  }
 }
+

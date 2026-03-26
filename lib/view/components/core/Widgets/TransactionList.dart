@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reiseplaner/view/components/pages/reisegruppen/edit_transaktion_screen.dart';
 import '../../../../api/models/models.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
@@ -66,6 +67,14 @@ class TransactionList extends StatelessWidget {
           subtitle: '${t.bezahlername} zahlte ${t.gesamtwert.toStringAsFixed(2)} €',
           amount: '$prefix${betrag.toStringAsFixed(2)} €',
           amountColor: farbe,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EditTransaktionScreen(transaktion: t),
+              ),
+            );
+          },
         );
       }).toList(),
       onShowMore: transaktionen.length > previewCount ? () {} : null,
