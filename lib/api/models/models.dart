@@ -134,7 +134,7 @@ class Notizblock {
 class Planer {
   final String id;
   final String name;
-  final List<dynamic> events;
+  final List<Event> events;
 
   Planer({required this.id, required this.name, this.events = const []});
 
@@ -142,10 +142,59 @@ class Planer {
     return Planer(
       id: json['id'] as String,
       name: json['name'] as String,
-      events: json['events'] as List<dynamic>? ?? [],
+      events: (json['events'] as List<dynamic>?)
+              ?.map((e) => Event.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'events': events};
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'events': events.map((e) => e.toJson()).toList(),
+      };
 }
 
+// ── Event ────────────────────────────────────────────────────
+
+class Event {
+  final String id;
+  final String datumStart;
+  final String datumEnde;
+  final String titel;
+  final String? beschreibung;
+  final String? location;
+
+  Event({
+    required this.id,
+    required this.datumStart,
+    required this.datumEnde,
+    required this.titel,
+    this.beschreibung,
+    this.location,
+  });
+
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: json['id'] as String,
+      datumStart: json['datumStart'] as String,
+      datumEnde: json['datumEnde'] as String,
+      titel: json['titel'] as String,
+      beschreibung: json['beschreibung'] as String?,
+      location: json['location'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'datumStart': datumStart,
+        'datumEnde': datumEnde,
+        'titel': titel,
+        'beschreibung': beschreibung,
+        'location': location,
+      };
+
+  @override
+  String toString() => 'Event(id: $id, titel: $titel)';
+}
