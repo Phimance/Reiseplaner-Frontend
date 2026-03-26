@@ -125,6 +125,7 @@ class ReiseHeader extends StatelessWidget {
             ),
               Spacer(),
       ],),
+        SizedBox(width: 24),
         IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 38),
           onPressed: () => _showGruppenAuswahl(context),
