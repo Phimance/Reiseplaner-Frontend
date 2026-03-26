@@ -19,6 +19,10 @@ class AppState extends ChangeNotifier {
   Gruppe? _aktiveGruppe;
   Gruppe? get aktiveGruppe => _aktiveGruppe;
 
+  // ── Events der aktiven Gruppe ─────────────────────────────
+  List<Event> _events = [];
+  List<Event> get events => List.unmodifiable(_events);
+
   // ── Lade-Status ───────────────────────────────────────────
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -57,6 +61,9 @@ class AppState extends ChangeNotifier {
       if (_aktiveGruppe != null && !_gruppen.contains(_aktiveGruppe)) {
         _aktiveGruppe = _gruppen.isNotEmpty ? _gruppen.first : null;
       }
+
+      // Events aus der aktiven Gruppe aktualisieren
+      _events = _aktiveGruppe?.planer?.events ?? [];
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -65,9 +72,10 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  /// Setzt die aktuell aktive Gruppe.
+  /// Setzt die aktuell aktive Gruppe und lädt deren Events.
   void setAktiveGruppe(Gruppe gruppe) {
     _aktiveGruppe = gruppe;
+    _events = gruppe.planer?.events ?? [];
     notifyListeners();
   }
 
@@ -80,5 +88,26 @@ class AppState extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-}
 
+  /// Lädt die Aktivitäten neu (aktualisiert die Gruppen)
+  Future<void> loadActivities() async {
+    await ladeGruppen();
+    
+    // Finde die aktualisierte Gruppe in der neuen Liste
+    if (_aktiveGruppe != null && _gruppen.isNotEmpty) {
+      // Suche die Gruppe mit gleicher ID
+      final updatedGruppe = _gruppen.firstWhere(
+        (g) => g.id == _aktiveGruppe!.id,
+        orElse: () => _gruppen.first,
+      );
+      _aktiveGruppe = updatedGruppe;
+      _events = updatedGruppe.planer?.events ?? [];
+    } else if (_gruppen.isNotEmpty) {
+      _aktiveGruppe = _gruppen.first;
+      _events = _aktiveGruppe?.planer?.events ?? [];
+    } else {
+      _events = [];
+    }
+    notifyListeners();
+  }
+}

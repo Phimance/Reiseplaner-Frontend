@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../api/auth/api_service.dart';
 import '../../../../core/app_state.dart';
-import '../../../../view/theme/app_colors.dart';
+import '../../../theme/app_colors.dart';
 import '../../core/Widgets/Button.dart';
 import '../../core/Widgets/InputField.dart';
 

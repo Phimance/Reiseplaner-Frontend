@@ -81,4 +81,22 @@ class ApiService {
       throw Exception('Fehler beim Laden der Gruppen: Status ${response.statusCode}');
     }
   }
+
+  /// Erstellt ein neues Event für einen Planer
+  /// POST /api/event/fuer-planer/{planerId}
+  Future<dynamic> createEvent(String planerId, Map<String, dynamic> data) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/event/fuer-planer/$planerId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return json.decode(response.body);
+    } else if (response.statusCode == 409) {
+      throw Exception('409 Conflict: ${response.body}');
+    } else {
+      throw Exception('Fehler beim Erstellen: Status ${response.statusCode}');
+    }
+  }
 }

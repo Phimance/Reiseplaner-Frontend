@@ -6,8 +6,11 @@ import 'package:reiseplaner/view/components/pages/home_screen.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 👈 nötig für async vor runApp
+  await initializeDateFormatting('de_DE', null); // 👈 HIER rein
   runApp(const ReiseplanerApp());
 }
 

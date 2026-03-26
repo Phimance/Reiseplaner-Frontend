@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
-import '../../pages/reisegruppen/add_gruppe_screen.dart';
+import '../../pages/add_entity/add_gruppe_screen.dart';
 import 'Button.dart';
 
 class ReiseHeader extends StatelessWidget {
