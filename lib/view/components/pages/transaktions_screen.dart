@@ -60,7 +60,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
               )
             else
               TransactionCard(
-                items: transaktionen.map((t) {
+                items: transaktionen.sublist(0,3).map((t) {
                   return TransactionListItem(
                     icon: Icons.receipt_long,
                     title: t.transaktionsname,

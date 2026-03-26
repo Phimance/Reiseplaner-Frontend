@@ -29,6 +29,12 @@ class _AddTransaktionScreenState extends State<AddTransaktionScreen> {
   String? _bezahler;
   final List<_TransaktionspersonEntry> _transaktionspersonen = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _gesamtwertController.addListener(_verteileAnteile);
+  }
+
   // ── Fehler ────────────────────────────────────────────────
   String? _nameError;
   String? _bezahlerError;
@@ -42,14 +48,29 @@ class _AddTransaktionScreenState extends State<AddTransaktionScreen> {
   // ── Transaktionsperson hinzufügen / entfernen ─────────────
 
   void _addTransaktionsperson() {
-    setState(() => _transaktionspersonen.add(_TransaktionspersonEntry()));
+    setState(() {
+      _transaktionspersonen.add(_TransaktionspersonEntry());
+      _verteileAnteile();
+    });
   }
 
   void _removeTransaktionsperson(int index) {
     setState(() {
       _transaktionspersonen[index].dispose();
       _transaktionspersonen.removeAt(index);
+      _verteileAnteile();
     });
+  }
+
+  /// Verteilt den Gesamtwert gleichmäßig auf alle Transaktionspersonen.
+  void _verteileAnteile() {
+    if (_transaktionspersonen.isEmpty) return;
+    final gesamtwert = double.tryParse(
+        _gesamtwertController.text.trim().replaceAll(',', '.')) ?? 0.0;
+    final anteil = gesamtwert / _transaktionspersonen.length;
+    for (final tp in _transaktionspersonen) {
+      tp.anteilController.text = anteil.toStringAsFixed(2);
+    }
   }
 
   // ── Submit ────────────────────────────────────────────────
@@ -76,6 +97,14 @@ class _AddTransaktionScreenState extends State<AddTransaktionScreen> {
     }
     setState(() => _gesamtwertError = null);
 
+    // Prüfen ob alle Transaktionspersonen einen Schuldner haben
+    for (int i = 0; i < _transaktionspersonen.length; i++) {
+      if (_transaktionspersonen[i].schuldner == null || _transaktionspersonen[i].schuldner!.isEmpty) {
+        setState(() => _anteilError = 'Transaktionsperson ${i + 1} hat keinen Schuldner zugewiesen.');
+        return;
+      }
+    }
+
     // Summe aller Anteile berechnen
     double summeAnteile = 0;
     for (final tp in _transaktionspersonen) {
@@ -84,7 +113,7 @@ class _AddTransaktionScreenState extends State<AddTransaktionScreen> {
     }
 
     // Prüfen ob die Summe der Anteile exakt dem Gesamtwert entspricht
-    if ((summeAnteile - gesamtwert).abs() > 0.009) {
+    if ((summeAnteile - gesamtwert).abs() > (0.01 * _transaktionspersonen.length)) {
       setState(() => _anteilError =
           'Die Summe der Anteile (${summeAnteile.toStringAsFixed(2)} €) '
           'stimmt nicht mit dem Gesamtwert (${gesamtwert.toStringAsFixed(2)} €) überein.');

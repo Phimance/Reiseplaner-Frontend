@@ -35,7 +35,7 @@ class _ReiseButtonState extends State<ReiseButton> {
         height: 56,
         decoration: BoxDecoration(
           color: _pressed ? AppColors.cardHighlighted : AppColors.card,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.cardBorder, width: 2),
           boxShadow: [
             BoxShadow(
