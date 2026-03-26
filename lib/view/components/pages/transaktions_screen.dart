@@ -41,35 +41,35 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
   // 4. Structure: The Build Method
   @override
   Widget build(BuildContext context) {
+    final aktiveGruppe = context.watch<AppState>().aktiveGruppe;
+    final transaktionen = aktiveGruppe?.transaktionen ?? [];
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
         child: Column(
           children: [
-            TransactionCard(
-              items: const [
-                TransactionListItem(
-                  icon: Icons.directions_car_filled_outlined,
-                  title: 'Hin- und Rückflug',
-                  subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                  amount: '250,25€',
+            if (transaktionen.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  'Noch keine Transaktionen vorhanden.',
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
                 ),
-                TransactionListItem(
-                  icon: Icons.directions_car_filled_outlined,
-                  title: 'Hin- und Rückflug',
-                  subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                  amount: '250,25€',
-                ),
-                TransactionListItem(
-                  icon: Icons.directions_car_filled_outlined,
-                  title: 'Hin- und Rückflug',
-                  subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                  amount: '250,25€',
-                ),
-              ],
-              onShowMore: () => print('Mehr anzeigen geklickt'),
-            ),
+              )
+            else
+              TransactionCard(
+                items: transaktionen.map((t) {
+                  return TransactionListItem(
+                    icon: Icons.receipt_long,
+                    title: t.transaktionsname,
+                    subtitle: '${t.bezahlername} zahlte ${t.gesamtwert.toStringAsFixed(2)} €',
+                    amount: '${t.gesamtwert.toStringAsFixed(2)} €',
+                  );
+                }).toList(),
+                onShowMore: transaktionen.length > 3 ? () {} : null,
+              ),
             const SizedBox(height: 12),
             ReiseButton(
               title: 'Ausgabe hinzufügen',
@@ -83,9 +83,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                 );
               },
             ),
-            Text('Planer-ID: ${context.watch<AppState>().aktiveGruppe?.planer?.events.isNotEmpty == true ? context.watch<AppState>().aktiveGruppe!.planer!.events[0].beschreibung : "Keine Events vorhanden"}'),
-            Text('Notizblock-ID: ${context.watch<AppState>().aktiveGruppe?.notizblocks.isNotEmpty == true ? context.watch<AppState>().aktiveGruppe!.notizblocks[0].id : "Kein Notizblock vorhanden"}'),
-          ],
+           ],
         ),
       ),
     );
