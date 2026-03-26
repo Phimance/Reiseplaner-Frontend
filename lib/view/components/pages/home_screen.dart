@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:reiseplaner/view/components/pages/reisegruppen/edit_gruppe_screen.dart';
 import '../../../core/app_state.dart';
 import '../core/Widgets/TransactionListItem.dart';
 import '../core/Widgets/Button.dart';
@@ -38,9 +40,17 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _isLoading = false);
   }
 
+  String _formatDate(String? date) {
+    if (date == null || date.isEmpty) return '';
+    final dt = DateTime.tryParse(date);
+    if (dt == null) return date;
+    return DateFormat('d. MMMM yyyy', 'de').format(dt);
+  }
+
   // 4. Structure: The Build Method
   @override
   Widget build(BuildContext context) {
+    final gruppe = context.watch<AppState>().aktiveGruppe;
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -49,11 +59,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   //test der summary card
                   SummaryCard(
-                    title: 'Eze sur Mer',
-                    dateRange: '15.Juli - 19.Juli 2026',
-                    avatars: const ['P', 'M', 'M','P', 'M', 'M'],
-                    onSettings: () {},
-                  ),
+                    title: gruppe?.location ?? 'Reisegruppe',
+                    dateRange: '${_formatDate(gruppe?.startDate)} - ${_formatDate(gruppe?.endDate)}',
+                    avatars: gruppe?.benutzer
+                            .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
+                            .toList() ??
+                        [],
+                    onSettings: () {
+                      Navigator.push(
+                        context,
+                          MaterialPageRoute(
+                            builder: (_) => EditGruppeScreen(gruppe: gruppe!),
+                          ),
+                        );
+                      },
+                    ),
                   SizedBox(height: 12),
                   TransactionCard(
                     items: const [
