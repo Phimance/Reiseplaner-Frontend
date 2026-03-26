@@ -29,7 +29,7 @@ class TextInputField extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),
@@ -110,7 +110,7 @@ class _DateInputFieldState extends State<DateInputField> {
             child: Text(
               widget.label,
               style: const TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
