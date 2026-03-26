@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/pages/reisegruppen/add_transaktion_screen.dart';
 import 'package:reiseplaner/view/components/pages/reisegruppen/edit_gruppe_screen.dart';
 import '../../../core/app_state.dart';
+import '../core/Widgets/TransactionList.dart';
 import '../core/Widgets/TransactionListItem.dart';
 import '../core/Widgets/Button.dart';
 import 'package:reiseplaner/view/components/core/Widgets/SummaryCard.dart';
@@ -52,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final gruppe = context.watch<AppState>().aktiveGruppe;
+    final transaktionen = gruppe?.transaktionen ?? [];
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -76,37 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
                   SizedBox(height: 12),
-                  TransactionCard(
-                    items: const [
-                      TransactionListItem(
-                        icon: Icons.directions_car_filled_outlined,
-                        title: 'Hin- und Rückflug',
-                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                        amount: '250,25€',
-                      ),
-                      TransactionListItem(
-                        icon: Icons.directions_car_filled_outlined,
-                        title: 'Hin- und Rückflug',
-                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                        amount: '250,25€',
-                      ),
-                      TransactionListItem(
-                        icon: Icons.directions_car_filled_outlined,
-                        title: 'Hin- und Rückflug',
-                        subtitle: 'Phillip zahlte 1001€ am 10.07.2026',
-                        amount: '250,25€',
-                      ),
-                    ],
-                    onShowMore: () => print('Mehr anzeigen geklickt'),
-                  ),
-                  const SizedBox(height: 12),
-                  ReiseButton(
-                    title: 'Ausgabe hinzufügen',
-                    icon: Icons.add,
-                    onPressed: () {
-                      // Aktion hier
-                    },
-                  ),
+                  TransactionList(transaktionen: transaktionen),
                 ],
               ),
             ),

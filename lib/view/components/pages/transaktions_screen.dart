@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/pages/reisegruppen/add_transaktion_screen.dart';
 import '../../../core/app_state.dart';
-import '../core/Widgets/TransactionListItem.dart';
+import '../core/Widgets/TransactionList.dart';
 import '../core/Widgets/Button.dart';
 
 class TransaktionsScreen extends StatefulWidget {
@@ -50,26 +50,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
           : SingleChildScrollView(
         child: Column(
           children: [
-            if (transaktionen.isEmpty)
-              const Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'Noch keine Transaktionen vorhanden.',
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-              )
-            else
-              TransactionCard(
-                items: transaktionen.sublist(0,3).map((t) {
-                  return TransactionListItem(
-                    icon: Icons.receipt_long,
-                    title: t.transaktionsname,
-                    subtitle: '${t.bezahlername} zahlte ${t.gesamtwert.toStringAsFixed(2)} €',
-                    amount: '${t.gesamtwert.toStringAsFixed(2)} €',
-                  );
-                }).toList(),
-                onShowMore: transaktionen.length > 3 ? () {} : null,
-              ),
+            TransactionList(transaktionen: transaktionen),
             const SizedBox(height: 12),
             ReiseButton(
               title: 'Ausgabe hinzufügen',
@@ -83,7 +64,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                 );
               },
             ),
-           ],
+          ],
         ),
       ),
     );
