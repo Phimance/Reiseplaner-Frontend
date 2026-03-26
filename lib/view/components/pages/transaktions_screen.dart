@@ -50,8 +50,6 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
           : SingleChildScrollView(
         child: Column(
           children: [
-            TransactionList(transaktionen: transaktionen),
-            const SizedBox(height: 12),
             ReiseButton(
               title: 'Ausgabe hinzufügen',
               icon: Icons.add,
@@ -64,6 +62,8 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                 );
               },
             ),
+            const SizedBox(height: 12),
+            TransactionList(transaktionen: transaktionen, limitItems: false),
           ],
         ),
       ),

@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   SizedBox(height: 12),
-                  TransactionList(transaktionen: transaktionen),
+                  TransactionList(transaktionen: transaktionen)
                 ],
               ),
             ),

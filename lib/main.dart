@@ -57,6 +57,15 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newIndex = context.watch<AppState>().tabIndex;
+    if (newIndex != _currentIndex) {
+      setState(() => _currentIndex = newIndex);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     const double headerHeight = 92;
     final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
@@ -107,9 +116,7 @@ class _MainScreenState extends State<MainScreen> {
             unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+              context.read<AppState>().setTabIndex(index);
             },
             items: [
               BottomNavigationBarItem(

@@ -9,11 +9,13 @@ import 'TransactionListItem.dart';
 class TransactionList extends StatelessWidget {
   final List<Transaktion> transaktionen;
   final int previewCount;
+  final bool limitItems;
 
   const TransactionList({
     super.key,
     required this.transaktionen,
     this.previewCount = 3,
+    this.limitItems = true,
   });
 
   @override
@@ -30,10 +32,12 @@ class TransactionList extends StatelessWidget {
       );
     }
 
-    final visible = transaktionen.sublist(
-      0,
-      transaktionen.length > previewCount ? previewCount : transaktionen.length,
-    );
+    final visible = limitItems
+        ? transaktionen.sublist(
+            0,
+            transaktionen.length > previewCount ? previewCount : transaktionen.length,
+          )
+        : transaktionen;
 
     return TransactionCard(
       items: visible.map((t) {
@@ -77,7 +81,9 @@ class TransactionList extends StatelessWidget {
           },
         );
       }).toList(),
-      onShowMore: transaktionen.length > previewCount ? () {} : null,
+      onShowMore: limitItems && transaktionen.length > previewCount
+          ? () => context.read<AppState>().setTabIndex(1)
+          : null,
     );
   }
 }
