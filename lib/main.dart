@@ -66,7 +66,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           // Hauptinhalt mit korrektem Abstand
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding),
+            padding: EdgeInsets.only(top: totalTopPadding, left: 16, right: 16),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
