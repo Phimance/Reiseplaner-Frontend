@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/activity_screen.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
+import 'package:reiseplaner/view/components/pages/notes_screen.dart'; // Import für Notizen
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
@@ -48,9 +49,7 @@ class _MainScreenState extends State<MainScreen> {
     const Center(
       child: Text('Bildschirm 2', style: TextStyle(fontSize: 20)),
     ),
-    const Center(
-      child: Text('Bildschirm 3', style: TextStyle(fontSize: 20)),
-    ),
+    const NotesScreen(), // Hier ist dein neuer Notizen-Bildschirm!
     const ActivityScreen(),
     const Center(
       child: Text('Bildschirm 5', style: TextStyle(fontSize: 20)),
@@ -65,9 +64,9 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
+          // Hauptinhalt mit korrektem Abstand
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding, left: 16, right: 16),
+            padding: EdgeInsets.only(top: totalTopPadding),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben

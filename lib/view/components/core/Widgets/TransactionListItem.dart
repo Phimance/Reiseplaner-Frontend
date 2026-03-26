@@ -63,7 +63,7 @@ class TransactionListItem extends StatelessWidget {
   }
 }
 
-/// Ein Container-Widget
+
 class TransactionCard extends StatelessWidget {
   final List<TransactionListItem> items;
   final VoidCallback? onShowMore;
