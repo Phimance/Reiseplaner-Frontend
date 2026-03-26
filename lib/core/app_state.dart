@@ -4,39 +4,54 @@ import '../api/data/notiz_service.dart';
 import '../api/models/gruppe.dart';
 import '../api/models/notiz.dart';
 import '../api/models/notizblock.dart';
+import '../api/models/models.dart';
 
+/// Zentraler App-Zustand – speichert globale Informationen wie
+/// Benutzername, Gruppen-Liste und die aktuell ausgewählte Gruppe.
 class AppState extends ChangeNotifier {
   final ApiService _apiService = ApiService();
   final NotizService _notizService = NotizService();
 
+  // ── Benutzername ──────────────────────────────────────────
   String _benutzername = '';
   String get benutzername => _benutzername;
 
+  // ── Gruppen des Benutzers ─────────────────────────────────
   List<Gruppe> _gruppen = [];
   List<Gruppe> get gruppen => List.unmodifiable(_gruppen);
 
+  // ── Aktuell ausgewählte Gruppe ────────────────────────────
   Gruppe? _aktiveGruppe;
   Gruppe? get aktiveGruppe => _aktiveGruppe;
 
   Notizblock? _aktiverNotizblock;
-  
+
   List<Notiz> _notizen = [];
   List<Notiz> get notizen => List.unmodifiable(_notizen);
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  // ── Fehler ────────────────────────────────────────────────
   String? _error;
   String? get error => _error;
 
+  /// Wird nach dem Login aufgerufen: Setzt den Benutzernamen
+  /// und lädt die Gruppen vom Backend.
   Future<void> initNachLogin(String name) async {
     _benutzername = name;
+    _error = null;
+    notifyListeners();
+
     await ladeGruppen();
   }
 
+  /// Lädt die Gruppen des aktuellen Benutzers vom Backend.
   Future<void> ladeGruppen() async {
     _isLoading = true;
+    _error = null;
     notifyListeners();
+
     try {
       _gruppen = await _apiService.getGruppenByBenutzer(_benutzername);
       if (_aktiveGruppe == null && _gruppen.isNotEmpty) {
@@ -61,7 +76,7 @@ class AppState extends ChangeNotifier {
     try {
       print('Suche Notizblock für Gruppe: ${_aktiveGruppe!.id}');
       _aktiverNotizblock = await _notizService.getNotizblockByGruppe(_aktiveGruppe!.id);
-      
+
       if (_aktiverNotizblock == null) {
         print('Kein Notizblock gefunden, erstelle "Allgemein" für Gruppe ${_aktiveGruppe!.id}');
         _aktiverNotizblock = await _notizService.createNotizblock(_aktiveGruppe!.id, "Allgemein");
@@ -83,9 +98,9 @@ class AppState extends ChangeNotifier {
 
   Future<void> createNotiz(String titel, String inhalt) async {
     if (_aktiverNotizblock == null) {
-      await ladeNotizen(); 
+      await ladeNotizen();
     }
-    
+
     if (_aktiverNotizblock == null) {
       print('Fehler: Kein aktiver Notizblock vorhanden.');
       return;
@@ -100,7 +115,7 @@ class AppState extends ChangeNotifier {
       print('Sende Notiz an API: ${neueNotiz.toJson()}');
       await _notizService.createNotiz(neueNotiz);
       print('Notiz erstellt, lade Liste neu...');
-      await ladeNotizen(); 
+      await ladeNotizen();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -115,6 +130,7 @@ class AppState extends ChangeNotifier {
     await ladeNotizen();
   }
 
+  /// Setzt den gesamten Zustand zurück (z. B. beim Logout).
   void logout() {
     _benutzername = '';
     _gruppen = [];
@@ -124,3 +140,4 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 }
+
