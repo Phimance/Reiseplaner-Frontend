@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../../../api/auth/api_service.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
 import '../../core/Widgets/Button.dart';
@@ -43,14 +45,74 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     }
   }
 
-  void _submitGruppe() {
+  void _submitGruppe() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
       return;
     }
     setState(() => _nameError = null);
-    // TODO: submit logic
+
+    // Datum parsen (TT.MM.JJJJ → yyyy-MM-dd)
+    String? startDate;
+    String? endDate;
+    final dateFormat = DateFormat('dd.MM.yyyy');
+    final apiFormat = DateFormat('yyyy-MM-dd');
+
+    if (_startController.text.trim().isNotEmpty) {
+      try {
+        final parsed = dateFormat.parseStrict(_startController.text.trim());
+        startDate = apiFormat.format(parsed);
+      } catch (_) {
+        // ungültiges Datum ignorieren
+      }
+    }
+    if (_endeController.text.trim().isNotEmpty) {
+      try {
+        final parsed = dateFormat.parseStrict(_endeController.text.trim());
+        endDate = apiFormat.format(parsed);
+      } catch (_) {
+        // ungültiges Datum ignorieren
+      }
+    }
+
+    // Request-Body zusammenbauen
+    final Map<String, dynamic> body = {
+      'name': name,
+      'location': _reiseortController.text.trim().isNotEmpty
+          ? _reiseortController.text.trim()
+          : null,
+      'startDate': startDate,
+      'endDate': endDate,
+      'benutzer': _personen.map((p) => {'name': p}).toList(),
+    };
+
+    try {
+      final apiService = ApiService();
+      await apiService.createGruppe(body);
+
+      // Gruppen im globalen State neu laden
+      if (mounted) {
+        await context.read<AppState>().ladeGruppen();
+        if (mounted) Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        final message = e.toString();
+        // Conflict → Name existiert bereits
+        if (message.contains('409') || message.contains('Conflict')) {
+          setState(() => _nameError =
+              'Eine Gruppe mit dem Namen "$name" existiert bereits.');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Fehler: $message'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
