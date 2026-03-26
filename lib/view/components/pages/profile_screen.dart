@@ -15,7 +15,12 @@ class ProfileScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text("BananaSplit by Phimance inc.", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.normal)),
+            Text("Version 1.0.0", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+            const SizedBox(height: 32),
+            Text("Entwickelt von Phillip Stephan, Oliver Seide, Malte Upmann und Mio Linde \nim Rahmen des Moduls \"Mobile Anwendungen\" der DHGE mit Prof. Dr. Kasche", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
             const Spacer(),
             Divider(color: AppColors.divider, thickness: 1),
             const SizedBox(height: 20),
