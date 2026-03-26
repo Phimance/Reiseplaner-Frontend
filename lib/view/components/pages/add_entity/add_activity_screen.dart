@@ -6,6 +6,7 @@ import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
 import '../../core/Widgets/Button.dart';
 import '../../core/Widgets/InputField.dart';
+
 class AddActivityScreen extends StatefulWidget {
   const AddActivityScreen({super.key});
 
@@ -38,30 +39,55 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     final timeFormat = DateFormat('HH:mm');
     final isoFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    if (_startDatumController.text.trim().isNotEmpty && _startUhrzeitController.text.trim().isNotEmpty) {
+    if (_startDatumController.text.trim().isNotEmpty &&
+        _startUhrzeitController.text.trim().isNotEmpty) {
       try {
         final date = dateFormat.parseStrict(_startDatumController.text.trim());
-        final time = timeFormat.parseStrict(_startUhrzeitController.text.trim());
-        final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        final time = timeFormat.parseStrict(
+          _startUhrzeitController.text.trim(),
+        );
+        final combined = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
         startDateTime = isoFormat.format(combined);
       } catch (_) {}
     }
 
-    if (_endDatumController.text.trim().isNotEmpty && _endUhrzeitController.text.trim().isNotEmpty) {
+    if (_endDatumController.text.trim().isNotEmpty &&
+        _endUhrzeitController.text.trim().isNotEmpty) {
       try {
         final date = dateFormat.parseStrict(_endDatumController.text.trim());
         final time = timeFormat.parseStrict(_endUhrzeitController.text.trim());
-        final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        final combined = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
         endDateTime = isoFormat.format(combined);
       } catch (_) {}
     }
 
     final Map<String, dynamic> body = {
       'titel': name,
-      'beschreibung': _beschreibungController.text.trim().isNotEmpty ? _beschreibungController.text.trim() : null,
-      'location': _locationController.text.trim().isNotEmpty ? _locationController.text.trim() : null,
+      'beschreibung':
+          _beschreibungController.text.trim().isNotEmpty
+              ? _beschreibungController.text.trim()
+              : "Aktivitätsbeschreibung",
+      'location':
+          _locationController.text.trim().isNotEmpty
+              ? _locationController.text.trim()
+              : null,
       'datumStart': startDateTime,
-      'datumEnde': endDateTime,
+      'datumEnde':
+          (endDateTime != null && endDateTime.isNotEmpty)
+              ? endDateTime
+              : startDateTime,
     };
 
     try {
@@ -69,7 +95,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
       if (planerId == null) {
         throw Exception('Keine aktive Gruppe mit Planer ausgewählt.');
       }
-      
+
       final apiService = ApiService();
       await apiService.createEvent(planerId, body);
 
@@ -81,7 +107,11 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
       if (mounted) {
         final message = e.toString();
         if (message.contains('409') || message.contains('Conflict')) {
-          setState(() => _nameError = 'Ein Event mit dem Namen "$name" existiert bereits.');
+          setState(
+            () =>
+                _nameError =
+                    'Ein Event mit dem Namen "$name" existiert bereits.',
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -119,42 +149,99 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SimpleButton(icon: Icons.close, size: 60, onPressed: () => Navigator.pop(context)),
+                  SimpleButton(
+                    icon: Icons.close,
+                    size: 60,
+                    onPressed: () => Navigator.pop(context),
+                  ),
                   const SizedBox(width: 40),
-                  const Text('Event erstellen', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  const Text(
+                    'Event erstellen',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
-              TextInputField(label: 'Name', hint: '', controller: _nameController),
+              TextInputField(
+                label: 'Name',
+                hint: '',
+                controller: _nameController,
+              ),
               if (_nameError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 4, left: 12),
-                  child: Text(_nameError!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                  child: Text(
+                    _nameError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               const SizedBox(height: 18),
-              TextInputField(label: 'Beschreibung', hint: '', controller: _beschreibungController),
+              TextInputField(
+                label: 'Beschreibung',
+                hint: '',
+                controller: _beschreibungController,
+              ),
               const SizedBox(height: 18),
-              TextInputField(label: 'Location', hint: '', controller: _locationController),
+              TextInputField(
+                label: 'Location',
+                hint: '',
+                controller: _locationController,
+              ),
               const SizedBox(height: 18),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: DateInputField(label: 'Start Datum', hint: 'TT.MM.JJJJ', controller: _startDatumController)),
+                  Expanded(
+                    child: DateInputField(
+                      label: 'Start Datum',
+                      hint: 'TT.MM.JJJJ',
+                      controller: _startDatumController,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: TimeInputField(label: 'Start Zeit', hint: 'HH:MM', controller: _startUhrzeitController)),
+                  Expanded(
+                    child: TimeInputField(
+                      label: 'Start Zeit',
+                      hint: 'HH:MM',
+                      controller: _startUhrzeitController,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 18),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: DateInputField(label: 'End Datum', hint: 'TT.MM.JJJJ', controller: _endDatumController)),
+                  Expanded(
+                    child: DateInputField(
+                      label: 'End Datum',
+                      hint: 'TT.MM.JJJJ',
+                      controller: _endDatumController,
+                    ),
+                  ),
                   const SizedBox(width: 12),
-                  Expanded(child: TimeInputField(label: 'End Zeit', hint: 'HH:MM', controller: _endUhrzeitController)),
+                  Expanded(
+                    child: TimeInputField(
+                      label: 'End Zeit',
+                      hint: 'HH:MM',
+                      controller: _endUhrzeitController,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 30),
-              ReiseButton(title: 'Event hinzufügen', icon: Icons.add, onPressed: _submitActivity),
+              ReiseButton(
+                title: 'Event hinzufügen',
+                icon: Icons.add,
+                onPressed: _submitActivity,
+              ),
             ],
           ),
         ),
