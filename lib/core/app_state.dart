@@ -1,9 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../api/auth/api_service.dart';
 import '../api/data/notiz_service.dart';
-import '../api/models/gruppe.dart';
-import '../api/models/notiz.dart';
-import '../api/models/notizblock.dart';
 import '../api/models/models.dart';
 
 /// Zentraler App-Zustand – speichert globale Informationen wie
@@ -117,6 +114,20 @@ class AppState extends ChangeNotifier {
       print('Notiz erstellt, lade Liste neu...');
       await ladeNotizen();
     } catch (e) {
+      print('Fehler beim Erstellen: $e');
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  /// Aktualisiert eine bestehende Notiz (PUT)
+  Future<void> updateNotiz(Notiz notiz) async {
+    try {
+      print('Aktualisiere Notiz ID: ${notiz.id}');
+      await _notizService.updateNotiz(notiz);
+      await ladeNotizen(); // Liste neu laden
+    } catch (e) {
+      print('Fehler beim Aktualisieren: $e');
       _error = e.toString();
       notifyListeners();
     }
@@ -140,4 +151,3 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 }
-

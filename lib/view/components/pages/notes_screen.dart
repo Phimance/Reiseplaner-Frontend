@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/app_state.dart';
+import '../../../api/models/models.dart';
 import '../core/Widgets/NoteCard.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -15,15 +16,20 @@ class _NotesScreenState extends State<NotesScreen> {
   @override
   void initState() {
     super.initState();
-    // Beim ersten Laden der Seite sicherstellen, dass die Daten aktuell sind
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AppState>().ladeNotizen();
     });
   }
 
-  void _showAddNoteModal(BuildContext context) {
-    final titelController = TextEditingController();
-    final inhaltController = TextEditingController();
+  void _showNoteModal(BuildContext context, {Notiz? existingNote}) {
+    final isEditing = existingNote != null;
+    final titelController = TextEditingController(text: existingNote?.name ?? '');
+    final inhaltController = TextEditingController(text: existingNote?.inhalt ?? '');
+
+    // Debugging: ID der Notiz prüfen
+    if (isEditing) {
+      print('Bearbeite Notiz mit ID: ${existingNote.id}');
+    }
 
     showModalBottomSheet(
       context: context,
@@ -44,9 +50,9 @@ class _NotesScreenState extends State<NotesScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Neue Notiz',
-                style: TextStyle(
+              Text(
+                isEditing ? 'Notiz bearbeiten' : 'Neue Notiz',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -89,10 +95,22 @@ class _NotesScreenState extends State<NotesScreen> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (titelController.text.isNotEmpty) {
-                      await context.read<AppState>().createNotiz(
-                            titelController.text,
-                            inhaltController.text,
-                          );
+                      final appState = context.read<AppState>();
+                      if (isEditing) {
+                        // WICHTIG: Die ID muss hier zwingend gesetzt sein!
+                        final updatedNote = Notiz(
+                          id: existingNote.id,
+                          name: titelController.text,
+                          inhalt: inhaltController.text,
+                          notizblockId: existingNote.notizblockId,
+                        );
+                        await appState.updateNotiz(updatedNote);
+                      } else {
+                        await appState.createNotiz(
+                          titelController.text,
+                          inhaltController.text,
+                        );
+                      }
                       if (context.mounted) Navigator.pop(context);
                     }
                   },
@@ -103,9 +121,9 @@ class _NotesScreenState extends State<NotesScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Speichern',
-                    style: TextStyle(
+                  child: Text(
+                    isEditing ? 'Aktualisieren' : 'Speichern',
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -178,6 +196,7 @@ class _NotesScreenState extends State<NotesScreen> {
                                     return NoteCard(
                                       title: notiz.name,
                                       content: notiz.inhalt,
+                                      onTap: () => _showNoteModal(context, existingNote: notiz),
                                     );
                                   },
                                 ),
@@ -189,7 +208,7 @@ class _NotesScreenState extends State<NotesScreen> {
               bottom: 16,
               right: 16,
               child: FloatingActionButton(
-                onPressed: () => _showAddNoteModal(context),
+                onPressed: () => _showNoteModal(context),
                 backgroundColor: const Color(0xFF444444),
                 elevation: 8,
                 shape: RoundedRectangleBorder(

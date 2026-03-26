@@ -1,4 +1,66 @@
-/// Datenmodell für eine Gruppe aus der API.
+// ── Notiz ──────────────────────────────────────────────────
+
+class Notiz {
+  final String? id;
+  final String name;
+  final String inhalt;
+  final String? notizblockId;
+
+  Notiz({
+    this.id,
+    required this.name,
+    required this.inhalt,
+    this.notizblockId,
+  });
+
+  factory Notiz.fromJson(Map<String, dynamic> json) {
+    return Notiz(
+      id: json['id'] as String?,
+      name: (json['name'] ?? '') as String,
+      inhalt: (json['inhalt'] ?? '') as String,
+      notizblockId: json['notizblock'] != null ? json['notizblock']['id'] as String? : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      'name': name,
+      'inhalt': inhalt,
+      if (notizblockId != null) 'notizblock': {'id': notizblockId},
+    };
+  }
+}
+
+// ── Notizblock ────────────────────────────────────────────────
+
+class Notizblock {
+  final String id;
+  final String name;
+  final List<Notiz> notizen;
+
+  Notizblock({required this.id, required this.name, this.notizen = const []});
+
+  factory Notizblock.fromJson(Map<String, dynamic> json) {
+    return Notizblock(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      notizen: (json['notizen'] as List<dynamic>?)
+              ?.map((e) => Notiz.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'id': id, 
+    'name': name, 
+    'notizen': notizen.map((n) => n.toJson()).toList()
+  };
+}
+
+// ── Gruppe ──────────────────────────────────────────────────
+
 class Gruppe {
   final String id;
   final String name;
@@ -109,26 +171,6 @@ class Transaktion {
   Map<String, dynamic> toJson() => raw;
 }
 
-// ── Notizblock ────────────────────────────────────────────────
-
-class Notizblock {
-  final String id;
-  final String name;
-  final List<dynamic> notizen;
-
-  Notizblock({required this.id, required this.name, this.notizen = const []});
-
-  factory Notizblock.fromJson(Map<String, dynamic> json) {
-    return Notizblock(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      notizen: json['notizen'] as List<dynamic>? ?? [],
-    );
-  }
-
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'notizen': notizen};
-}
-
 // ── Planer ────────────────────────────────────────────────────
 
 class Planer {
@@ -148,4 +190,3 @@ class Planer {
 
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'events': events};
 }
-

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/notiz.dart';
-import '../models/notizblock.dart';
+import '../models/models.dart';
 
 class NotizService {
   final String _baseUrl = 'http://ubuntu.p-stephan.de:8081/api';
@@ -47,6 +46,22 @@ class NotizService {
       return Notiz.fromJson(json.decode(response.body));
     }
     throw Exception('Fehler beim Erstellen der Notiz');
+  }
+
+  /// 4) Notiz aktualisieren (PUT)
+  Future<Notiz> updateNotiz(Notiz notiz) async {
+    if (notiz.id == null) throw Exception('Notiz ID fehlt für Update');
+    
+    final response = await http.put(
+      Uri.parse('$_baseUrl/notiz/${notiz.id}'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(notiz.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      return Notiz.fromJson(json.decode(response.body));
+    }
+    throw Exception('Fehler beim Aktualisieren der Notiz: Status ${response.statusCode}');
   }
 
   /// Alle Notizen eines Notizblocks laden

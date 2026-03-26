@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../../api/models/models.dart'; // Geändert auf models.dart
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
 import '../../pages/reisegruppen/add_gruppe_screen.dart';
@@ -57,7 +58,7 @@ class ReiseHeader extends StatelessWidget {
               ),
               const Divider(color: AppColors.divider),
               ...gruppen.map((gruppe) {
-                final isSelected = gruppe == aktive;
+                final isSelected = aktive != null && gruppe.id == aktive.id;
                 return ListTile(
                   leading: Icon(
                     isSelected ? Icons.check_circle : Icons.circle_outlined,
