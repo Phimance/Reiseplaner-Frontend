@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
+import 'package:reiseplaner/view/components/pages/profile_screen.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
@@ -50,9 +51,7 @@ class _MainScreenState extends State<MainScreen> {
     const Center(
       child: Text('Bildschirm 4', style: TextStyle(fontSize: 20)),
     ),
-    const Center(
-      child: Text('Bildschirm 5', style: TextStyle(fontSize: 20)),
-    ),
+    const ProfileScreen(),
   ];
 
   @override
