@@ -25,6 +25,7 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
   // State
   final List<String> _personen = [];
   String? _nameError;
+  String? _dateError;
 
   @override
   void initState() {
@@ -51,28 +52,41 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
       return;
     }
-    setState(() => _nameError = null);
+    setState(() {
+      _nameError = null;
+      _dateError = null;
+    });
 
     // Datum parsen (TT.MM.JJJJ → yyyy-MM-dd)
-    String? startDate;
-    String? endDate;
+    DateTime? startDateTime;
+    DateTime? endDateTime;
+    String? startDateStr;
+    String? endDateStr;
     final dateFormat = DateFormat('dd.MM.yyyy');
     final apiFormat = DateFormat('yyyy-MM-dd');
 
     if (_startController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_startController.text.trim());
-        startDate = apiFormat.format(parsed);
+        startDateTime = dateFormat.parseStrict(_startController.text.trim());
+        startDateStr = apiFormat.format(startDateTime);
       } catch (_) {
         // ungültiges Datum ignorieren
       }
     }
     if (_endeController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_endeController.text.trim());
-        endDate = apiFormat.format(parsed);
+        endDateTime = dateFormat.parseStrict(_endeController.text.trim());
+        endDateStr = apiFormat.format(endDateTime);
       } catch (_) {
         // ungültiges Datum ignorieren
+      }
+    }
+
+    // Validierung: Ende darf nicht vor Start liegen
+    if (startDateTime != null && endDateTime != null) {
+      if (endDateTime.isBefore(startDateTime)) {
+        setState(() => _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+        return;
       }
     }
 
@@ -82,8 +96,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
       'location': _reiseortController.text.trim().isNotEmpty
           ? _reiseortController.text.trim()
           : null,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': startDateStr,
+      'endDate': endDateStr,
       'benutzer': _personen.map((p) => {'name': p}).toList(),
     };
 
@@ -190,6 +204,17 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                   ),
                 ],
               ),
+              if (_dateError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _dateError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               SizedBox(height: 12),
               Divider(),
               SizedBox(height: 30),
@@ -237,25 +262,25 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                                 fontSize: 18,
                               ),
                             ),
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                  ],
-                );
-              }),
-              SizedBox(height: 20),
-              ReiseButton(
-                title: 'Gruppe hinzufügen',
-                icon: Icons.add,
-                onPressed: _submitGruppe,
-              ),
-              // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
-            ],
+                      SizedBox(height: 8),
+                    ],
+                  );
+                }),
+                SizedBox(height: 20),
+                ReiseButton(
+                  title: 'Gruppe hinzufügen',
+                  icon: Icons.add,
+                  onPressed: _submitGruppe,
+                ),
+                // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
-}

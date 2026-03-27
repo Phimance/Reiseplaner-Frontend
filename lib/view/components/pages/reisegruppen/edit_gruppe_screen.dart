@@ -28,6 +28,7 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
   // State
   final List<String> _personen = [];
   String? _nameError;
+  String? _dateError;
 
   @override
   void initState() {
@@ -76,25 +77,38 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
       return;
     }
-    setState(() => _nameError = null);
+    setState(() {
+      _nameError = null;
+      _dateError = null;
+    });
 
     // Datum parsen (TT.MM.JJJJ → yyyy-MM-dd)
-    String? startDate;
-    String? endDate;
+    DateTime? startDateTime;
+    DateTime? endDateTime;
+    String? startDateStr;
+    String? endDateStr;
     final dateFormat = DateFormat('dd.MM.yyyy');
     final apiFormat = DateFormat('yyyy-MM-dd');
 
     if (_startController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_startController.text.trim());
-        startDate = apiFormat.format(parsed);
+        startDateTime = dateFormat.parseStrict(_startController.text.trim());
+        startDateStr = apiFormat.format(startDateTime);
       } catch (_) {}
     }
     if (_endeController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_endeController.text.trim());
-        endDate = apiFormat.format(parsed);
+        endDateTime = dateFormat.parseStrict(_endeController.text.trim());
+        endDateStr = apiFormat.format(endDateTime);
       } catch (_) {}
+    }
+
+    // Validierung: Ende darf nicht vor Start liegen
+    if (startDateTime != null && endDateTime != null) {
+      if (endDateTime.isBefore(startDateTime)) {
+        setState(() => _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+        return;
+      }
     }
 
     final Map<String, dynamic> body = {
@@ -102,8 +116,8 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
       'location': _reiseortController.text.trim().isNotEmpty
           ? _reiseortController.text.trim()
           : null,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': startDateStr,
+      'endDate': endDateStr,
       'benutzer': _personen.map((p) => {'name': p}).toList(),
     };
 
@@ -266,6 +280,17 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                   ),
                 ],
               ),
+              if (_dateError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _dateError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 12),
               const Divider(),
               const SizedBox(height: 30),
@@ -343,4 +368,3 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     );
   }
 }
-
