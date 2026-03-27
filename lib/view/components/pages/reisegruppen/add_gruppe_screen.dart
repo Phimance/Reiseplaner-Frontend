@@ -25,6 +25,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
   // State
   final List<String> _personen = [];
   String? _nameError;
+  String? _personError;
+  bool _isLoadingPerson = false;
 
   @override
   void initState() {
@@ -35,13 +37,37 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     }
   }
 
-  void _addPerson() {
+  void _addPerson() async {
     final name = _personenInputController.text.trim();
-    if (name.isNotEmpty && !_personen.contains(name)) {
-      setState(() {
-        _personen.add(name);
-        _personenInputController.clear();
-      });
+    if (name.isEmpty) return;
+
+    if (_personen.contains(name)) {
+      setState(() => _personError = 'Benutzer ist bereits in der Liste.');
+      return;
+    }
+
+    setState(() {
+      _isLoadingPerson = true;
+      _personError = null;
+    });
+
+    try {
+      final apiService = ApiService();
+      final exists = await apiService.loginBenutzer(name);
+
+      if (exists) {
+        setState(() {
+          _personen.add(name);
+          _personenInputController.clear();
+          _personError = null;
+        });
+      } else {
+        setState(() => _personError = 'Benutzer "$name" existiert nicht.');
+      }
+    } catch (e) {
+      setState(() => _personError = 'Fehler beim Prüfen des Benutzers.');
+    } finally {
+      setState(() => _isLoadingPerson = false);
     }
   }
 
@@ -51,7 +77,10 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
       return;
     }
-    setState(() => _nameError = null);
+
+    setState(() {
+      _nameError = null;
+    });
 
     // Datum parsen (TT.MM.JJJJ → yyyy-MM-dd)
     String? startDate;
@@ -63,17 +92,13 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
       try {
         final parsed = dateFormat.parseStrict(_startController.text.trim());
         startDate = apiFormat.format(parsed);
-      } catch (_) {
-        // ungültiges Datum ignorieren
-      }
+      } catch (_) {}
     }
     if (_endeController.text.trim().isNotEmpty) {
       try {
         final parsed = dateFormat.parseStrict(_endeController.text.trim());
         endDate = apiFormat.format(parsed);
-      } catch (_) {
-        // ungültiges Datum ignorieren
-      }
+      } catch (_) {}
     }
 
     // Request-Body zusammenbauen
@@ -204,9 +229,25 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                 SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  _isLoadingPerson 
+                    ? const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      )
+                    : SimpleButton(icon: Icons.add, onPressed: _addPerson),
                 ],
               ),
+              if (_personError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _personError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               SizedBox(height: 18),
               // here forEach for the Persons
               ..._personen.map((person) {
@@ -251,7 +292,6 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                 icon: Icons.add,
                 onPressed: _submitGruppe,
               ),
-              // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
             ],
           ),
         ),

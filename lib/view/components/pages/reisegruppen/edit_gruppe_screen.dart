@@ -28,6 +28,9 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
   // State
   final List<String> _personen = [];
   String? _nameError;
+  String? _dateError;
+  String? _personError;
+  bool _isLoadingPerson = false;
 
   @override
   void initState() {
@@ -60,13 +63,37 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     }
   }
 
-  void _addPerson() {
+  void _addPerson() async {
     final name = _personenInputController.text.trim();
-    if (name.isNotEmpty && !_personen.contains(name)) {
-      setState(() {
-        _personen.add(name);
-        _personenInputController.clear();
-      });
+    if (name.isEmpty) return;
+
+    if (_personen.contains(name)) {
+      setState(() => _personError = 'Benutzer ist bereits in der Liste.');
+      return;
+    }
+
+    setState(() {
+      _isLoadingPerson = true;
+      _personError = null;
+    });
+
+    try {
+      final apiService = ApiService();
+      final exists = await apiService.loginBenutzer(name);
+
+      if (exists) {
+        setState(() {
+          _personen.add(name);
+          _personenInputController.clear();
+          _personError = null;
+        });
+      } else {
+        setState(() => _personError = 'Benutzer "$name" existiert nicht.');
+      }
+    } catch (e) {
+      setState(() => _personError = 'Fehler beim Prüfen des Benutzers.');
+    } finally {
+      setState(() => _isLoadingPerson = false);
     }
   }
 
@@ -76,25 +103,38 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
       return;
     }
-    setState(() => _nameError = null);
+    setState(() {
+      _nameError = null;
+      _dateError = null;
+    });
 
     // Datum parsen (TT.MM.JJJJ → yyyy-MM-dd)
-    String? startDate;
-    String? endDate;
+    DateTime? startDateTime;
+    DateTime? endDateTime;
+    String? startDateStr;
+    String? endDateStr;
     final dateFormat = DateFormat('dd.MM.yyyy');
     final apiFormat = DateFormat('yyyy-MM-dd');
 
     if (_startController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_startController.text.trim());
-        startDate = apiFormat.format(parsed);
+        startDateTime = dateFormat.parseStrict(_startController.text.trim());
+        startDateStr = apiFormat.format(startDateTime);
       } catch (_) {}
     }
     if (_endeController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_endeController.text.trim());
-        endDate = apiFormat.format(parsed);
+        endDateTime = dateFormat.parseStrict(_endeController.text.trim());
+        endDateStr = apiFormat.format(endDateTime);
       } catch (_) {}
+    }
+
+    // Validierung: Ende darf nicht vor Start liegen
+    if (startDateTime != null && endDateTime != null) {
+      if (endDateTime.isBefore(startDateTime)) {
+        setState(() => _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+        return;
+      }
     }
 
     final Map<String, dynamic> body = {
@@ -102,8 +142,8 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
       'location': _reiseortController.text.trim().isNotEmpty
           ? _reiseortController.text.trim()
           : null,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': startDateStr,
+      'endDate': endDateStr,
       'benutzer': _personen.map((p) => {'name': p}).toList(),
     };
 
@@ -266,6 +306,17 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                   ),
                 ],
               ),
+              if (_dateError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _dateError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 12),
               const Divider(),
               const SizedBox(height: 30),
@@ -280,9 +331,25 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  _isLoadingPerson 
+                    ? const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      )
+                    : SimpleButton(icon: Icons.add, onPressed: _addPerson),
                 ],
               ),
+              if (_personError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _personError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 18),
               ..._personen.map((person) {
                 final isCurrentUser =
@@ -343,4 +410,3 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     );
   }
 }
-
