@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../api/auth/api_service.dart';
+import '../../../../api/models/models.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
 import '../../core/Widgets/Button.dart';
 import '../../core/Widgets/InputField.dart';
 
-class AddGruppeScreen extends StatefulWidget {
-  const AddGruppeScreen({super.key});
+class EditGruppeScreen extends StatefulWidget {
+  final Gruppe gruppe;
+
+  const EditGruppeScreen({super.key, required this.gruppe});
 
   @override
-  State<AddGruppeScreen> createState() => _AddGruppeScreenState();
+  State<EditGruppeScreen> createState() => _EditGruppeScreenState();
 }
 
-class _AddGruppeScreenState extends State<AddGruppeScreen> {
+class _EditGruppeScreenState extends State<EditGruppeScreen> {
   // Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _reiseortController = TextEditingController();
@@ -25,13 +28,36 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
   // State
   final List<String> _personen = [];
   String? _nameError;
+  String? _dateError;
 
   @override
   void initState() {
     super.initState();
-    final benutzername = context.read<AppState>().benutzername;
-    if (benutzername.isNotEmpty) {
-      _personen.add(benutzername);
+
+    // Felder mit bestehenden Daten füllen
+    _nameController.text = widget.gruppe.name;
+    _reiseortController.text = widget.gruppe.location ?? '';
+
+    // Datum konvertieren (yyyy-MM-dd → dd.MM.yyyy)
+    final displayFormat = DateFormat('dd.MM.yyyy');
+    final apiFormat = DateFormat('yyyy-MM-dd');
+
+    if (widget.gruppe.startDate != null && widget.gruppe.startDate!.isNotEmpty) {
+      try {
+        final parsed = apiFormat.parseStrict(widget.gruppe.startDate!);
+        _startController.text = displayFormat.format(parsed);
+      } catch (_) {}
+    }
+    if (widget.gruppe.endDate != null && widget.gruppe.endDate!.isNotEmpty) {
+      try {
+        final parsed = apiFormat.parseStrict(widget.gruppe.endDate!);
+        _endeController.text = displayFormat.format(parsed);
+      } catch (_) {}
+    }
+
+    // Personen aus der Gruppe laden
+    for (final b in widget.gruppe.benutzer) {
+      _personen.add(b.name);
     }
   }
 
@@ -45,53 +71,60 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     }
   }
 
-  void _submitGruppe() async {
+  void _submitUpdate() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
       return;
     }
-    setState(() => _nameError = null);
+    setState(() {
+      _nameError = null;
+      _dateError = null;
+    });
 
     // Datum parsen (TT.MM.JJJJ → yyyy-MM-dd)
-    String? startDate;
-    String? endDate;
+    DateTime? startDateTime;
+    DateTime? endDateTime;
+    String? startDateStr;
+    String? endDateStr;
     final dateFormat = DateFormat('dd.MM.yyyy');
     final apiFormat = DateFormat('yyyy-MM-dd');
 
     if (_startController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_startController.text.trim());
-        startDate = apiFormat.format(parsed);
-      } catch (_) {
-        // ungültiges Datum ignorieren
-      }
+        startDateTime = dateFormat.parseStrict(_startController.text.trim());
+        startDateStr = apiFormat.format(startDateTime);
+      } catch (_) {}
     }
     if (_endeController.text.trim().isNotEmpty) {
       try {
-        final parsed = dateFormat.parseStrict(_endeController.text.trim());
-        endDate = apiFormat.format(parsed);
-      } catch (_) {
-        // ungültiges Datum ignorieren
+        endDateTime = dateFormat.parseStrict(_endeController.text.trim());
+        endDateStr = apiFormat.format(endDateTime);
+      } catch (_) {}
+    }
+
+    // Validierung: Ende darf nicht vor Start liegen
+    if (startDateTime != null && endDateTime != null) {
+      if (endDateTime.isBefore(startDateTime)) {
+        setState(() => _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+        return;
       }
     }
 
-    // Request-Body zusammenbauen
     final Map<String, dynamic> body = {
       'name': name,
       'location': _reiseortController.text.trim().isNotEmpty
           ? _reiseortController.text.trim()
           : null,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': startDateStr,
+      'endDate': endDateStr,
       'benutzer': _personen.map((p) => {'name': p}).toList(),
     };
 
     try {
       final apiService = ApiService();
-      await apiService.createGruppe(body);
+      await apiService.updateGruppe(widget.gruppe.id, body);
 
-      // Gruppen im globalen State neu laden
       if (mounted) {
         await context.read<AppState>().ladeGruppen();
         if (mounted) Navigator.pop(context);
@@ -99,7 +132,6 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     } catch (e) {
       if (mounted) {
         final message = e.toString();
-        // Conflict → Name existiert bereits
         if (message.contains('409') || message.contains('Conflict')) {
           setState(() => _nameError =
               'Eine Gruppe mit dem Namen "$name" existiert bereits.');
@@ -111,6 +143,58 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
             ),
           );
         }
+      }
+    }
+  }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Gruppe löschen',
+            style: TextStyle(color: AppColors.textPrimary)),
+        content: Text(
+          'Möchtest du "${widget.gruppe.name}" wirklich löschen? '
+          'Alle Transaktionen, Notizen und Events gehen verloren.',
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Abbrechen',
+                style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _deleteGruppe();
+            },
+            child: const Text('Löschen',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteGruppe() async {
+    try {
+      final apiService = ApiService();
+      await apiService.deleteGruppe(widget.gruppe.id);
+
+      if (mounted) {
+        await context.read<AppState>().ladeGruppen();
+        if (mounted) Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     }
   }
@@ -145,7 +229,7 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                   ),
                   const SizedBox(width: 40),
                   const Text(
-                    'Reisegruppe erstellen',
+                    'Gruppe bearbeiten',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -182,35 +266,52 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: DateInputField(label: 'Start', hint: 'TT.MM.JJJJ', controller: _startController),
+                    child: DateInputField(
+                        label: 'Start',
+                        hint: 'TT.MM.JJJJ',
+                        controller: _startController),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: DateInputField(label: 'Ende', hint: 'TT.MM.JJJJ', controller: _endeController),
+                    child: DateInputField(
+                        label: 'Ende',
+                        hint: 'TT.MM.JJJJ',
+                        controller: _endeController),
                   ),
                 ],
               ),
-              SizedBox(height: 12),
-              Divider(),
-              SizedBox(height: 30),
+              if (_dateError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _dateError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 12),
+              const Divider(),
+              const SizedBox(height: 30),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    child:  TextInputField(
+                    child: TextInputField(
                       label: 'Person hinzufügen',
                       hint: '',
                       controller: _personenInputController,
                     ),
                   ),
                   const SizedBox(width: 12),
-                 SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  SimpleButton(icon: Icons.add, onPressed: _addPerson),
                 ],
               ),
-              SizedBox(height: 18),
-              // here forEach for the Persons
+              const SizedBox(height: 18),
               ..._personen.map((person) {
-                final isCurrentUser = person == context.read<AppState>().benutzername;
+                final isCurrentUser =
+                    person == context.read<AppState>().benutzername;
                 return Column(
                   children: [
                     Padding(
@@ -225,7 +326,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                               size: 44,
                               onPressed: isCurrentUser
                                   ? () {}
-                                  : () => setState(() => _personen.remove(person)),
+                                  : () =>
+                                      setState(() => _personen.remove(person)),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -241,17 +343,24 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                   ],
                 );
               }),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ReiseButton(
-                title: 'Gruppe hinzufügen',
-                icon: Icons.add,
-                onPressed: _submitGruppe,
+                title: 'Änderungen speichern',
+                icon: Icons.check,
+                onPressed: _submitUpdate,
+                floatLeft: true,
               ),
-              // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
+              const SizedBox(height: 12),
+              ReiseButton(
+                title: 'Gruppe löschen',
+                icon: Icons.delete_outline,
+                onPressed: _confirmDelete,
+                floatLeft: true,
+              ),
             ],
           ),
         ),

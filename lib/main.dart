@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
+import 'package:reiseplaner/view/components/pages/activity_screen.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
 import 'package:reiseplaner/view/components/pages/notes_screen.dart'; // Import für Notizen
+import 'package:reiseplaner/view/components/pages/transaktions_screen.dart';
+import 'package:reiseplaner/view/components/pages/profile_screen.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // 👈 nötig für async vor runApp
+  await initializeDateFormatting('de_DE', null); // 👈 HIER rein
   runApp(const ReiseplanerApp());
 }
 
@@ -40,32 +47,34 @@ class _MainScreenState extends State<MainScreen> {
   double standardIconSize = 28;
   double highlightedIconSize = 34;
 
+  final List<Widget> _screens = [
+    const HomeScreen(),
+    const TransaktionsScreen(),
+    const NotesScreen(),
+    const ActivityScreen(),
+    const ProfileScreen(),
+  ];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newIndex = context.watch<AppState>().tabIndex;
+    if (newIndex != _currentIndex) {
+      setState(() => _currentIndex = newIndex);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const double headerHeight = 72;
-    // Gesamtes oberes Padding inkl. Statusleiste
+    const double headerHeight = 92;
     final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
-
-    final List<Widget> _screens = [
-      const HomeScreen(),
-      const Center(
-        child: Text('Bildschirm 2 (Vergleich)', style: TextStyle(fontSize: 20)),
-      ),
-      const NotesScreen(),
-      const Center(
-        child: Text('Bildschirm 4 (Kalender)', style: TextStyle(fontSize: 20)),
-      ),
-      const Center(
-        child: Text('Bildschirm 5 (Profil)', style: TextStyle(fontSize: 20)),
-      ),
-    ];
 
     return Scaffold(
       body: Stack(
         children: [
           // Hauptinhalt mit korrektem Abstand
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding),
+            padding: EdgeInsets.only(top: totalTopPadding, left: 16, right: 16),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
@@ -106,9 +115,7 @@ class _MainScreenState extends State<MainScreen> {
             unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             onTap: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
+              context.read<AppState>().setTabIndex(index);
             },
             items: [
               BottomNavigationBarItem(

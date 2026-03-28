@@ -26,6 +26,11 @@ class AppState extends ChangeNotifier {
   List<Notiz> _notizen = [];
   List<Notiz> get notizen => List.unmodifiable(_notizen);
 
+  // ── Events der aktiven Gruppe ─────────────────────────────
+  List<Event> _events = [];
+  List<Event> get events => List.unmodifiable(_events);
+
+  // ── Lade-Status ───────────────────────────────────────────
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -50,13 +55,25 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _gruppen = await _apiService.getGruppenByBenutzer(_benutzername);
+      final gruppenResult = await _apiService.getGruppenByBenutzer(_benutzername);
+      _gruppen = gruppenResult;
+
+      // Aktive Gruppe per ID wiederfinden (nach Reload ist es ein neues Objekt)
+      if (_aktiveGruppe != null) {
+        final gefunden = _gruppen.where((g) => g.id == _aktiveGruppe!.id);
+        _aktiveGruppe = gefunden.isNotEmpty ? gefunden.first : null;
+      }
+
+      // Wenn immer noch keine aktive Gruppe → erste nehmen
       if (_aktiveGruppe == null && _gruppen.isNotEmpty) {
         await setAktiveGruppe(_gruppen.first);
       } else if (_aktiveGruppe != null) {
         // Notizen für die bereits aktive Gruppe laden (z.B. nach Refresh)
         await ladeNotizen();
       }
+
+      // Events aus der aktiven Gruppe aktualisieren
+      _events = _aktiveGruppe?.planer?.events ?? [];
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -65,6 +82,7 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// Setzt die aktuell aktive Gruppe und lädt deren Events.
   Future<void> ladeNotizen() async {
     if (_aktiveGruppe == null) return;
     _isLoading = true;
@@ -85,12 +103,20 @@ class AppState extends ChangeNotifier {
         print('Anzahl Notizen geladen: ${_notizen.length}');
       }
     } catch (e) {
-      print('Fehler im ladeNotizen: $e');
       _error = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ── Navigation ────────────────────────────────────────────
+  int _tabIndex = 0;
+  int get tabIndex => _tabIndex;
+
+  void setTabIndex(int index) {
+    _tabIndex = index;
+    notifyListeners();
   }
 
   Future<void> createNotiz(String titel, String inhalt) async {
@@ -148,10 +174,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> setAktiveGruppe(Gruppe gruppe) async {
     _aktiveGruppe = gruppe;
-    _notizen = [];
-    _aktiverNotizblock = null;
     notifyListeners();
-    await ladeNotizen();
   }
 
   /// Setzt den gesamten Zustand zurück (z. B. beim Logout).
@@ -163,4 +186,49 @@ class AppState extends ChangeNotifier {
     _aktiverNotizblock = null;
     notifyListeners();
   }
+
+  /// Lädt die Aktivitäten neu (aktualisiert die Gruppen)
+  Future<void> loadActivities() async {
+    await ladeGruppen();
+
+    // Finde die aktualisierte Gruppe in der neuen Liste
+    if (_aktiveGruppe != null && _gruppen.isNotEmpty) {
+      // Suche die Gruppe mit gleicher ID
+      final updatedGruppe = _gruppen.firstWhere(
+        (g) => g.id == _aktiveGruppe!.id,
+        orElse: () => _gruppen.first,
+      );
+      _aktiveGruppe = updatedGruppe;
+      _events = updatedGruppe.planer?.events ?? [];
+    } else if (_gruppen.isNotEmpty) {
+      _aktiveGruppe = _gruppen.first;
+      _events = _aktiveGruppe?.planer?.events ?? [];
+    } else {
+      _events = [];
+    }
+    notifyListeners();
+  }
+
+  Future<void> updateEvent(String eventId, Map<String, dynamic> data) async {
+    try {
+      await _apiService.updateEvent(eventId, data);
+      await loadActivities();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEvent(String eventId) async {
+    try {
+      await _apiService.deleteEvent(eventId);
+      await loadActivities();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
 }
+
