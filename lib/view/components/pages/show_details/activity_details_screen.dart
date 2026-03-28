@@ -48,7 +48,6 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 					Expanded(
 					  child: ElevatedButton.icon(
 						onPressed: () {
-						  Navigator.pop(sheetContext);
 						  Navigator.push(
 							context,
 							MaterialPageRoute(

@@ -113,7 +113,12 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
         await appState.loadActivities();
       }
 
-      if (mounted) Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context); // Edit-Screen schließen
+        if (widget.existingEvent != null) {
+          Navigator.pop(context); // Detail-Sheet schließen
+        }
+      }
     } catch (e) {
       if (mounted) {
         final message = e.toString();
