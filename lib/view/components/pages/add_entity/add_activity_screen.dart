@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import '../../../../api/models/models.dart';
 import '../../../../api/auth/api_service.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
@@ -8,7 +9,9 @@ import '../../core/Widgets/Button.dart';
 import '../../core/Widgets/InputField.dart';
 
 class AddActivityScreen extends StatefulWidget {
-  const AddActivityScreen({super.key});
+  final Event? existingEvent;
+
+  const AddActivityScreen({super.key, this.existingEvent});
 
   @override
   State<AddActivityScreen> createState() => _AddActivityScreenState();
@@ -24,6 +27,29 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
   final TextEditingController _endUhrzeitController = TextEditingController();
 
   String? _nameError;
+
+  @override
+  void initState() {
+    super.initState();
+    final event = widget.existingEvent;
+    if (event == null) return;
+
+    _nameController.text = event.titel;
+    _beschreibungController.text = event.beschreibung ?? '';
+    _locationController.text = event.location ?? '';
+
+    try {
+      final start = DateTime.parse(event.datumStart);
+      _startDatumController.text = DateFormat('dd.MM.yyyy').format(start);
+      _startUhrzeitController.text = DateFormat('HH:mm').format(start);
+    } catch (_) {}
+
+    try {
+      final ende = DateTime.parse(event.datumEnde);
+      _endDatumController.text = DateFormat('dd.MM.yyyy').format(ende);
+      _endUhrzeitController.text = DateFormat('HH:mm').format(ende);
+    } catch (_) {}
+  }
 
   void _submitActivity() async {
     final name = _nameController.text.trim();
@@ -43,16 +69,8 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
         _startUhrzeitController.text.trim().isNotEmpty) {
       try {
         final date = dateFormat.parseStrict(_startDatumController.text.trim());
-        final time = timeFormat.parseStrict(
-          _startUhrzeitController.text.trim(),
-        );
-        final combined = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
+        final time = timeFormat.parseStrict(_startUhrzeitController.text.trim());
+        final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
         startDateTime = isoFormat.format(combined);
       } catch (_) {}
     }
@@ -62,62 +80,48 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
       try {
         final date = dateFormat.parseStrict(_endDatumController.text.trim());
         final time = timeFormat.parseStrict(_endUhrzeitController.text.trim());
-        final combined = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
+        final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
         endDateTime = isoFormat.format(combined);
       } catch (_) {}
     }
 
     final Map<String, dynamic> body = {
       'titel': name,
-      'beschreibung':
-          _beschreibungController.text.trim().isNotEmpty
-              ? _beschreibungController.text.trim()
-              : "Aktivitätsbeschreibung",
-      'location':
-          _locationController.text.trim().isNotEmpty
-              ? _locationController.text.trim()
-              : null,
+      'beschreibung': _beschreibungController.text.trim().isNotEmpty
+          ? _beschreibungController.text.trim()
+          : 'Aktivitätsbeschreibung',
+      'location': _locationController.text.trim().isNotEmpty
+          ? _locationController.text.trim()
+          : null,
       'datumStart': startDateTime,
-      'datumEnde':
-          (endDateTime != null && endDateTime.isNotEmpty)
-              ? endDateTime
-              : startDateTime,
+      'datumEnde': (endDateTime != null && endDateTime.isNotEmpty)
+          ? endDateTime
+          : startDateTime,
     };
 
     try {
-      final planerId = context.read<AppState>().aktiveGruppe?.planer?.id;
-      if (planerId == null) {
-        throw Exception('Keine aktive Gruppe mit Planer ausgewählt.');
+      final appState = context.read<AppState>();
+
+      if (widget.existingEvent != null) {
+        await appState.updateEvent(widget.existingEvent!.id, body);
+      } else {
+        final planerId = await appState.getAktivePlanerId();
+        if (planerId == null) {
+          throw Exception('Keine aktive Gruppe mit Planer ausgewählt.');
+        }
+        await ApiService().createEvent(planerId, body);
+        await appState.loadActivities();
       }
 
-      final apiService = ApiService();
-      await apiService.createEvent(planerId, body);
-
-      if (mounted) {
-        await context.read<AppState>().loadActivities();
-        if (mounted) Navigator.pop(context);
-      }
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         final message = e.toString();
         if (message.contains('409') || message.contains('Conflict')) {
-          setState(
-            () =>
-                _nameError =
-                    'Ein Event mit dem Namen "$name" existiert bereits.',
-          );
+          setState(() => _nameError = 'Ein Event mit dem Namen "$name" existiert bereits.');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Fehler: $message'),
-              backgroundColor: AppColors.error,
-            ),
+            SnackBar(content: Text('Fehler: $message'), backgroundColor: AppColors.error),
           );
         }
       }
@@ -138,6 +142,8 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.existingEvent != null;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -155,8 +161,8 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const SizedBox(width: 40),
-                  const Text(
-                    'Event erstellen',
+                  Text(
+                    isEditing ? 'Event bearbeiten' : 'Event erstellen',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -238,8 +244,8 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
               ),
               const SizedBox(height: 30),
               ReiseButton(
-                title: 'Event hinzufügen',
-                icon: Icons.add,
+                title: isEditing ? 'Event speichern' : 'Event hinzufügen',
+                icon: isEditing ? Icons.save : Icons.add,
                 onPressed: _submitActivity,
               ),
             ],

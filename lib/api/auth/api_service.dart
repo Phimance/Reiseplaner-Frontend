@@ -82,6 +82,17 @@ class ApiService {
     }
   }
 
+  /// Lädt eine einzelne Gruppe über ihre ID.
+  Future<Gruppe> getGruppeById(String gruppenId) async {
+    final response = await http.get(Uri.parse('$_baseUrl/gruppe/$gruppenId'));
+
+    if (response.statusCode == 200) {
+      return Gruppe.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    } else {
+      throw Exception('Fehler beim Laden der Gruppe: Status ${response.statusCode}');
+    }
+  }
+
   /// Erstellt ein neues Event für einen Planer
   /// POST /api/event/fuer-planer/{planerId}
   Future<dynamic> createEvent(String planerId, Map<String, dynamic> data) async {
@@ -97,6 +108,32 @@ class ApiService {
       throw Exception('409 Conflict: ${response.body}');
     } else {
       throw Exception('Fehler beim Erstellen: Status ${response.statusCode}');
+    }
+  }
+
+  /// Aktualisiert ein Event
+  /// PUT /api/event/{eventId}
+  Future<dynamic> updateEvent(String eventId, Map<String, dynamic> data) async {
+    final response = await http.put(
+      Uri.parse('$_baseUrl/event/$eventId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(data),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Fehler beim Aktualisieren: Status ${response.statusCode}');
+    }
+  }
+
+  /// Loescht ein Event
+  /// DELETE /api/event/{eventId}
+  Future<void> deleteEvent(String eventId) async {
+    final response = await http.delete(Uri.parse('$_baseUrl/event/$eventId'));
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Fehler beim Loeschen: Status ${response.statusCode}');
     }
   }
 }

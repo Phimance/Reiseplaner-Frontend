@@ -151,6 +151,27 @@ class AppState extends ChangeNotifier {
     await ladeNotizen();
   }
 
+  /// Liefert die Planer-ID der aktiven Gruppe.
+  /// Falls sie im Listenobjekt fehlt, wird die Gruppe als Detail nachgeladen.
+  Future<String?> getAktivePlanerId() async {
+    final aktuelle = _aktiveGruppe;
+    if (aktuelle == null) return null;
+
+    if (aktuelle.planer?.id != null) {
+      return aktuelle.planer!.id;
+    }
+
+    try {
+      final detaillierteGruppe = await _apiService.getGruppeById(aktuelle.id);
+      _aktiveGruppe = detaillierteGruppe;
+      _events = detaillierteGruppe.planer?.events ?? [];
+      notifyListeners();
+      return detaillierteGruppe.planer?.id;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Setzt den gesamten Zustand zurück (z. B. beim Logout).
   void logout() {
     _benutzername = '';
@@ -181,5 +202,27 @@ class AppState extends ChangeNotifier {
       _events = [];
     }
     notifyListeners();
+  }
+
+  Future<void> updateEvent(String eventId, Map<String, dynamic> data) async {
+    try {
+      await _apiService.updateEvent(eventId, data);
+      await loadActivities();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEvent(String eventId) async {
+    try {
+      await _apiService.deleteEvent(eventId);
+      await loadActivities();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
   }
 }

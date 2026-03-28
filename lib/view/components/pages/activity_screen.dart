@@ -6,6 +6,7 @@ import '../../../core/app_state.dart';
 import '../core/Widgets/activity_widgets/activity_item.dart';
 import '../core/Widgets/activity_widgets/activity_section.dart';
 import 'add_entity/add_activity_screen.dart';
+import 'show_details/activity_details_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ActivityScreen extends StatefulWidget {
@@ -36,6 +37,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             title: event.titel,
             date: event.datumStart.split('T')[1].substring(0, 5),
             location: event.location,
+            onTap: () => showActivityDetailsSheet(context, event),
           ),
         );
       } catch (_) {
