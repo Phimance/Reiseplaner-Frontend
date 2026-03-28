@@ -3,7 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/StatSummaryTile.dart';
 import 'package:reiseplaner/view/components/pages/reisegruppen/edit_gruppe_screen.dart';
+import 'package:reiseplaner/view/components/pages/reisegruppen/add_gruppe_screen.dart';
 import '../../../core/app_state.dart';
+import '../../theme/app_colors.dart';
+import '../core/Widgets/Button.dart';
 import '../core/Widgets/TransactionList.dart';
 import 'package:reiseplaner/view/components/core/Widgets/SummaryCard.dart';
 
@@ -15,28 +18,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // 1. Logic: Variables & State
   bool _isLoading = false;
 
-  // 2. Logic: Lifecycle Methods
   @override
   void initState() {
     super.initState();
     _loadInitialData();
   }
 
-  @override
-  void dispose() {
-    // Clean up controllers or listeners here
-    super.dispose();
-  }
-
-  // 3. Logic: Functional Methods
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
-
-    // Add your data fetching or logic here
-
+    // Daten-Fetching Logik hier
     setState(() => _isLoading = false);
   }
 
@@ -78,68 +70,127 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // 4. Structure: The Build Method
   @override
   Widget build(BuildContext context) {
-    final gruppe = context.watch<AppState>().aktiveGruppe;
-    final transaktionen = gruppe?.transaktionen ?? [];
-    final benutzername = context.read<AppState>().benutzername;
+    final appState = context.watch<AppState>();
+    final gruppe = appState.aktiveGruppe;
+
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (gruppe == null) {
+      return const EmptyTripState();
+    }
+
+    final transaktionen = gruppe.transaktionen;
+    final benutzername = appState.benutzername;
     final saldo = _berechneSaldo(transaktionen, benutzername);
     final saldoText = '${saldo >= 0 ? '+' : ''}${saldo.toStringAsFixed(2)} €';
-    final tageInfo = _berechneTage(gruppe?.startDate, gruppe?.endDate);
-    /* final eventsLeft = gruppe?.events.where((e) {
-      final eventDate = DateTime.tryParse(e.datum);
-      return eventDate != null && eventDate.isAfter(DateTime.now());
-    }).length ?? 0; */
-    return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Column(
-                children: [
-                  //test der summary card
-                  SummaryCard(
-                    title: gruppe?.location ?? 'Reisegruppe',
-                    dateRange: '${_formatDate(gruppe?.startDate)} - ${_formatDate(gruppe?.endDate)}',
-                    avatars: gruppe?.benutzer
-                            .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
-                            .toList() ??
-                        [],
-                    onSettings: () {
-                      Navigator.push(
-                        context,
-                          MaterialPageRoute(
-                            builder: (_) => EditGruppeScreen(gruppe: gruppe!),
-                          ),
-                        );
-                      },
-                    ),
-                  SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Expanded(child:
-                        StatSummaryTile(
-                          icon: saldo >= 0 ? Icons.trending_up : Icons.trending_down,
-                          value: saldoText,
-                          label: 'Mein Saldo',
-                        ),
-                      ),
-                      SizedBox(width: 12),
-                      StatSummaryTile(
-                        icon: Icons.access_time_outlined,
-                        value: tageInfo.tage.toString(),
-                        label: tageInfo.label,
-                      ),
-                      SizedBox(width: 12),
-                      StatSummaryTile(icon: Icons.calendar_today_outlined, value: "", label: "Events"),
-                    ],
-                  ),
-                  SizedBox(height: 12),
-                  TransactionList(transaktionen: transaktionen)
-                ],
+    final tageInfo = _berechneTage(gruppe.startDate, gruppe.endDate);
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SummaryCard(
+            title: (gruppe.location != null && gruppe.location!.isNotEmpty) 
+                ? gruppe.location! 
+                : gruppe.name,
+            dateRange: '${_formatDate(gruppe.startDate)} - ${_formatDate(gruppe.endDate)}',
+            avatars: gruppe.benutzer
+                    .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
+                    .toList(),
+            onSettings: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditGruppeScreen(gruppe: gruppe),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: StatSummaryTile(
+                  icon: saldo >= 0 ? Icons.trending_up : Icons.trending_down,
+                  value: saldoText,
+                  label: 'Mein Saldo',
+                ),
+              ),
+              const SizedBox(width: 12),
+              StatSummaryTile(
+                icon: Icons.access_time_outlined,
+                value: tageInfo.tage.toString(),
+                label: tageInfo.label,
+              ),
+              const SizedBox(width: 12),
+              const StatSummaryTile(
+                icon: Icons.calendar_today_outlined,
+                value: "",
+                label: "Events",
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TransactionList(transaktionen: transaktionen)
+        ],
+      ),
+    );
+  }
+}
+
+class EmptyTripState extends StatelessWidget {
+  const EmptyTripState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.explore_outlined,
+              size: 64,
+              color: AppColors.textSecondary,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Keine Reise in Sicht',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
             ),
+            const SizedBox(height: 12),
+            const Text(
+              'Erstelle eine neue Reisegruppe oder tritt einer bestehenden bei.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ReiseButton(
+              title: 'Reisegruppe hinzufügen',
+              icon: Icons.add_circle_outline,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AddGruppeScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
