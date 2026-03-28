@@ -216,7 +216,7 @@ class _NotesScreenState extends State<NotesScreen> {
                   side: const BorderSide(color: Color(0xFF666666), width: 1),
                 ),
                 child: SvgPicture.asset(
-                  'assets/icons/pen-icon.svg',
+                  'icons/pen-icon.svg',
                   width: 30,
                   height: 30,
                 ),

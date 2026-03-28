@@ -203,7 +203,7 @@ class _TimeInputFieldState extends State<TimeInputField> {
           child: Text(
             widget.label,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: AppColors.textPrimary,
             ),

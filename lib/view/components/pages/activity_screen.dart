@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/activity_widgets/section_list.dart';
 import '../../../core/app_state.dart';
+import '../../theme/app_colors.dart';
 import '../core/Widgets/activity_widgets/activity_item.dart';
 import '../core/Widgets/activity_widgets/activity_section.dart';
 import 'add_entity/add_activity_screen.dart';
@@ -84,11 +85,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFF666666), width: 1),
         ),
-        child: SvgPicture.asset(
-          'assets/icons/pen-icon.svg',
-          width: 30,
-          height: 30,
-        ),
+        child: Icon(Icons.add_box_outlined, size: 30, color: AppColors.primary)
       ),
     );
   }
