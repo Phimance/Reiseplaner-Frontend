@@ -12,7 +12,7 @@ class ReiseButton extends StatefulWidget {
     required this.title,
     required this.icon,
     required this.onPressed,
-    this.floatLeft = false
+    this.floatLeft = false,
   });
 
   @override
@@ -48,35 +48,39 @@ class _ReiseButtonState extends State<ReiseButton> {
           ],
         ),
         child: Row(
-          mainAxisAlignment: widget.floatLeft ? MainAxisAlignment.start : MainAxisAlignment.center,
+          mainAxisAlignment:
+              widget.floatLeft ? MainAxisAlignment.start : MainAxisAlignment.center,
           children: [
-            widget.floatLeft ? Row(
-              children: [
-                const SizedBox(width: 16),
-                Icon(widget.icon, size: 32, color: AppColors.primary),
-                const SizedBox(width: 16),
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ],) : Row(
-              children: [
-                Text(
-                  widget.title,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(widget.icon, size: 32, color: AppColors.textPrimary),
-              ],
-            )
+            widget.floatLeft
+                ? Row(
+                    children: [
+                      const SizedBox(width: 16),
+                      Icon(widget.icon, size: 32, color: AppColors.primary),
+                      const SizedBox(width: 16),
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(widget.icon, size: 32, color: AppColors.textPrimary),
+                    ],
+                  )
           ],
         ),
       ),
@@ -88,12 +92,14 @@ class SimpleButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onPressed;
   final double size;
+  final bool isLoading;
 
   const SimpleButton({
     super.key,
     required this.icon,
     required this.onPressed,
     this.size = 56,
+    this.isLoading = false,
   });
 
   @override
@@ -106,12 +112,14 @@ class _SimpleButtonState extends State<SimpleButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onPressed();
-      },
-      onTapCancel: () => setState(() => _pressed = false),
+      onTapDown: widget.isLoading ? null : (_) => setState(() => _pressed = true),
+      onTapUp: widget.isLoading
+          ? null
+          : (_) {
+              setState(() => _pressed = false);
+              widget.onPressed();
+            },
+      onTapCancel: widget.isLoading ? null : () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         width: widget.size,
@@ -128,7 +136,22 @@ class _SimpleButtonState extends State<SimpleButton> {
             ),
           ],
         ),
-        child: Icon(widget.icon, size: widget.size * 0.65, color: AppColors.primary),
+        child: Center(
+          child: widget.isLoading
+              ? SizedBox(
+                  width: widget.size * 0.5,
+                  height: widget.size * 0.5,
+                  child: const CircularProgressIndicator(
+                    color: AppColors.primary,
+                    strokeWidth: 3,
+                  ),
+                )
+              : Icon(
+                  widget.icon,
+                  size: widget.size * 0.65,
+                  color: AppColors.primary,
+                ),
+        ),
       ),
     );
   }

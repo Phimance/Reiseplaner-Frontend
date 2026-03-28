@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../api/auth/api_service.dart';
 import '../../../../core/app_state.dart';
-import '../../../theme/app_colors.dart';
+import '../../../../view/theme/app_colors.dart';
 import '../../core/Widgets/Button.dart';
 import '../../core/Widgets/InputField.dart';
 
@@ -26,6 +26,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
   final List<String> _personen = [];
   String? _nameError;
   String? _dateError;
+  String? _personError;
+  bool _isLoadingPerson = false;
 
   @override
   void initState() {
@@ -36,13 +38,37 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     }
   }
 
-  void _addPerson() {
+  void _addPerson() async {
     final name = _personenInputController.text.trim();
-    if (name.isNotEmpty && !_personen.contains(name)) {
-      setState(() {
-        _personen.add(name);
-        _personenInputController.clear();
-      });
+    if (name.isEmpty) return;
+
+    if (_personen.contains(name)) {
+      setState(() => _personError = 'Benutzer ist bereits in der Liste.');
+      return;
+    }
+
+    setState(() {
+      _isLoadingPerson = true;
+      _personError = null;
+    });
+
+    try {
+      final apiService = ApiService();
+      final exists = await apiService.loginBenutzer(name);
+
+      if (exists) {
+        setState(() {
+          _personen.add(name);
+          _personenInputController.clear();
+          _personError = null;
+        });
+      } else {
+        setState(() => _personError = 'Benutzer "$name" existiert nicht.');
+      }
+    } catch (e) {
+      setState(() => _personError = 'Fehler beim Prüfen des Benutzers.');
+    } finally {
+      setState(() => _isLoadingPerson = false);
     }
   }
 
@@ -229,10 +255,25 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                 SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  SimpleButton(
+                    icon: Icons.add,
+                    onPressed: _addPerson,
+                    isLoading: _isLoadingPerson,
+                  ),
                 ],
               ),
-              SizedBox(height: 18),
+              if (_personError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _personError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 18),
               // here forEach for the Persons
               ..._personen.map((person) {
                 final isCurrentUser = person == context.read<AppState>().benutzername;
@@ -262,25 +303,25 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                                 fontSize: 18,
                               ),
                             ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                    ],
-                  );
-                }),
-                SizedBox(height: 20),
-                ReiseButton(
-                  title: 'Gruppe hinzufügen',
-                  icon: Icons.add,
-                  onPressed: _submitGruppe,
-                ),
-                // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
-              ],
-            ),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                );
+              }),
+              SizedBox(height: 20),
+              ReiseButton(
+                title: 'Gruppe hinzufügen',
+                icon: Icons.add,
+                onPressed: _submitGruppe,
+              ),
+              // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
+            ],
           ),
         ),
-      );
-    }
+      ),
+    );
   }
+}

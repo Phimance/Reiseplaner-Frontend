@@ -29,6 +29,8 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
   final List<String> _personen = [];
   String? _nameError;
   String? _dateError;
+  String? _personError;
+  bool _isLoadingPerson = false;
 
   @override
   void initState() {
@@ -61,13 +63,37 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     }
   }
 
-  void _addPerson() {
+  void _addPerson() async {
     final name = _personenInputController.text.trim();
-    if (name.isNotEmpty && !_personen.contains(name)) {
-      setState(() {
-        _personen.add(name);
-        _personenInputController.clear();
-      });
+    if (name.isEmpty) return;
+
+    if (_personen.contains(name)) {
+      setState(() => _personError = 'Benutzer ist bereits in der Liste.');
+      return;
+    }
+
+    setState(() {
+      _isLoadingPerson = true;
+      _personError = null;
+    });
+
+    try {
+      final apiService = ApiService();
+      final exists = await apiService.loginBenutzer(name);
+
+      if (exists) {
+        setState(() {
+          _personen.add(name);
+          _personenInputController.clear();
+          _personError = null;
+        });
+      } else {
+        setState(() => _personError = 'Benutzer "$name" existiert nicht.');
+      }
+    } catch (e) {
+      setState(() => _personError = 'Fehler beim Prüfen des Benutzers.');
+    } finally {
+      setState(() => _isLoadingPerson = false);
     }
   }
 
@@ -305,9 +331,24 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  SimpleButton(
+                    icon: Icons.add,
+                    onPressed: _addPerson,
+                    isLoading: _isLoadingPerson,
+                  ),
                 ],
               ),
+              if (_personError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _personError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 18),
               ..._personen.map((person) {
                 final isCurrentUser =
@@ -368,3 +409,4 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     );
   }
 }
+
