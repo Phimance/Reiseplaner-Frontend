@@ -27,6 +27,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
   final TextEditingController _endUhrzeitController = TextEditingController();
 
   String? _nameError;
+  String? _startError;
 
   @override
   void initState() {
@@ -59,20 +60,28 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     }
     setState(() => _nameError = null);
 
+    final startDatumText = _startDatumController.text.trim();
+    final startZeitText = _startUhrzeitController.text.trim();
+    if (startDatumText.isEmpty || startZeitText.isEmpty) {
+      setState(() => _startError = 'Bitte gib ein Startdatum und eine Startzeit ein.');
+      return;
+    }
+
     String? startDateTime;
     String? endDateTime;
     final dateFormat = DateFormat('dd.MM.yyyy');
     final timeFormat = DateFormat('HH:mm');
     final isoFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
-    if (_startDatumController.text.trim().isNotEmpty &&
-        _startUhrzeitController.text.trim().isNotEmpty) {
-      try {
-        final date = dateFormat.parseStrict(_startDatumController.text.trim());
-        final time = timeFormat.parseStrict(_startUhrzeitController.text.trim());
-        final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-        startDateTime = isoFormat.format(combined);
-      } catch (_) {}
+    try {
+      final date = dateFormat.parseStrict(startDatumText);
+      final time = timeFormat.parseStrict(startZeitText);
+      final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      startDateTime = isoFormat.format(combined);
+      setState(() => _startError = null);
+    } catch (_) {
+      setState(() => _startError = 'Bitte gib ein gültiges Startdatum und eine gültige Startzeit ein.');
+      return;
     }
 
     if (_endDatumController.text.trim().isNotEmpty &&
@@ -226,6 +235,17 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                   ),
                 ],
               ),
+              if (_startError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _startError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 18),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
