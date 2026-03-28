@@ -170,7 +170,7 @@ class EmptyTripState extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Erstelle eine neue Reisegruppe oder tritt einer bestehenden bei.',
+              'Erstelle eine neue Reisegruppe.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textSecondary,
@@ -179,7 +179,7 @@ class EmptyTripState extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             ReiseButton(
-              title: 'Reisegruppe hinzufügen',
+              title: 'Reisegruppe erstellen',
               icon: Icons.add_circle_outline,
               onPressed: () {
                 Navigator.push(

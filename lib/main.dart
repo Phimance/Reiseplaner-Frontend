@@ -5,6 +5,7 @@ import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
 import 'package:reiseplaner/view/components/pages/transaktions_screen.dart';
 import 'package:reiseplaner/view/components/pages/profile_screen.dart';
+import 'package:reiseplaner/view/theme/app_colors.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
@@ -65,6 +66,29 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  void _onItemTapped(int index) {
+    final appState = context.read<AppState>();
+
+    // Guard Clause: Wenn keine Gruppe aktiv ist, nur Home (0) und Profil (4) erlauben
+    if (appState.aktiveGruppe == null) {
+      const allowedIndices = [0, 4];
+      if (!allowedIndices.contains(index)) {
+        //Leert die Warteschlange sofort (Spam-Schutz)
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Bitte erstelle oder wähle zuerst eine Reisegruppe aus.'),
+            backgroundColor: AppColors.primary,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+    }
+
+    appState.setTabIndex(index);
+  }
+
   @override
   Widget build(BuildContext context) {
     const double headerHeight = 92;
@@ -115,9 +139,7 @@ class _MainScreenState extends State<MainScreen> {
             selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
             unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-            onTap: (index) {
-              context.read<AppState>().setTabIndex(index);
-            },
+            onTap: _onItemTapped,
             items: [
               BottomNavigationBarItem(
                 icon: const Icon(Icons.home_outlined),
