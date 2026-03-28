@@ -105,7 +105,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
       if (widget.existingEvent != null) {
         await appState.updateEvent(widget.existingEvent!.id, body);
       } else {
-        final planerId = await appState.getAktivePlanerId();
+        final planerId = appState.aktiveGruppe?.planer?.id;
         if (planerId == null) {
           throw Exception('Keine aktive Gruppe mit Planer ausgewählt.');
         }

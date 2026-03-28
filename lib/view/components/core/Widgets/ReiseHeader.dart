@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
 import '../../pages/add_entity/add_gruppe_screen.dart';
-import '../../pages/reisegruppen/add_gruppe_screen.dart';
-import '../../pages/reisegruppen/edit_gruppe_screen.dart';
+import '../../pages/add_entity/edit_gruppe_screen.dart';
 import 'Button.dart';
 
 class ReiseHeader extends StatelessWidget {

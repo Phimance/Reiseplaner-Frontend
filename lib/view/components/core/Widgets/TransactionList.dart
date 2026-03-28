@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:reiseplaner/view/components/pages/reisegruppen/edit_transaktion_screen.dart';
+import 'package:reiseplaner/view/components/pages/add_entity/edit_transaktion_screen.dart';
 import '../../../../api/models/models.dart';
 import '../../../../core/app_state.dart';
 import '../../../../view/theme/app_colors.dart';
