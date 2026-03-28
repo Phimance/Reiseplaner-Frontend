@@ -22,7 +22,7 @@ class AppColors {
   static const Color card          = Color(0xFF232323); // Card-Hintergrund
   static const Color cardBorder = Color(0xFF292929); // Leicht helleres Card
   static const Color cardHighlighted = Color(0xFF252525); // Hervorgehobenes Card
-
+  static const Color footerBackground = Color(0xFF1B1B1B);
   // ── Inputfelder ───────────────────────────────────────
   static const Color inputSurface          = Color(0xFF000000); // Card-Hintergrund
 

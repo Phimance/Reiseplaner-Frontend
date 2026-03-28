@@ -7,6 +7,7 @@ import 'package:reiseplaner/view/components/pages/home_screen.dart';
 import 'package:reiseplaner/view/components/pages/notes_screen.dart'; // Import für Notizen
 import 'package:reiseplaner/view/components/pages/transaktions_screen.dart';
 import 'package:reiseplaner/view/components/pages/profile_screen.dart';
+import 'package:reiseplaner/view/theme/app_colors.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
@@ -74,7 +75,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           // Hauptinhalt mit korrektem Abstand
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding, left: 16, right: 16),
+            padding: EdgeInsets.only(top: totalTopPadding + 16, left: 16, right: 16),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
@@ -89,7 +90,7 @@ class _MainScreenState extends State<MainScreen> {
                 left: 16,
                 right: 32,
               ),
-              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+              color: AppColors.footerBackground,
               alignment: Alignment.centerLeft,
               child: const ReiseHeader(),
             ),
@@ -101,7 +102,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           Container(
             height: 16,
-            color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+            color: AppColors.footerBackground,
           ),
           BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
@@ -113,7 +114,7 @@ class _MainScreenState extends State<MainScreen> {
             mouseCursor: SystemMouseCursors.click,
             selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
             unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
-            backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+            backgroundColor: AppColors.footerBackground,
             onTap: (index) {
               context.read<AppState>().setTabIndex(index);
             },
