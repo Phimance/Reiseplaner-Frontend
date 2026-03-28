@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:reiseplaner/api/auth/local_auth_service.dart';
 import 'package:reiseplaner/view/components/core/Widgets/ReiseHeader.dart';
 import 'package:reiseplaner/view/components/pages/activity_screen.dart';
 import 'package:reiseplaner/view/components/pages/home_screen.dart';
@@ -30,9 +31,61 @@ class ReiseplanerApp extends StatelessWidget {
         title: 'Reiseplaner',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
-        home: const LoginScreen(),
+        home: const AuthCheck(),
       ),
     );
+  }
+}
+
+class AuthCheck extends StatefulWidget {
+  const AuthCheck({super.key});
+
+  @override
+  State<AuthCheck> createState() => _AuthCheckState();
+}
+
+class _AuthCheckState extends State<AuthCheck> {
+  bool _isChecking = true;
+  String? _cachedUsername;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final name = await LocalAuthService.getUsername();
+    if (name != null && mounted) {
+      await context.read<AppState>().initNachLogin(name);
+      setState(() {
+        _cachedUsername = name;
+        _isChecking = false;
+      });
+    } else {
+      if (mounted) {
+        setState(() {
+          _isChecking = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isChecking) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_cachedUsername != null) {
+      return const MainScreen();
+    }
+
+    return const LoginScreen();
   }
 }
 
