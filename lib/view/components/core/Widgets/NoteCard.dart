@@ -5,7 +5,7 @@ class NoteCard extends StatelessWidget {
   final String title;
   final String content;
   final VoidCallback? onTap;
-  final VoidCallback? onDelete; // Neuer Callback für Löschen
+  final VoidCallback? onDelete;
 
   const NoteCard({
     super.key,
@@ -23,63 +23,66 @@ class NoteCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            child: Stack(
               children: [
-                // Akzentbalken
-                Container(
+                // Akzentbalken links (fest positioniert über volle Höhe)
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
                   width: 5,
-                  decoration: const BoxDecoration(
+                  child: Container(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      bottomLeft: Radius.circular(16),
-                    ),
                   ),
                 ),
                 // Inhalt
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 5), // Platzhalter für den Balken
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              content,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.textSecondary,
+                                  ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          content,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                                height: 1.3,
-                              ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Lösch-Button
-                if (onDelete != null)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: IconButton(
-                        icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                        onPressed: onDelete,
                       ),
                     ),
-                  ),
+                    if (onDelete != null)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: IconButton(
+                          icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                          onPressed: onDelete,
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
           ),

@@ -25,6 +25,30 @@ class _NotesScreenState extends State<NotesScreen> {
     final isEditing = existingNote != null;
     final titelController = TextEditingController(text: existingNote?.name ?? '');
     final inhaltController = TextEditingController(text: existingNote?.inhalt ?? '');
+    
+    // StatefulBuilder, damit das Modal seinen eigenen Zustand (Checkliste vs Text) verwalten kann
+    bool isChecklistMode = existingNote?.inhalt.contains('- [ ]') ?? existingNote?.inhalt.contains('- [x]') ?? false;
+
+    // Logik für Checklisten-Verhalten (Enter-Taste -> neues Element)
+    void onInhaltChanged(String text, StateSetter setModalState) {
+      if (text.endsWith('\n')) {
+        final lines = text.split('\n');
+        if (lines.length >= 2) {
+          final lastLine = lines[lines.length - 2];
+          if (lastLine.startsWith('- [ ] ') || lastLine.startsWith('- [x] ')) {
+            if (lastLine.trim() == '- [ ]' || lastLine.trim() == '- [x]') {
+              final newText = text.substring(0, text.length - lastLine.length - 2) + '\n';
+              inhaltController.text = newText;
+            } else {
+              inhaltController.text = text + '- [ ] ';
+            }
+            inhaltController.selection = TextSelection.fromPosition(
+              TextPosition(offset: inhaltController.text.length),
+            );
+          }
+        }
+      }
+    }
 
     showModalBottomSheet(
       context: context,
@@ -32,120 +56,228 @@ class _NotesScreenState extends State<NotesScreen> {
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black54,
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.8,
-          decoration: BoxDecoration(
-            color: const Color(0xFF363636),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.5),
-                spreadRadius: 5,
-                blurRadius: 15,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 20,
-            right: 20,
-            top: 24,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                isEditing ? 'Notiz bearbeiten' : 'Neue Notiz',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: titelController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Titel',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: const Color(0xFF444444),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.85,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C1C1E),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 15,
+                    offset: const Offset(0, -5),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 16),
-              // Expanded sorgt dafür, dass das Textfeld den restlichen Platz einnimmt
-              Expanded(
-                child: TextField(
-                  controller: inhaltController,
-                  maxLines: null, // Unbegrenzt viele Zeilen
-                  expands: true,  // Füllt den Expanded-Container komplett aus
-                  textAlignVertical: TextAlignVertical.top,
-                  keyboardType: TextInputType.multiline,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    labelText: 'Inhalt',
-                    alignLabelWithHint: true,
-                    labelStyle: const TextStyle(color: Colors.grey),
-                    filled: true,
-                    fillColor: const Color(0xFF444444),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                left: 20,
+                right: 20,
+                top: 20,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        isEditing ? 'Notiz bearbeiten' : 'Neue Notiz',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                      // Toggle Button für Modus (Text vs Checkliste)
+                      TextButton.icon(
+                        onPressed: () {
+                          setModalState(() {
+                            isChecklistMode = !isChecklistMode;
+                            if (isChecklistMode && !inhaltController.text.contains('- [ ]')) {
+                              inhaltController.text = '- [ ] ' + inhaltController.text;
+                            }
+                          });
+                        },
+                        icon: Icon(
+                          isChecklistMode ? Icons.notes : Icons.checklist,
+                          color: const Color(0xFFFF9800),
+                        ),
+                        label: Text(
+                          isChecklistMode ? 'Text' : 'Checkliste',
+                          style: const TextStyle(color: Color(0xFFFF9800)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: titelController,
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                    decoration: const InputDecoration(
+                      hintText: 'Titel',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (titelController.text.isNotEmpty) {
-                      final appState = context.read<AppState>();
-                      if (isEditing) {
-                        final updatedNote = Notiz(
-                          id: existingNote.id,
-                          name: titelController.text,
-                          inhalt: inhaltController.text,
-                          notizblockId: existingNote.notizblockId,
-                        );
-                        await appState.updateNotiz(updatedNote);
-                      } else {
-                        await appState.createNotiz(
-                          titelController.text,
-                          inhaltController.text,
-                        );
-                      }
-                      if (context.mounted) Navigator.pop(context);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF9800),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  const Divider(color: Color(0xFF3A3A3C)),
+                  Expanded(
+                    child: isChecklistMode 
+                      ? _buildChecklistEditor(inhaltController, setModalState)
+                      : _buildTextEditor(inhaltController, (val) => onInhaltChanged(val, setModalState)),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (titelController.text.isNotEmpty) {
+                          final appState = context.read<AppState>();
+                          final note = Notiz(
+                            id: existingNote?.id,
+                            name: titelController.text,
+                            inhalt: inhaltController.text,
+                            notizblockId: existingNote?.notizblockId,
+                          );
+                          if (isEditing) {
+                            await appState.updateNotiz(note);
+                          } else {
+                            await appState.createNotiz(note.name, note.inhalt);
+                          }
+                          if (context.mounted) Navigator.pop(context);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFF9800),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(isEditing ? 'Aktualisieren' : 'Speichern', style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
-                  child: Text(
-                    isEditing ? 'Aktualisieren' : 'Speichern',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
+                ],
               ),
-            ],
-          ),
+            );
+          }
         );
       },
+    );
+  }
+
+  Widget _buildTextEditor(TextEditingController controller, Function(String) onChanged) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      maxLines: null,
+      expands: true,
+      textAlignVertical: TextAlignVertical.top,
+      style: const TextStyle(color: Colors.white, fontSize: 17, height: 1.5),
+      decoration: const InputDecoration(
+        hintText: 'Notiz hier schreiben...',
+        hintStyle: TextStyle(color: Colors.grey),
+        border: InputBorder.none,
+      ),
+    );
+  }
+
+  Widget _buildChecklistEditor(TextEditingController controller, StateSetter setModalState) {
+    final lines = controller.text.split('\n');
+    
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: lines.length,
+            itemBuilder: (context, index) {
+              String line = lines[index];
+              bool isChecked = line.startsWith('- [x] ');
+              bool isBullet = line.startsWith('- [ ] ') || isChecked;
+              String textOnly = isBullet ? (line.length > 6 ? line.substring(6) : '') : line;
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setModalState(() {
+                          lines[index] = isChecked ? '- [ ] $textOnly' : '- [x] $textOnly';
+                          controller.text = lines.join('\n');
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: Icon(
+                          isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
+                          color: isChecked ? const Color(0xFFFF9800) : Colors.grey,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        key: Key('note_line_$index'),
+                        controller: TextEditingController(text: textOnly)..selection = TextSelection.fromPosition(TextPosition(offset: textOnly.length)),
+                        maxLines: null,
+                        textInputAction: TextInputAction.next,
+                        style: TextStyle(
+                          color: isChecked ? Colors.grey : Colors.white,
+                          fontSize: 17,
+                          decoration: isChecked ? TextDecoration.lineThrough : null,
+                        ),
+                        decoration: const InputDecoration(
+                          border: InputBorder.none, 
+                          hintText: 'Listenpunkt...',
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8),
+                        ),
+                        onChanged: (newVal) {
+                          lines[index] = (isChecked ? '- [x] ' : '- [ ] ') + newVal;
+                          controller.text = lines.join('\n');
+                        },
+                        onSubmitted: (_) {
+                          setModalState(() {
+                            lines.insert(index + 1, '- [ ] ');
+                            controller.text = lines.join('\n');
+                          });
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                      onPressed: () {
+                        setModalState(() {
+                          lines.removeAt(index);
+                          controller.text = lines.join('\n');
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        // PLUS Button am Ende der Liste
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: () {
+              setModalState(() {
+                final current = controller.text;
+                if (current.isEmpty) {
+                  controller.text = '- [ ] ';
+                } else {
+                  controller.text = current.endsWith('\n') ? '$current- [ ] ' : '$current\n- [ ] ';
+                }
+              });
+            },
+            icon: const Icon(Icons.add, color: Color(0xFFFF9800)),
+            label: const Text('Punkt hinzufügen', style: TextStyle(color: Color(0xFFFF9800))),
+          ),
+        ),
+      ],
     );
   }
 
@@ -193,22 +325,11 @@ class _NotesScreenState extends State<NotesScreen> {
                   padding: EdgeInsets.fromLTRB(16, 24, 16, 16),
                   child: Text(
                     'Eure Notizen',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
                 if (appState.aktiveGruppe == null)
-                  const Expanded(
-                    child: Center(
-                      child: Text(
-                        'Bitte wähle zuerst eine Gruppe aus.',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  )
+                  const Expanded(child: Center(child: Text('Bitte wähle zuerst eine Gruppe aus.', style: TextStyle(color: Colors.grey))))
                 else
                   Expanded(
                     child: RefreshIndicator(
@@ -218,17 +339,7 @@ class _NotesScreenState extends State<NotesScreen> {
                       child: appState.isLoading && appState.notizen.isEmpty
                           ? const Center(child: CircularProgressIndicator())
                           : appState.notizen.isEmpty
-                              ? ListView(
-                                  children: const [
-                                    SizedBox(height: 100),
-                                    Center(
-                                      child: Text(
-                                        'Noch keine Notizen vorhanden.',
-                                        style: TextStyle(color: Colors.grey),
-                                      ),
-                                    ),
-                                  ],
-                                )
+                              ? ListView(children: const [SizedBox(height: 100), Center(child: Text('Noch keine Notizen vorhanden.', style: TextStyle(color: Colors.grey)))])
                               : ListView.builder(
                                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
                                   itemCount: appState.notizen.length,
@@ -236,7 +347,7 @@ class _NotesScreenState extends State<NotesScreen> {
                                     final notiz = appState.notizen[index];
                                     return NoteCard(
                                       title: notiz.name,
-                                      content: notiz.inhalt,
+                                      content: notiz.inhalt.replaceAll('- [ ] ', '○ ').replaceAll('- [x] ', '✓ '),
                                       onTap: () => _showNoteModal(context, existingNote: notiz),
                                       onDelete: () => _confirmDelete(context, notiz),
                                     );
@@ -253,15 +364,8 @@ class _NotesScreenState extends State<NotesScreen> {
                 onPressed: () => _showNoteModal(context),
                 backgroundColor: const Color(0xFF444444),
                 elevation: 8,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: const BorderSide(color: Color(0xFF666666), width: 1),
-                ),
-                child: SvgPicture.asset(
-                  'icons/pen-icon.svg',
-                  width: 30,
-                  height: 30,
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF666666), width: 1)),
+                child: SvgPicture.asset('assets/icons/pen-icon.svg', width: 30, height: 30),
               ),
             ),
           ],
