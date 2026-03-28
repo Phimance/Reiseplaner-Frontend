@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../api/auth/api_service.dart';
+import '../../../api/auth/local_auth_service.dart';
 import '../../../core/app_state.dart';
-import '../../../main.dart'; // Um später zum MainScreen zu navigieren
+import '../../../main.dart';
 import 'package:reiseplaner/view/theme/app_colors.dart';
-
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,12 +25,13 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Prüfen, ob der Nutzer existiert
       final exists = await _apiService.loginBenutzer(name);
 
       if (exists) {
-        // 2a. Nutzer existiert -> Gruppen laden & ab zum MainScreen!
         if (mounted) {
+          // Namen lokal speichern für Auto-Login
+          await LocalAuthService.saveUsername(name);
+          
           await context.read<AppState>().initNachLogin(name);
           Navigator.pushReplacement(
             context,
@@ -38,7 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        // 2b. Nutzer existiert nicht -> Dialog anzeigen, ob er erstellt werden soll
         if (mounted) _showRegisterDialog(name);
       }
     } catch (e) {
@@ -56,23 +56,26 @@ class _LoginScreenState extends State<LoginScreen> {
       context: context,
       builder: (context) =>
           AlertDialog(
-            title: const Text('Nutzer nicht gefunden'),
+            backgroundColor: AppColors.surface,
+            title: const Text('Nutzer nicht gefunden', style: TextStyle(color: AppColors.textPrimary)),
             content: Text(
-                'Der Benutzer "$name" existiert noch nicht. Möchtest du ihn anlegen?'),
+                'Der Benutzer "$name" existiert noch nicht. Möchtest du ihn anlegen?',
+                style: const TextStyle(color: AppColors.textSecondary)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Abbrechen'),
+                child: const Text('Abbrechen', style: TextStyle(color: AppColors.textSecondary)),
               ),
               ElevatedButton(
                 onPressed: () async {
-                  Navigator.pop(context); // Dialog schließen
+                  Navigator.pop(context);
                   setState(() => _isLoading = true);
                   try {
-                    // Nutzer registrieren
                     await _apiService.registerBenutzer(name);
-                    // Direkt danach einloggen & Gruppen laden
                     if (mounted) {
+                      // Namen lokal speichern
+                      await LocalAuthService.saveUsername(name);
+                      
                       await context.read<AppState>().initNachLogin(name);
                       Navigator.pushReplacement(
                         context,
@@ -87,7 +90,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     setState(() => _isLoading = false);
                   }
                 },
-                child: const Text('Registrieren'),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                child: const Text('Registrieren', style: TextStyle(color: Colors.black)),
               ),
             ],
           ),
@@ -109,29 +113,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.all(32.0),
                     child: Column(
                       children: [
-                        // Das drückt den gesamten Inhalt weiter nach unten
                         const Spacer(flex: 2),
-
                         const Icon(Icons.travel_explore, size: 80, color: AppColors.primary),
                         const SizedBox(height: 20),
                         const Text(
                           'Willkommen beim Reiseplaner',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                           textAlign: TextAlign.center,
                         ),
-
                         const SizedBox(height: 40),
-
                         TextField(
                           controller: _nameController,
+                          style: const TextStyle(color: AppColors.textPrimary),
                           decoration: const InputDecoration(
                             labelText: 'Dein Benutzername',
+                            labelStyle: TextStyle(color: AppColors.textSecondary),
                             border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.person),
+                            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.divider)),
+                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.primary)),
+                            prefixIcon: Icon(Icons.person, color: AppColors.primary),
                           ),
                         ),
                         const SizedBox(height: 20),
-
                         SizedBox(
                           width: double.infinity,
                           height: 55,
@@ -148,8 +151,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 : const Text('Einloggen', style: TextStyle(fontSize: 18)),
                           ),
                         ),
-
-                        // und schiebt alles andere nach oben
                         const Spacer(flex: 4),
                       ],
                     ),
