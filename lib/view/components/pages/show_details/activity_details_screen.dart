@@ -73,9 +73,9 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 							builder: (dialogContext) {
 							  return AlertDialog(
 								backgroundColor: AppColors.surface,
-								title: const Text('Event loeschen?'),
+								title: const Text('Event löschen?'),
 								content: const Text(
-								  'Diese Aktivitaet wird dauerhaft geloescht.',
+								  'Diese Aktivität wird dauerhaft gelöscht.',
 								  style: TextStyle(color: AppColors.textSecondary),
 								),
 								actions: [
@@ -86,7 +86,7 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 								  TextButton(
 									onPressed: () => Navigator.pop(dialogContext, true),
 									child: const Text(
-									  'Loeschen',
+									  'Löschen',
 									  style: TextStyle(color: AppColors.error),
 									),
 								  ),
@@ -102,7 +102,7 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 							if (sheetContext.mounted) {
 							  Navigator.pop(sheetContext);
 							  ScaffoldMessenger.of(context).showSnackBar(
-								const SnackBar(content: Text('Event geloescht.')),
+								const SnackBar(content: Text('Event gelöscht.')),
 							  );
 							}
 						  } catch (e) {
@@ -114,7 +114,7 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 						  }
 						},
 						icon: const Icon(Icons.delete_outline),
-						label: const Text('Loeschen'),
+						label: const Text('Löschen'),
 						style: ElevatedButton.styleFrom(
 						  backgroundColor: AppColors.error,
 						  foregroundColor: AppColors.textPrimary,

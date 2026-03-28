@@ -223,7 +223,7 @@ class ApiService {
     final response = await http.delete(Uri.parse('$_baseUrl/event/$eventId'));
 
     if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('Fehler beim Loeschen: Status ${response.statusCode}');
+      throw Exception('Fehler beim Löschen: Status ${response.statusCode}');
     }
   }
 }
