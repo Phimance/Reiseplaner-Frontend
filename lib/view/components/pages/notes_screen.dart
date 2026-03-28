@@ -33,6 +33,7 @@ class _NotesScreenState extends State<NotesScreen> {
       barrierColor: Colors.black54,
       builder: (context) {
         return Container(
+          height: MediaQuery.of(context).size.height * 0.8,
           decoration: BoxDecoration(
             color: const Color(0xFF363636),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -46,13 +47,12 @@ class _NotesScreenState extends State<NotesScreen> {
             ],
           ),
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
             left: 20,
             right: 20,
             top: 24,
           ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -79,18 +79,25 @@ class _NotesScreenState extends State<NotesScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              TextField(
-                controller: inhaltController,
-                maxLines: 4,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Inhalt',
-                  labelStyle: const TextStyle(color: Colors.grey),
-                  filled: true,
-                  fillColor: const Color(0xFF444444),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+              // Expanded sorgt dafür, dass das Textfeld den restlichen Platz einnimmt
+              Expanded(
+                child: TextField(
+                  controller: inhaltController,
+                  maxLines: null, // Unbegrenzt viele Zeilen
+                  expands: true,  // Füllt den Expanded-Container komplett aus
+                  textAlignVertical: TextAlignVertical.top,
+                  keyboardType: TextInputType.multiline,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Inhalt',
+                    alignLabelWithHint: true,
+                    labelStyle: const TextStyle(color: Colors.grey),
+                    filled: true,
+                    fillColor: const Color(0xFF444444),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
               ),
@@ -135,7 +142,6 @@ class _NotesScreenState extends State<NotesScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         );
@@ -150,8 +156,8 @@ class _NotesScreenState extends State<NotesScreen> {
         backgroundColor: const Color(0xFF363636),
         surfaceTintColor: Colors.transparent,
         shadowColor: Colors.black.withOpacity(0.5),
-        elevation: 10,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 10,
         title: const Text('Notiz löschen', style: TextStyle(color: Colors.white)),
         content: Text('Möchtest du die Notiz "${notiz.name}" wirklich löschen?', 
           style: const TextStyle(color: Colors.white70)),
