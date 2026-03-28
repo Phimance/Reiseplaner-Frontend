@@ -14,8 +14,8 @@ import 'view/theme/app_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // 👈 nötig für async vor runApp
-  await initializeDateFormatting('de_DE', null); // 👈 HIER rein
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('de_DE', null);
   runApp(const ReiseplanerApp());
 }
 
@@ -73,7 +73,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Hauptinhalt mit korrektem Abstand
+          // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
           Padding(
             padding: EdgeInsets.only(top: totalTopPadding + 16, left: 16, right: 16),
             child: _screens[_currentIndex],
@@ -116,6 +116,21 @@ class _MainScreenState extends State<MainScreen> {
             unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
             backgroundColor: AppColors.footerBackground,
             onTap: (index) {
+              if (context.read<AppState>().aktiveGruppe == null) {
+                const allowedIndices = [0, 4];
+                if (!allowedIndices.contains(index)) {
+                  //Leert die Warteschlange sofort (Spam-Schutz)
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Bitte erstelle oder wähle zuerst eine Reisegruppe aus.'),
+                      backgroundColor: AppColors.primary,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
+              }
               context.read<AppState>().setTabIndex(index);
             },
             items: [
