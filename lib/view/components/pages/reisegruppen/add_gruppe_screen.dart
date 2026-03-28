@@ -215,9 +215,9 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
-              Divider(),
-              SizedBox(height: 30),
+              const SizedBox(height: 12),
+              const Divider(),
+              const SizedBox(height: 30),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -229,12 +229,11 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  _isLoadingPerson 
-                    ? const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(color: AppColors.primary),
-                      )
-                    : SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  SimpleButton(
+                    icon: Icons.add,
+                    onPressed: _addPerson,
+                    isLoading: _isLoadingPerson,
+                  ),
                 ],
               ),
               if (_personError != null)
@@ -248,7 +247,7 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                     ),
                   ),
                 ),
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
               // here forEach for the Persons
               ..._personen.map((person) {
                 final isCurrentUser = person == context.read<AppState>().benutzername;
@@ -282,11 +281,11 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                   ],
                 );
               }),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ReiseButton(
                 title: 'Gruppe hinzufügen',
                 icon: Icons.add,

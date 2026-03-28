@@ -331,12 +331,11 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  _isLoadingPerson 
-                    ? const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(color: AppColors.primary),
-                      )
-                    : SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  SimpleButton(
+                    icon: Icons.add,
+                    onPressed: _addPerson,
+                    isLoading: _isLoadingPerson,
+                  ),
                 ],
               ),
               if (_personError != null)
