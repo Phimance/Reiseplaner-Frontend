@@ -2,19 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../../api/auth/api_service.dart';
+import '../../../../api/models/models.dart';
 import '../../../../core/app_state.dart';
-import '../../../theme/app_colors.dart';
+import '../../../../view/theme/app_colors.dart';
 import '../../core/Widgets/Button.dart';
 import '../../core/Widgets/InputField.dart';
 
-class AddGruppeScreen extends StatefulWidget {
-  const AddGruppeScreen({super.key});
+class EditGruppeScreen extends StatefulWidget {
+  final Gruppe gruppe;
+
+  const EditGruppeScreen({super.key, required this.gruppe});
 
   @override
-  State<AddGruppeScreen> createState() => _AddGruppeScreenState();
+  State<EditGruppeScreen> createState() => _EditGruppeScreenState();
 }
 
-class _AddGruppeScreenState extends State<AddGruppeScreen> {
+class _EditGruppeScreenState extends State<EditGruppeScreen> {
   // Controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _reiseortController = TextEditingController();
@@ -30,9 +33,31 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
   @override
   void initState() {
     super.initState();
-    final benutzername = context.read<AppState>().benutzername;
-    if (benutzername.isNotEmpty) {
-      _personen.add(benutzername);
+
+    // Felder mit bestehenden Daten füllen
+    _nameController.text = widget.gruppe.name;
+    _reiseortController.text = widget.gruppe.location ?? '';
+
+    // Datum konvertieren (yyyy-MM-dd → dd.MM.yyyy)
+    final displayFormat = DateFormat('dd.MM.yyyy');
+    final apiFormat = DateFormat('yyyy-MM-dd');
+
+    if (widget.gruppe.startDate != null && widget.gruppe.startDate!.isNotEmpty) {
+      try {
+        final parsed = apiFormat.parseStrict(widget.gruppe.startDate!);
+        _startController.text = displayFormat.format(parsed);
+      } catch (_) {}
+    }
+    if (widget.gruppe.endDate != null && widget.gruppe.endDate!.isNotEmpty) {
+      try {
+        final parsed = apiFormat.parseStrict(widget.gruppe.endDate!);
+        _endeController.text = displayFormat.format(parsed);
+      } catch (_) {}
+    }
+
+    // Personen aus der Gruppe laden
+    for (final b in widget.gruppe.benutzer) {
+      _personen.add(b.name);
     }
   }
 
@@ -46,7 +71,7 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     }
   }
 
-  void _submitGruppe() async {
+  void _submitUpdate() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       setState(() => _nameError = 'Bitte gib einen Namen ein.');
@@ -69,17 +94,13 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
       try {
         startDateTime = dateFormat.parseStrict(_startController.text.trim());
         startDateStr = apiFormat.format(startDateTime);
-      } catch (_) {
-        // ungültiges Datum ignorieren
-      }
+      } catch (_) {}
     }
     if (_endeController.text.trim().isNotEmpty) {
       try {
         endDateTime = dateFormat.parseStrict(_endeController.text.trim());
         endDateStr = apiFormat.format(endDateTime);
-      } catch (_) {
-        // ungültiges Datum ignorieren
-      }
+      } catch (_) {}
     }
 
     // Validierung: Ende darf nicht vor Start liegen
@@ -90,7 +111,6 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
       }
     }
 
-    // Request-Body zusammenbauen
     final Map<String, dynamic> body = {
       'name': name,
       'location': _reiseortController.text.trim().isNotEmpty
@@ -103,9 +123,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
 
     try {
       final apiService = ApiService();
-      await apiService.createGruppe(body);
+      await apiService.updateGruppe(widget.gruppe.id, body);
 
-      // Gruppen im globalen State neu laden
       if (mounted) {
         await context.read<AppState>().ladeGruppen();
         if (mounted) Navigator.pop(context);
@@ -113,7 +132,6 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     } catch (e) {
       if (mounted) {
         final message = e.toString();
-        // Conflict → Name existiert bereits
         if (message.contains('409') || message.contains('Conflict')) {
           setState(() => _nameError =
               'Eine Gruppe mit dem Namen "$name" existiert bereits.');
@@ -125,6 +143,58 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
             ),
           );
         }
+      }
+    }
+  }
+
+  void _confirmDelete() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: const Text('Gruppe löschen',
+            style: TextStyle(color: AppColors.textPrimary)),
+        content: Text(
+          'Möchtest du "${widget.gruppe.name}" wirklich löschen? '
+          'Alle Transaktionen, Notizen und Events gehen verloren.',
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Abbrechen',
+                style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              _deleteGruppe();
+            },
+            child: const Text('Löschen',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _deleteGruppe() async {
+    try {
+      final apiService = ApiService();
+      await apiService.deleteGruppe(widget.gruppe.id);
+
+      if (mounted) {
+        await context.read<AppState>().ladeGruppen();
+        if (mounted) Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     }
   }
@@ -159,7 +229,7 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                   ),
                   const SizedBox(width: 40),
                   const Text(
-                    'Reisegruppe erstellen',
+                    'Gruppe bearbeiten',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -196,11 +266,17 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: DateInputField(label: 'Start', hint: 'TT.MM.JJJJ', controller: _startController),
+                    child: DateInputField(
+                        label: 'Start',
+                        hint: 'TT.MM.JJJJ',
+                        controller: _startController),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: DateInputField(label: 'Ende', hint: 'TT.MM.JJJJ', controller: _endeController),
+                    child: DateInputField(
+                        label: 'Ende',
+                        hint: 'TT.MM.JJJJ',
+                        controller: _endeController),
                   ),
                 ],
               ),
@@ -215,27 +291,27 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                     ),
                   ),
                 ),
-              SizedBox(height: 12),
-              Divider(),
-              SizedBox(height: 30),
+              const SizedBox(height: 12),
+              const Divider(),
+              const SizedBox(height: 30),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    child:  TextInputField(
+                    child: TextInputField(
                       label: 'Person hinzufügen',
                       hint: '',
                       controller: _personenInputController,
                     ),
                   ),
                   const SizedBox(width: 12),
-                 SimpleButton(icon: Icons.add, onPressed: _addPerson),
+                  SimpleButton(icon: Icons.add, onPressed: _addPerson),
                 ],
               ),
-              SizedBox(height: 18),
-              // here forEach for the Persons
+              const SizedBox(height: 18),
               ..._personen.map((person) {
-                final isCurrentUser = person == context.read<AppState>().benutzername;
+                final isCurrentUser =
+                    person == context.read<AppState>().benutzername;
                 return Column(
                   children: [
                     Padding(
@@ -250,7 +326,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                               size: 44,
                               onPressed: isCurrentUser
                                   ? () {}
-                                  : () => setState(() => _personen.remove(person)),
+                                  : () =>
+                                      setState(() => _personen.remove(person)),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -262,25 +339,32 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                                 fontSize: 18,
                               ),
                             ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                    ],
-                  );
-                }),
-                SizedBox(height: 20),
-                ReiseButton(
-                  title: 'Gruppe hinzufügen',
-                  icon: Icons.add,
-                  onPressed: _submitGruppe,
-                ),
-                // TODO: an Backend anbinden mit Fehlermeldung, wenn Name bereits existiert.
-              ],
-            ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                );
+              }),
+              const SizedBox(height: 20),
+              ReiseButton(
+                title: 'Änderungen speichern',
+                icon: Icons.check,
+                onPressed: _submitUpdate,
+                floatLeft: true,
+              ),
+              const SizedBox(height: 12),
+              ReiseButton(
+                title: 'Gruppe löschen',
+                icon: Icons.delete_outline,
+                onPressed: _confirmDelete,
+                floatLeft: true,
+              ),
+            ],
           ),
         ),
-      );
-    }
+      ),
+    );
   }
+}

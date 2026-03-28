@@ -55,7 +55,16 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _gruppen = await _apiService.getGruppenByBenutzer(_benutzername);
+      final gruppenResult = await _apiService.getGruppenByBenutzer(_benutzername);
+      _gruppen = gruppenResult;
+
+      // Aktive Gruppe per ID wiederfinden (nach Reload ist es ein neues Objekt)
+      if (_aktiveGruppe != null) {
+        final gefunden = _gruppen.where((g) => g.id == _aktiveGruppe!.id);
+        _aktiveGruppe = gefunden.isNotEmpty ? gefunden.first : null;
+      }
+
+      // Wenn immer noch keine aktive Gruppe → erste nehmen
       if (_aktiveGruppe == null && _gruppen.isNotEmpty) {
         await setAktiveGruppe(_gruppen.first);
       } else if (_aktiveGruppe != null) {
@@ -94,12 +103,20 @@ class AppState extends ChangeNotifier {
         print('Anzahl Notizen geladen: ${_notizen.length}');
       }
     } catch (e) {
-      print('Fehler im ladeNotizen: $e');
       _error = e.toString();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // ── Navigation ────────────────────────────────────────────
+  int _tabIndex = 0;
+  int get tabIndex => _tabIndex;
+
+  void setTabIndex(int index) {
+    _tabIndex = index;
+    notifyListeners();
   }
 
   Future<void> createNotiz(String titel, String inhalt) async {
@@ -144,32 +161,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> setAktiveGruppe(Gruppe gruppe) async {
     _aktiveGruppe = gruppe;
-    _events = gruppe.planer?.events ?? [];
-    _notizen = [];
-    _aktiverNotizblock = null;
     notifyListeners();
-    await ladeNotizen();
-  }
-
-  /// Liefert die Planer-ID der aktiven Gruppe.
-  /// Falls sie im Listenobjekt fehlt, wird die Gruppe als Detail nachgeladen.
-  Future<String?> getAktivePlanerId() async {
-    final aktuelle = _aktiveGruppe;
-    if (aktuelle == null) return null;
-
-    if (aktuelle.planer?.id != null) {
-      return aktuelle.planer!.id;
-    }
-
-    try {
-      final detaillierteGruppe = await _apiService.getGruppeById(aktuelle.id);
-      _aktiveGruppe = detaillierteGruppe;
-      _events = detaillierteGruppe.planer?.events ?? [];
-      notifyListeners();
-      return detaillierteGruppe.planer?.id;
-    } catch (_) {
-      return null;
-    }
   }
 
   /// Setzt den gesamten Zustand zurück (z. B. beim Logout).
@@ -226,3 +218,4 @@ class AppState extends ChangeNotifier {
     }
   }
 }
+

@@ -5,12 +5,14 @@ class ReiseButton extends StatefulWidget {
   final String title;
   final IconData icon;
   final VoidCallback onPressed;
+  final bool floatLeft;
 
   const ReiseButton({
     super.key,
     required this.title,
     required this.icon,
     required this.onPressed,
+    this.floatLeft = false
   });
 
   @override
@@ -35,7 +37,7 @@ class _ReiseButtonState extends State<ReiseButton> {
         height: 56,
         decoration: BoxDecoration(
           color: _pressed ? AppColors.cardHighlighted : AppColors.card,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.cardBorder, width: 2),
           boxShadow: [
             BoxShadow(
@@ -46,18 +48,35 @@ class _ReiseButtonState extends State<ReiseButton> {
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: widget.floatLeft ? MainAxisAlignment.start : MainAxisAlignment.center,
           children: [
-            Text(
-              widget.title,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(widget.icon, size: 32, color: AppColors.textPrimary),
+            widget.floatLeft ? Row(
+              children: [
+                const SizedBox(width: 16),
+                Icon(widget.icon, size: 32, color: AppColors.primary),
+                const SizedBox(width: 16),
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],) : Row(
+              children: [
+                Text(
+                  widget.title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(widget.icon, size: 32, color: AppColors.textPrimary),
+              ],
+            )
           ],
         ),
       ),

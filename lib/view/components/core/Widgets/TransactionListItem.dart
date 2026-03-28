@@ -7,6 +7,7 @@ class TransactionListItem extends StatelessWidget {
   final String subtitle;
   final String amount;
   final Color amountColor;
+  final VoidCallback? onTap;
 
   const TransactionListItem({
     super.key,
@@ -15,49 +16,52 @@ class TransactionListItem extends StatelessWidget {
     required this.subtitle,
     required this.amount,
     this.amountColor = AppColors.amountGreen,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: AppColors.primary,
-            size: 28,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
-                ),
-              ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 28),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Text(
-            amount,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: amountColor,
-              fontWeight: FontWeight.bold,
+            Text(
+              amount,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: amountColor,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
-          ),
-        ],
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+          ],
+        ),
       ),
     );
   }
