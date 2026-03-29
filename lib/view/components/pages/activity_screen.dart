@@ -99,14 +99,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     for (final event in events) {
       try {
         final start = DateTime.parse(event.datumStart);
-        DateTime end;
-        try {
-          end = DateTime.parse(event.datumEnde);
-        } catch (_) {
-          end = start;
-        }
-
-        if (end.isBefore(now)) {
+        if (start.isBefore(now)) {
           pastEntries.add((start: start, event: event));
         } else {
           upcomingEntries.add((start: start, event: event));
@@ -163,7 +156,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
                 child: Text(
-                  'Keine Events vorhanden. Füge ein neues Event hinzu!',
+                  'Keine Aktivitäten vorhanden. Füge eine neue Aktivität hinzu!',
                   textAlign: TextAlign.center,
                 ),
               )
@@ -176,7 +169,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text(
-                        'Keine anstehenden Events.',
+                        'Keine anstehenden Aktivitäten.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.textSecondary),
                       ),

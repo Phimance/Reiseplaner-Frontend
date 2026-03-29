@@ -28,6 +28,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
 
   String? _nameError;
   String? _startError;
+  String? _endError;
 
   @override
   void initState() {
@@ -73,25 +74,42 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     final timeFormat = DateFormat('HH:mm');
     final isoFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+    DateTime? startCombined;
     try {
       final date = dateFormat.parseStrict(startDatumText);
       final time = timeFormat.parseStrict(startZeitText);
-      final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-      startDateTime = isoFormat.format(combined);
+      startCombined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      startDateTime = isoFormat.format(startCombined);
       setState(() => _startError = null);
     } catch (_) {
       setState(() => _startError = 'Bitte gib ein gültiges Startdatum und eine gültige Startzeit ein.');
       return;
     }
 
-    if (_endDatumController.text.trim().isNotEmpty &&
-        _endUhrzeitController.text.trim().isNotEmpty) {
+    final endDatumText = _endDatumController.text.trim();
+    final endZeitText = _endUhrzeitController.text.trim();
+
+    if (endDatumText.isNotEmpty || endZeitText.isNotEmpty) {
+      if (endDatumText.isEmpty || endZeitText.isEmpty) {
+        setState(() => _endError = 'Bitte gib sowohl ein Enddatum als auch eine Endzeit ein.');
+        return;
+      }
       try {
-        final date = dateFormat.parseStrict(_endDatumController.text.trim());
-        final time = timeFormat.parseStrict(_endUhrzeitController.text.trim());
-        final combined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-        endDateTime = isoFormat.format(combined);
-      } catch (_) {}
+        final date = dateFormat.parseStrict(endDatumText);
+        final time = timeFormat.parseStrict(endZeitText);
+        final endCombined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        if (endCombined.isBefore(startCombined)) {
+          setState(() => _endError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+          return;
+        }
+        endDateTime = isoFormat.format(endCombined);
+        setState(() => _endError = null);
+      } catch (_) {
+        setState(() => _endError = 'Bitte gib ein gültiges Enddatum und eine gültige Endzeit ein.');
+        return;
+      }
+    } else {
+      setState(() => _endError = null);
     }
 
     final Map<String, dynamic> body = {
@@ -123,16 +141,16 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
       }
 
       if (mounted) {
-        Navigator.pop(context); // Edit-Screen schließen
+        Navigator.pop(context);
         if (widget.existingEvent != null) {
-          Navigator.pop(context); // Detail-Sheet schließen
+          Navigator.pop(context);
         }
       }
     } catch (e) {
       if (mounted) {
         final message = e.toString();
         if (message.contains('409') || message.contains('Conflict')) {
-          setState(() => _nameError = 'Ein Event mit dem Namen "$name" existiert bereits.');
+          setState(() => _nameError = 'Eine Aktivität mit dem Namen "$name" existiert bereits.');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Fehler: $message'), backgroundColor: AppColors.error),
@@ -176,8 +194,8 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                   ),
                   const SizedBox(width: 40),
                   Text(
-                    isEditing ? 'Event bearbeiten' : 'Event erstellen',
-                    style: TextStyle(
+                    isEditing ? 'Aktivität bearbeiten' : 'Aktivität erstellen',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textPrimary,
@@ -267,9 +285,20 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                   ),
                 ],
               ),
+              if (_endError != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4, left: 12),
+                  child: Text(
+                    _endError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               const SizedBox(height: 30),
               ReiseButton(
-                title: isEditing ? 'Event speichern' : 'Event hinzufügen',
+                title: isEditing ? 'Aktivität speichern' : 'Aktivität hinzufügen',
                 icon: isEditing ? Icons.save : Icons.add,
                 onPressed: _submitActivity,
               ),
