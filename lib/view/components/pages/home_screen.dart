@@ -86,8 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // FALL B: Während der Reise (Heute ist Starttag oder danach)
     else if (!heute.isAfter(ende)) {
       // Hier +1, weil der heutige Tag als voller Reisetag zählt
-      final diff = ende.difference(heute).inDays + 1;
-      return (tage: diff, label: diff == 1 ? 'Letzter Tag!' : 'Tage noch');
+      final diff = ende.difference(heute).inDays;
+      return (tage: diff, label: diff == 1 ? 'Letzter Tag' : 'Tage noch');
     }
 
     // FALL C: Reise vorbei
