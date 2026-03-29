@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/app_state.dart';
 import '../../../api/models/models.dart';
+import '../../theme/app_colors.dart';
 import '../core/Widgets/NoteCard.dart';
 
 class NotesScreen extends StatefulWidget {
@@ -31,7 +32,7 @@ class _NotesScreenState extends State<NotesScreen> {
 
     // Logik für Checklisten-Verhalten (Enter-Taste -> neues Element)
     void onInhaltChanged(String text, StateSetter setModalState) {
-      if (text.endsWith('\n')) {
+      if (text.endsWith('\n') && isChecklistMode) {
         final lines = text.split('\n');
         if (lines.length >= 2) {
           final lastLine = lines[lines.length - 2];
@@ -183,101 +184,107 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget _buildChecklistEditor(TextEditingController controller, StateSetter setModalState) {
     final lines = controller.text.split('\n');
     
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: lines.length,
-            itemBuilder: (context, index) {
-              String line = lines[index];
-              bool isChecked = line.startsWith('- [x] ');
-              bool isBullet = line.startsWith('- [ ] ') || isChecked;
-              String textOnly = isBullet ? (line.length > 6 ? line.substring(6) : '') : line;
+    return ListView.builder(
+      itemCount: lines.length + 1,
+      itemBuilder: (context, index) {
+        // PLUS Button als letztes Element
+        if (index == lines.length) {
+          return Align(
+            alignment: Alignment.center,
+            child: TextButton.icon(
+              onPressed: () {
+                setModalState(() {
+                  final current = controller.text;
+                  if (current.isEmpty) {
+                    controller.text = '- [ ] ';
+                  } else {
+                    controller.text = current.endsWith('\n') ? '$current- [ ] ' : '$current\n- [ ] ';
+                  }
+                });
+              },
+              icon: const Icon(Icons.add, color: Color(0xFFFF9800), size: 24),
+              label: const Text('Punkt hinzufügen', style: TextStyle(color: Color(0xFFFF9800), fontSize: 16)),
+            ),
+          );
+        }
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        setModalState(() {
-                          lines[index] = isChecked ? '- [ ] $textOnly' : '- [x] $textOnly';
-                          controller.text = lines.join('\n');
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: Icon(
-                          isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
-                          color: isChecked ? const Color(0xFFFF9800) : Colors.grey,
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        key: Key('note_line_$index'),
-                        controller: TextEditingController(text: textOnly)..selection = TextSelection.fromPosition(TextPosition(offset: textOnly.length)),
-                        maxLines: null,
-                        textInputAction: TextInputAction.next,
-                        style: TextStyle(
-                          color: isChecked ? Colors.grey : Colors.white,
-                          fontSize: 17,
-                          decoration: isChecked ? TextDecoration.lineThrough : null,
-                        ),
-                        decoration: const InputDecoration(
-                          border: InputBorder.none, 
-                          hintText: 'Listenpunkt...',
-                          isDense: true,
-                          contentPadding: EdgeInsets.symmetric(vertical: 8),
-                        ),
-                        onChanged: (newVal) {
-                          lines[index] = (isChecked ? '- [x] ' : '- [ ] ') + newVal;
-                          controller.text = lines.join('\n');
-                        },
-                        onSubmitted: (_) {
-                          setModalState(() {
-                            lines.insert(index + 1, '- [ ] ');
-                            controller.text = lines.join('\n');
-                          });
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.grey, size: 20),
-                      onPressed: () {
-                        setModalState(() {
-                          lines.removeAt(index);
-                          controller.text = lines.join('\n');
-                        });
-                      },
-                    ),
-                  ],
+        String line = lines[index];
+        bool isChecked = line.startsWith('- [x] ');
+        bool isBullet = line.startsWith('- [ ] ') || isChecked;
+        String textOnly = isBullet ? (line.length > 6 ? line.substring(6) : '') : line;
+
+
+        return isBullet ? Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setModalState(() {
+                    lines[index] = isChecked ? '- [ ] $textOnly' : '- [x] $textOnly';
+                    controller.text = lines.join('\n');
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Icon(
+                    isChecked ? Icons.check_circle : Icons.radio_button_unchecked,
+                    color: isChecked ? const Color(0xFFFF9800) : Colors.grey,
+                    size: 24,
+                  ),
                 ),
-              );
-            },
+              ),
+              Expanded(
+                child: TextField(
+                  key: Key('note_line_$index'),
+                  controller: TextEditingController(text: textOnly)..selection = TextSelection.fromPosition(TextPosition(offset: textOnly.length)),
+                  maxLines: null,
+                  textInputAction: TextInputAction.next,
+                  style: TextStyle(
+                    color: isChecked ? Colors.grey : Colors.white,
+                    fontSize: 17,
+                    decoration: isChecked ? TextDecoration.lineThrough : null,
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Listenpunkt...',
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                  onChanged: (newVal) {
+                    lines[index] = (isChecked ? '- [x] ' : '- [ ] ') + newVal;
+                    controller.text = lines.join('\n');
+                  },
+                  onSubmitted: (_) {
+                    setModalState(() {
+                      lines.insert(index + 1, '- [ ] ');
+                      controller.text = lines.join('\n');
+                    });
+                  },
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                onPressed: () {
+                  setModalState(() {
+                    lines.removeAt(index);
+                    controller.text = lines.join('\n');
+                  });
+                },
+              ),
+            ],
           ),
-        ),
-        // PLUS Button am Ende der Liste
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton.icon(
-            onPressed: () {
-              setModalState(() {
-                final current = controller.text;
-                if (current.isEmpty) {
-                  controller.text = '- [ ] ';
-                } else {
-                  controller.text = current.endsWith('\n') ? '$current- [ ] ' : '$current\n- [ ] ';
-                }
-              });
-            },
-            icon: const Icon(Icons.add, color: Color(0xFFFF9800)),
-            label: const Text('Punkt hinzufügen', style: TextStyle(color: Color(0xFFFF9800))),
-          ),
-        ),
-      ],
+        ) : Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 40.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(line, style: TextStyle(color: AppColors.textSecondary, fontSize: 17)),
+              ],
+            )
+        );
+      },
     );
   }
 
