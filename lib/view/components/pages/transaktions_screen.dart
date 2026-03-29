@@ -182,6 +182,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
               child: Column(
                 children: [
                   PageHeader(
+                    label: "Transaktionen",
                     child: Container(
 
                     )
