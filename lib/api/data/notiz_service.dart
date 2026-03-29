@@ -1,6 +1,31 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart'; // Für compute
 import 'package:http/http.dart' as http;
 import '../models/models.dart';
+
+//  Parsen in Hintergrund-Thread (Isolate).
+//  außerhalb der Klasse, damit compute() funktioniert
+
+Notizblock? _parseNotizblockFromList(String responseBody) {
+  final List<dynamic> jsonList = json.decode(responseBody);
+  if (jsonList.isNotEmpty) {
+    return Notizblock.fromJson(jsonList.first);
+  }
+  return null;
+}
+
+Notizblock _parseSingleNotizblock(String responseBody) {
+  return Notizblock.fromJson(json.decode(responseBody));
+}
+
+Notiz _parseSingleNotiz(String responseBody) {
+  return Notiz.fromJson(json.decode(responseBody));
+}
+
+List<Notiz> _parseNotizenList(String responseBody) {
+  final List<dynamic> jsonList = json.decode(responseBody);
+  return jsonList.map((json) => Notiz.fromJson(json)).toList();
+}
 
 class NotizService {
   final String _baseUrl = 'http://ubuntu.p-stephan.de:8081/api';
@@ -9,10 +34,7 @@ class NotizService {
   Future<Notizblock?> getNotizblockByGruppe(String gruppeId) async {
     final response = await http.get(Uri.parse('$_baseUrl/notizblock/gruppe/$gruppeId'));
     if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      if (jsonList.isNotEmpty) {
-        return Notizblock.fromJson(jsonList.first);
-      }
+      return compute(_parseNotizblockFromList, response.body);
     }
     return null;
   }
@@ -29,7 +51,7 @@ class NotizService {
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      return Notizblock.fromJson(json.decode(response.body));
+      return compute(_parseSingleNotizblock, response.body);
     }
     throw Exception('Fehler beim Erstellen des Notizblocks');
   }
@@ -43,7 +65,7 @@ class NotizService {
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      return Notiz.fromJson(json.decode(response.body));
+      return compute(_parseSingleNotiz, response.body);
     }
     throw Exception('Fehler beim Erstellen der Notiz');
   }
@@ -59,7 +81,7 @@ class NotizService {
     );
 
     if (response.statusCode == 200) {
-      return Notiz.fromJson(json.decode(response.body));
+      return compute(_parseSingleNotiz, response.body);
     }
     throw Exception('Fehler beim Aktualisieren der Notiz: Status ${response.statusCode}');
   }
@@ -76,8 +98,7 @@ class NotizService {
   Future<List<Notiz>> getNotizenByNotizblock(String notizblockId) async {
     final response = await http.get(Uri.parse('$_baseUrl/notiz/notizblock/$notizblockId'));
     if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
-      return jsonList.map((json) => Notiz.fromJson(json)).toList();
+      return compute(_parseNotizenList, response.body);
     }
     return [];
   }
