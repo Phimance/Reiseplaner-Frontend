@@ -8,6 +8,7 @@ import 'package:reiseplaner/view/theme/app_colors.dart';
 import 'package:reiseplaner/view/components/core/Widgets/TransactionList.dart';
 import 'package:reiseplaner/view/components/core/Widgets/Button.dart';
 import 'package:reiseplaner/view/components/core/Widgets/SaldoCard.dart';
+import 'package:reiseplaner/view/components/core/Widgets/PageHeader.dart';
 
 class TransaktionsScreen extends StatefulWidget {
   const TransaktionsScreen({super.key});
@@ -180,6 +181,13 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
           : SingleChildScrollView(
               child: Column(
                 children: [
+                  PageHeader(
+                    label: "Transaktionen",
+                    child: Container(
+
+                    )
+                  ),
+                  const SizedBox(height: 12),
                   SaldoCard(
                     salden: saldenListe,
                     onSettleTapped: (saldo) {
