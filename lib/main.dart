@@ -12,7 +12,6 @@ import 'package:reiseplaner/view/theme/app_colors.dart';
 import 'core/app_state.dart';
 import 'view/components/pages/login_screen.dart';
 import 'view/theme/app_theme.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

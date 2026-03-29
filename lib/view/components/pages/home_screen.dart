@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:reiseplaner/api/data/saldo_calculator.dart';
 import 'package:reiseplaner/view/components/core/Widgets/StatSummaryTile.dart';
 import 'package:reiseplaner/view/components/pages/add_entity/edit_gruppe_screen.dart';
 import 'package:reiseplaner/view/components/pages/add_entity/add_gruppe_screen.dart';
@@ -10,35 +11,8 @@ import '../core/Widgets/Button.dart';
 import '../core/Widgets/TransactionList.dart';
 import 'package:reiseplaner/view/components/core/Widgets/SummaryCard.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadInitialData();
-  }
-
-  @override
-  void dispose() {
-    // Clean up controllers or listeners here
-    super.dispose();
-  }
-
-  // 3. Logic: Functional Methods
-  Future<void> _loadInitialData() async {
-    setState(() => _isLoading = true);
-
-    // Add your data fetching or logic here
-    setState(() => _isLoading = false);
-  }
 
   String _formatDate(String? date) {
     if (date == null || date.isEmpty) return '';
@@ -47,51 +21,25 @@ class _HomeScreenState extends State<HomeScreen> {
     return DateFormat('d. MMMM yyyy', 'de').format(dt);
   }
 
-  double _berechneSaldo(List<dynamic> transaktionen, String benutzername) {
-    double saldo = 0;
-    for (final t in transaktionen) {
-      final eigenerAnteil = t.transaktionspersonen
-          .where((tp) => tp.schuldner == benutzername)
-          .fold(0.0, (sum, tp) => sum + tp.anteil);
-      if (t.bezahlername == benutzername) {
-        saldo += t.gesamtwert - eigenerAnteil;
-      } else {
-        saldo -= eigenerAnteil;
-      }
-    }
-    return saldo;
-  }
-
   ({int tage, String label}) _berechneTage(String? startDate, String? endDate) {
-    // 1. Alles auf UTC Mitternacht normalisieren
     final nun = DateTime.now();
     final heute = DateTime.utc(nun.year, nun.month, nun.day);
 
     final startRaw = startDate != null ? DateTime.tryParse(startDate) : null;
     final endeRaw = endDate != null ? DateTime.tryParse(endDate) : null;
 
-    // Wenn keine Daten da sind, direkt raus
     if (startRaw == null || endeRaw == null) return (tage: 0, label: 'Kein Datum');
 
     final start = DateTime.utc(startRaw.year, startRaw.month, startRaw.day);
     final ende = DateTime.utc(endeRaw.year, endeRaw.month, endeRaw.day);
 
-    // FALL A: Vor der Reise
     if (heute.isBefore(start)) {
       final diff = start.difference(heute).inDays;
-      // Hier KEIN +1, denn wenn heute der 29. und Start der 30. ist, ist es genau 1 Tag.
       return (tage: diff, label: diff == 1 ? 'Tag bis Start' : 'Tage bis Start');
-    }
-
-    // FALL B: Während der Reise (Heute ist Starttag oder danach)
-    else if (!heute.isAfter(ende)) {
-      // Hier +1, weil der heutige Tag als voller Reisetag zählt
+    } else if (!heute.isAfter(ende)) {
       final diff = ende.difference(heute).inDays;
       return (tage: diff, label: diff == 1 ? 'Letzter Tag' : 'Tage noch');
-    }
-
-    // FALL C: Reise vorbei
-    else {
+    } else {
       return (tage: 0, label: 'Reise beendet');
     }
   }
@@ -101,17 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final appState = context.watch<AppState>();
     final gruppe = appState.aktiveGruppe;
 
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     if (gruppe == null) {
       return const EmptyTripState();
     }
 
     final transaktionen = gruppe.transaktionen;
     final benutzername = appState.benutzername;
-    final saldo = _berechneSaldo(transaktionen, benutzername);
+    final saldo = SaldoCalculator.berechneSaldoFuerBenutzer(transaktionen, benutzername);
     final saldoText = '${saldo >= 0 ? '+' : ''}${saldo.toStringAsFixed(2)} €';
     final tageInfo = _berechneTage(gruppe.startDate, gruppe.endDate);
     final eventCount = gruppe.planer?.events.length ?? 0;
@@ -221,3 +165,4 @@ class EmptyTripState extends StatelessWidget {
     );
   }
 }
+

@@ -18,46 +18,7 @@ class TransaktionsScreen extends StatefulWidget {
 }
 
 class _TransaktionsScreenState extends State<TransaktionsScreen> {
-  // 1. Logic: Variables & State
-  bool _isLoading = false;
   final ApiService _apiService = ApiService();
-
-  // 2. Logic: Lifecycle Methods
-  @override
-  void initState() {
-    super.initState();
-    _loadInitialData();
-  }
-
-  @override
-  void dispose() {
-    // Clean up controllers or listeners here
-    super.dispose();
-  }
-
-  // 3. Logic: Functional Methods
-  Future<void> _loadInitialData() async {
-    setState(() => _isLoading = true);
-
-    // Add your data fetching or logic here
-
-    setState(() => _isLoading = false);
-  }
-
-  double _berechneSaldo(List<dynamic> transaktionen, String benutzername) {
-    double saldo = 0;
-    for (final t in transaktionen) {
-      final eigenerAnteil = t.transaktionspersonen
-          .where((tp) => tp.schuldner == benutzername)
-          .fold(0.0, (sum, tp) => sum + tp.anteil);
-      if (t.bezahlername == benutzername) {
-        saldo += t.gesamtwert - eigenerAnteil;
-      } else {
-        saldo -= eigenerAnteil;
-      }
-    }
-    return saldo;
-  }
 
   void _showSettleBottomSheet(BuildContext context, SaldoResult saldo, String gruppeId) {
     final myDebts = saldo.debts.where((d) => d.from == saldo.name).toList();
@@ -119,7 +80,6 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                                 foregroundColor: Colors.white,
                               ),
                               onPressed: () async {
-                                // Schritt 1: Variablen sichern (Vor dem asynchronen Bruch)
                                 final appState = context.read<AppState>();
                                 final messenger = ScaffoldMessenger.of(context);
                                 final navigator = Navigator.of(context);
@@ -133,18 +93,11 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                                   ]
                                 };
 
-                                // Schritt 2: UX optimieren
                                 navigator.pop();
 
                                 try {
-                                  // Schritt 3: API & State-Update
                                   await _apiService.createTransaktion(gruppeId, newTransaktion);
-                                  
-                                  // Methode im AppState gefunden: loadActivities() 
-                                  // Diese lädt ladeGruppen() und aktualisiert die aktiveGruppe
                                   await appState.loadActivities();
-
-                                  // Schritt 4: Feedback
                                   messenger.showSnackBar(
                                     const SnackBar(content: Text('Ausgleich gebucht')),
                                   );
@@ -169,7 +122,6 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     );
   }
 
-  // 4. Structure: The Build Method
   @override
   Widget build(BuildContext context) {
     final aktiveGruppe = context.watch<AppState>().aktiveGruppe;
@@ -190,9 +142,8 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     final benutzername = context.watch<AppState>().benutzername;
 
     final saldenListe = SaldoCalculator.calculateBalances(transaktionen, alleBenutzerNamen);
-    final saldo = _berechneSaldo(transaktionen, benutzername);
+    final saldo = SaldoCalculator.berechneSaldoFuerBenutzer(transaktionen, benutzername);
 
-    // Subtitle: "von X, Y..." oder "an X, Y..."
     String _buildSaldoSubtitle() {
       if (saldo > 0.01) {
         final names = saldenListe
@@ -221,9 +172,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     final saldoSubtitle = _buildSaldoSubtitle();
     
     return Scaffold(
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: SingleChildScrollView(
               child: Column(
                 children: [
                   PageHeader(
