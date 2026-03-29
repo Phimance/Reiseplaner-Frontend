@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/pages/add_entity/add_transaktion_screen.dart';
+import '../../../api/data/saldo_calculator.dart';
 import '../../../core/app_state.dart';
 import '../core/Widgets/TransactionList.dart';
 import '../core/Widgets/Button.dart';
+import '../core/Widgets/saldo_card.dart';
 
 class TransaktionsScreen extends StatefulWidget {
   const TransaktionsScreen({super.key});
@@ -42,31 +44,48 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
   @override
   Widget build(BuildContext context) {
     final aktiveGruppe = context.watch<AppState>().aktiveGruppe;
-    final transaktionen = aktiveGruppe?.transaktionen ?? [];
+
+    if (aktiveGruppe == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            'Keine Gruppe ausgewählt',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      );
+    }
+
+    final transaktionen = aktiveGruppe.transaktionen;
+    final alleBenutzerNamen = aktiveGruppe.benutzer.map((b) => b.name).toList();
+
+    final saldenListe = SaldoCalculator.calculateBalances(transaktionen, alleBenutzerNamen);
 
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        child: Column(
-          children: [
-            ReiseButton(
-              title: 'Ausgabe hinzufügen',
-              icon: Icons.add,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AddTransaktionScreen(),
+              child: Column(
+                children: [
+                  SaldoCard(salden: saldenListe),
+                  const SizedBox(height: 12),
+                  ReiseButton(
+                    title: 'Ausgabe hinzufügen',
+                    icon: Icons.add,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AddTransaktionScreen(),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                  const SizedBox(height: 12),
+                  TransactionList(transaktionen: transaktionen, limitItems: false),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            TransactionList(transaktionen: transaktionen, limitItems: false),
-          ],
-        ),
-      ),
     );
   }
 }
