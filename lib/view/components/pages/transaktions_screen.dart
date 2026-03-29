@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/pages/add_entity/add_transaktion_screen.dart';
-import '../../../core/app_state.dart';
-import '../core/Widgets/TransactionList.dart';
-import '../core/Widgets/Button.dart';
+import 'package:reiseplaner/api/auth/api_service.dart';
+import 'package:reiseplaner/api/data/saldo_calculator.dart';
+import 'package:reiseplaner/core/app_state.dart';
+import 'package:reiseplaner/view/theme/app_colors.dart';
+import 'package:reiseplaner/view/components/core/Widgets/TransactionList.dart';
+import 'package:reiseplaner/view/components/core/Widgets/Button.dart';
+import 'package:reiseplaner/view/components/core/Widgets/SaldoCard.dart';
 
 class TransaktionsScreen extends StatefulWidget {
   const TransaktionsScreen({super.key});
@@ -15,6 +19,7 @@ class TransaktionsScreen extends StatefulWidget {
 class _TransaktionsScreenState extends State<TransaktionsScreen> {
   // 1. Logic: Variables & State
   bool _isLoading = false;
+  final ApiService _apiService = ApiService();
 
   // 2. Logic: Lifecycle Methods
   @override
@@ -38,35 +43,171 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     setState(() => _isLoading = false);
   }
 
+  void _showSettleBottomSheet(BuildContext context, SaldoResult saldo, String gruppeId) {
+    final myDebts = saldo.debts.where((d) => d.from == saldo.name).toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Schulden von ${saldo.name}',
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (myDebts.isEmpty)
+                const Text(
+                  'Keine offenen Schulden zu begleichen.',
+                  style: TextStyle(color: AppColors.textSecondary),
+                )
+              else
+                Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: myDebts.length,
+                    itemBuilder: (context, index) {
+                      final debt = myDebts[index];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          'Ausgleich an ${debt.to}',
+                          style: const TextStyle(color: AppColors.textPrimary),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              '${debt.amount.toStringAsFixed(2)}€',
+                              style: const TextStyle(
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () async {
+                                // Schritt 1: Variablen sichern (Vor dem asynchronen Bruch)
+                                final appState = context.read<AppState>();
+                                final messenger = ScaffoldMessenger.of(context);
+                                final navigator = Navigator.of(context);
+
+                                final newTransaktion = {
+                                  'transaktionsname': 'Ausgleich',
+                                  'bezahlername': debt.from,
+                                  'gesamtwert': debt.amount,
+                                  'transaktionspersonen': [
+                                    {'schuldner': debt.to, 'anteil': debt.amount}
+                                  ]
+                                };
+
+                                // Schritt 2: UX optimieren
+                                navigator.pop();
+
+                                try {
+                                  // Schritt 3: API & State-Update
+                                  await _apiService.createTransaktion(gruppeId, newTransaktion);
+                                  
+                                  // Methode im AppState gefunden: loadActivities() 
+                                  // Diese lädt ladeGruppen() und aktualisiert die aktiveGruppe
+                                  await appState.loadActivities();
+
+                                  // Schritt 4: Feedback
+                                  messenger.showSnackBar(
+                                    const SnackBar(content: Text('Ausgleich gebucht')),
+                                  );
+                                } catch (e) {
+                                  messenger.showSnackBar(
+                                    SnackBar(content: Text('Fehler beim Ausgleich: $e')),
+                                  );
+                                }
+                              },
+                              child: const Text('Zahlen'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   // 4. Structure: The Build Method
   @override
   Widget build(BuildContext context) {
     final aktiveGruppe = context.watch<AppState>().aktiveGruppe;
-    final transaktionen = aktiveGruppe?.transaktionen ?? [];
+
+    if (aktiveGruppe == null) {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            'Keine Gruppe ausgewählt',
+            style: TextStyle(fontSize: 18, color: AppColors.textPrimary),
+          ),
+        ),
+      );
+    }
+
+    final transaktionen = aktiveGruppe.transaktionen;
+    final alleBenutzerNamen = aktiveGruppe.benutzer.map((b) => b.name).toList();
+
+    final saldenListe = SaldoCalculator.calculateBalances(transaktionen, alleBenutzerNamen);
 
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-        child: Column(
-          children: [
-            ReiseButton(
-              title: 'Ausgabe hinzufügen',
-              icon: Icons.add,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AddTransaktionScreen(),
+              child: Column(
+                children: [
+                  SaldoCard(
+                    salden: saldenListe,
+                    onSettleTapped: (saldo) {
+                      if (saldo.netBalance < -0.01) {
+                        _showSettleBottomSheet(context, saldo, aktiveGruppe.id);
+                      }
+                    },
                   ),
-                );
-              },
+                  const SizedBox(height: 12),
+                  ReiseButton(
+                    title: 'Ausgabe hinzufügen',
+                    icon: Icons.add,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const AddTransaktionScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TransactionList(transaktionen: transaktionen, limitItems: false),
+                  const SizedBox(height: 24),
+
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            TransactionList(transaktionen: transaktionen, limitItems: false),
-          ],
-        ),
-      ),
     );
   }
 }
