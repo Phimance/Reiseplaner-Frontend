@@ -44,7 +44,8 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     final displayFormat = DateFormat('dd.MM.yyyy');
     final apiFormat = DateFormat('yyyy-MM-dd');
 
-    if (widget.gruppe.startDate != null && widget.gruppe.startDate!.isNotEmpty) {
+    if (widget.gruppe.startDate != null &&
+        widget.gruppe.startDate!.isNotEmpty) {
       try {
         final parsed = apiFormat.parseStrict(widget.gruppe.startDate!);
         _startController.text = displayFormat.format(parsed);
@@ -132,7 +133,10 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     // Validierung: Ende darf nicht vor Start liegen
     if (startDateTime != null && endDateTime != null) {
       if (endDateTime.isBefore(startDateTime)) {
-        setState(() => _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+        setState(
+          () =>
+              _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.',
+        );
         return;
       }
     }
@@ -159,8 +163,10 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
       if (mounted) {
         final message = e.toString();
         if (message.contains('409') || message.contains('Conflict')) {
-          setState(() => _nameError =
-              'Eine Gruppe mit dem Namen "$name" existiert bereits.');
+          setState(
+            () => _nameError =
+                'Eine Gruppe mit dem Namen "$name" existiert bereits.',
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -178,8 +184,10 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Gruppe löschen',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: const Text(
+          'Gruppe löschen',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
         content: Text(
           'Möchtest du "${widget.gruppe.name}" wirklich löschen? '
           'Alle Transaktionen, Notizen und Events gehen verloren.',
@@ -188,16 +196,20 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Abbrechen',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Abbrechen',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
               _deleteGruppe();
             },
-            child: const Text('Löschen',
-                style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Löschen',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -293,16 +305,18 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                 children: [
                   Expanded(
                     child: DateInputField(
-                        label: 'Start',
-                        hint: 'TT.MM.JJJJ',
-                        controller: _startController),
+                      label: 'Start',
+                      hint: 'TT.MM.JJJJ',
+                      controller: _startController,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: DateInputField(
-                        label: 'Ende',
-                        hint: 'TT.MM.JJJJ',
-                        controller: _endeController),
+                      label: 'Ende',
+                      hint: 'TT.MM.JJJJ',
+                      controller: _endeController,
+                    ),
                   ),
                 ],
               ),
@@ -367,8 +381,9 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
                               size: 44,
                               onPressed: isCurrentUser
                                   ? () {}
-                                  : () =>
-                                      setState(() => _personen.remove(person)),
+                                  : () => setState(
+                                      () => _personen.remove(person),
+                                    ),
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -409,4 +424,3 @@ class _EditGruppeScreenState extends State<EditGruppeScreen> {
     );
   }
 }
-

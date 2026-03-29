@@ -4,19 +4,16 @@ class Notiz {
   final String inhalt;
   final String? notizblockId;
 
-  Notiz({
-    this.id,
-    required this.name,
-    required this.inhalt,
-    this.notizblockId,
-  });
+  Notiz({this.id, required this.name, required this.inhalt, this.notizblockId});
 
   factory Notiz.fromJson(Map<String, dynamic> json) {
     return Notiz(
       id: json['id'] as String?,
       name: (json['name'] ?? '') as String,
       inhalt: (json['inhalt'] ?? '') as String,
-      notizblockId: json['notizblock'] != null ? json['notizblock']['id'] as String? : null,
+      notizblockId: json['notizblock'] != null
+          ? json['notizblock']['id'] as String?
+          : null,
     );
   }
 

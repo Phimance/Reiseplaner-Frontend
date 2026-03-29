@@ -18,10 +18,25 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("BananaSplit by Phimance inc.", style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.normal)),
-            Text("Version 1.0.0", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+            Text(
+              "BananaSplit by Phimance inc.",
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            Text(
+              "Version 1.0.0",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
             const SizedBox(height: 32),
-            Text("Entwickelt von Phillip Stephan, Oliver Seide, Malte Upmann und Mio Linde \nim Rahmen des Moduls \"Mobile Anwendungen\" der DHGE mit Prof. Dr. Kasche", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
+            Text(
+              "Entwickelt von Phillip Stephan, Oliver Seide, Malte Upmann und Mio Linde \nim Rahmen des Moduls \"Mobile Anwendungen\" der DHGE mit Prof. Dr. Kasche",
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+            ),
             const Spacer(),
             const Divider(color: AppColors.divider, thickness: 1),
             const SizedBox(height: 20),
@@ -32,8 +47,14 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 3),
-                  child: Text(context.read<AppState>().benutzername, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                )
+                  child: Text(
+                    context.read<AppState>().benutzername,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -44,14 +65,16 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () async {
                 // Lokales Username-Caching löschen
                 await LocalAuthService.logout();
-                
+
                 // Logout im AppState ausführen
                 if (context.mounted) {
                   context.read<AppState>().logout();
-                  
+
                   // Zurück zum Login-Screen navigieren und Stack leeren
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
                     (route) => false,
                   );
                 }

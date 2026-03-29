@@ -52,9 +52,9 @@ class ReiseHeader extends StatelessWidget {
                           ),
                         );
                       },
-                    )
+                    ),
                   ],
-                )
+                ),
               ),
               const Divider(color: AppColors.divider),
               ...gruppen.map((gruppe) {
@@ -62,17 +62,27 @@ class ReiseHeader extends StatelessWidget {
                 return ListTile(
                   leading: Icon(
                     isSelected ? Icons.check_circle : Icons.circle_outlined,
-                    color: isSelected ? AppColors.primary : AppColors.navInactive,
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.navInactive,
                   ),
                   title: Text(
                     gruppe.name,
                     style: TextStyle(
-                      color: isSelected ? AppColors.primary : AppColors.textPrimary,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.settings, color: AppColors.textSecondary, size: 22),
+                    icon: const Icon(
+                      Icons.settings,
+                      color: AppColors.textSecondary,
+                      size: 22,
+                    ),
                     onPressed: () {
                       Navigator.pop(sheetContext);
                       Navigator.push(
@@ -107,10 +117,10 @@ class ReiseHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Spacer(),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Spacer(),
             Text(
               gruppenName,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -119,12 +129,16 @@ class ReiseHeader extends StatelessWidget {
             ),
             Text(
               locationName,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+              ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),
-              Spacer(),
-      ],),
+            Spacer(),
+          ],
+        ),
         SizedBox(width: 24),
         IconButton(
           icon: const Icon(Icons.keyboard_arrow_down_outlined, size: 38),

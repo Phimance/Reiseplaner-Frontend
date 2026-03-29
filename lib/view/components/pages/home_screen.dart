@@ -71,7 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final endeRaw = endDate != null ? DateTime.tryParse(endDate) : null;
 
     // Wenn keine Daten da sind, direkt raus
-    if (startRaw == null || endeRaw == null) return (tage: 0, label: 'Kein Datum');
+    if (startRaw == null || endeRaw == null)
+      return (tage: 0, label: 'Kein Datum');
 
     final start = DateTime.utc(startRaw.year, startRaw.month, startRaw.day);
     final ende = DateTime.utc(endeRaw.year, endeRaw.month, endeRaw.day);
@@ -80,16 +81,17 @@ class _HomeScreenState extends State<HomeScreen> {
     if (heute.isBefore(start)) {
       final diff = start.difference(heute).inDays;
       // Hier KEIN +1, denn wenn heute der 29. und Start der 30. ist, ist es genau 1 Tag.
-      return (tage: diff, label: diff == 1 ? 'Tag bis Start' : 'Tage bis Start');
+      return (
+        tage: diff,
+        label: diff == 1 ? 'Tag bis Start' : 'Tage bis Start',
+      );
     }
-
     // FALL B: Während der Reise (Heute ist Starttag oder danach)
     else if (!heute.isAfter(ende)) {
       // Hier +1, weil der heutige Tag als voller Reisetag zählt
       final diff = ende.difference(heute).inDays;
       return (tage: diff, label: diff == 1 ? 'Letzter Tag' : 'Tage noch');
     }
-
     // FALL C: Reise vorbei
     else {
       return (tage: 0, label: 'Reise beendet');
@@ -123,10 +125,11 @@ class _HomeScreenState extends State<HomeScreen> {
             title: (gruppe.location != null && gruppe.location!.isNotEmpty)
                 ? gruppe.location!
                 : gruppe.name,
-            dateRange: '${_formatDate(gruppe.startDate)} - ${_formatDate(gruppe.endDate)}',
+            dateRange:
+                '${_formatDate(gruppe.startDate)} - ${_formatDate(gruppe.endDate)}',
             avatars: gruppe.benutzer
-                    .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
-                    .toList(),
+                .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
+                .toList(),
             onSettings: () {
               Navigator.push(
                 context,
@@ -162,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          TransactionList(transaktionen: transaktionen)
+          TransactionList(transaktionen: transaktionen),
         ],
       ),
     );
@@ -199,10 +202,7 @@ class EmptyTripState extends StatelessWidget {
             const Text(
               'Erstelle eine neue Reisegruppe.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
             ),
             const SizedBox(height: 32),
             ReiseButton(

@@ -35,7 +35,9 @@ class TransactionList extends StatelessWidget {
     final visible = limitItems
         ? transaktionen.sublist(
             0,
-            transaktionen.length > previewCount ? previewCount : transaktionen.length,
+            transaktionen.length > previewCount
+                ? previewCount
+                : transaktionen.length,
           )
         : transaktionen;
 
@@ -68,7 +70,8 @@ class TransactionList extends StatelessWidget {
         return TransactionListItem(
           icon: Icons.receipt_long,
           title: t.transaktionsname,
-          subtitle: '${t.bezahlername} zahlte ${t.gesamtwert.toStringAsFixed(2)} €',
+          subtitle:
+              '${t.bezahlername} zahlte ${t.gesamtwert.toStringAsFixed(2)} €',
           amount: '$prefix${betrag.toStringAsFixed(2)} €',
           amountColor: farbe,
           onTap: () {
@@ -87,4 +90,3 @@ class TransactionList extends StatelessWidget {
     );
   }
 }
-

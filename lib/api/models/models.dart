@@ -6,12 +6,7 @@ class Notiz {
   final String inhalt;
   final String? notizblockId;
 
-  Notiz({
-    this.id,
-    required this.name,
-    required this.inhalt,
-    this.notizblockId,
-  });
+  Notiz({this.id, required this.name, required this.inhalt, this.notizblockId});
 
   factory Notiz.fromJson(Map<String, dynamic> json) {
     final String foundName = (json['name'] ?? json['titel'] ?? '') as String;
@@ -29,10 +24,7 @@ class Notiz {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {
-      'name': name,
-      'inhalt': inhalt,
-    };
+    final Map<String, dynamic> data = {'name': name, 'inhalt': inhalt};
 
     if (id != null) data['id'] = id;
     if (notizblockId != null) {
@@ -54,7 +46,9 @@ class Notizblock {
 
   factory Notizblock.fromJson(Map<String, dynamic> json) {
     var list = json['notizen'] as List? ?? [];
-    List<Notiz> notizenList = list.map((i) => Notiz.fromJson(i as Map<String, dynamic>)).toList();
+    List<Notiz> notizenList = list
+        .map((i) => Notiz.fromJson(i as Map<String, dynamic>))
+        .toList();
 
     return Notizblock(
       id: (json['id'] ?? json['uuid'] ?? json['name']).toString(),
@@ -66,7 +60,7 @@ class Notizblock {
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
-    'notizen': notizen.map((n) => n.toJson()).toList()
+    'notizen': notizen.map((n) => n.toJson()).toList(),
   };
 }
 
@@ -98,7 +92,8 @@ class Gruppe {
   factory Gruppe.fromJson(Map<String, dynamic> json) {
     List<Benutzer> benutzerList = [];
     try {
-      benutzerList = (json['benutzer'] as List<dynamic>?)
+      benutzerList =
+          (json['benutzer'] as List<dynamic>?)
               ?.map((e) => Benutzer.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [];
@@ -108,7 +103,8 @@ class Gruppe {
 
     List<Transaktion> transaktionenList = [];
     try {
-      transaktionenList = (json['transaktionen'] as List<dynamic>?)
+      transaktionenList =
+          (json['transaktionen'] as List<dynamic>?)
               ?.map((e) => Transaktion.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [];
@@ -118,7 +114,8 @@ class Gruppe {
 
     List<Notizblock> notizblocksList = [];
     try {
-      notizblocksList = (json['notizblocks'] as List<dynamic>?)
+      notizblocksList =
+          (json['notizblocks'] as List<dynamic>?)
               ?.map((e) => Notizblock.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [];
@@ -185,7 +182,8 @@ class Benutzer {
   factory Benutzer.fromJson(Map<String, dynamic> json) {
     return Benutzer(
       name: json['name'] as String,
-      freunde: (json['freunde'] as List<dynamic>?)
+      freunde:
+          (json['freunde'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
@@ -218,22 +216,25 @@ class Transaktion {
       transaktionsname: json['transaktionsname'] as String,
       bezahlername: json['bezahlername'] as String,
       gesamtwert: (json['gesamtwert'] as num).toDouble(),
-      transaktionspersonen: (json['transaktionspersonen'] as List<dynamic>?)
-              ?.map((e) =>
-                  Transaktionsperson.fromJson(e as Map<String, dynamic>))
+      transaktionspersonen:
+          (json['transaktionspersonen'] as List<dynamic>?)
+              ?.map(
+                (e) => Transaktionsperson.fromJson(e as Map<String, dynamic>),
+              )
               .toList() ??
           [],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
-        'transaktionsname': transaktionsname,
-        'bezahlername': bezahlername,
-        'gesamtwert': gesamtwert,
-        'transaktionspersonen':
-            transaktionspersonen.map((tp) => tp.toJson()).toList(),
-      };
+    if (id != null) 'id': id,
+    'transaktionsname': transaktionsname,
+    'bezahlername': bezahlername,
+    'gesamtwert': gesamtwert,
+    'transaktionspersonen': transaktionspersonen
+        .map((tp) => tp.toJson())
+        .toList(),
+  };
 
   @override
   String toString() =>
@@ -247,11 +248,7 @@ class Transaktionsperson {
   final String schuldner;
   final double anteil;
 
-  Transaktionsperson({
-    this.id,
-    required this.schuldner,
-    required this.anteil,
-  });
+  Transaktionsperson({this.id, required this.schuldner, required this.anteil});
 
   factory Transaktionsperson.fromJson(Map<String, dynamic> json) {
     return Transaktionsperson(
@@ -262,13 +259,14 @@ class Transaktionsperson {
   }
 
   Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
-        'schuldner': schuldner,
-        'anteil': anteil,
-      };
+    if (id != null) 'id': id,
+    'schuldner': schuldner,
+    'anteil': anteil,
+  };
 
   @override
-  String toString() => 'Transaktionsperson(schuldner: $schuldner, anteil: $anteil)';
+  String toString() =>
+      'Transaktionsperson(schuldner: $schuldner, anteil: $anteil)';
 }
 
 // ── Planer ────────────────────────────────────────────────────
@@ -284,7 +282,8 @@ class Planer {
     return Planer(
       id: json['id'] as String,
       name: json['name'] as String,
-      events: (json['events'] as List<dynamic>?)
+      events:
+          (json['events'] as List<dynamic>?)
               ?.map((e) => Event.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
@@ -292,10 +291,10 @@ class Planer {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'events': events.map((e) => e.toJson()).toList(),
-      };
+    'id': id,
+    'name': name,
+    'events': events.map((e) => e.toJson()).toList(),
+  };
 }
 
 // ── Event ────────────────────────────────────────────────────
@@ -329,13 +328,13 @@ class Event {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'datumStart': datumStart,
-        'datumEnde': datumEnde,
-        'titel': titel,
-        'beschreibung': beschreibung,
-        'location': location,
-      };
+    'id': id,
+    'datumStart': datumStart,
+    'datumEnde': datumEnde,
+    'titel': titel,
+    'beschreibung': beschreibung,
+    'location': location,
+  };
 
   @override
   String toString() => 'Event(id: $id, titel: $titel)';

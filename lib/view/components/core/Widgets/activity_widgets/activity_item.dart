@@ -41,28 +41,32 @@ class ActivityItem extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: titleColor,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: titleColor,
+                    ),
                   ),
                   if (!isPast && location != null && location!.isNotEmpty)
                     Text(
                       location!,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                 ],
               ),
             ),
             Text(
               date,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.textSecondary,
+              size: 20,
+            ),
           ],
         ),
       ),

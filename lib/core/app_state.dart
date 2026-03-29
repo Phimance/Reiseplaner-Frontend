@@ -11,31 +11,38 @@ class AppState extends ChangeNotifier {
 
   // ── Benutzername ──────────────────────────────────────────
   String _benutzername = '';
+
   String get benutzername => _benutzername;
 
   // ── Gruppen des Benutzers ─────────────────────────────────
   List<Gruppe> _gruppen = [];
+
   List<Gruppe> get gruppen => List.unmodifiable(_gruppen);
 
   // ── Aktuell ausgewählte Gruppe ────────────────────────────
   Gruppe? _aktiveGruppe;
+
   Gruppe? get aktiveGruppe => _aktiveGruppe;
 
   Notizblock? _aktiverNotizblock;
 
   List<Notiz> _notizen = [];
+
   List<Notiz> get notizen => List.unmodifiable(_notizen);
 
   // ── Events der aktiven Gruppe ─────────────────────────────
   List<Event> _events = [];
+
   List<Event> get events => List.unmodifiable(_events);
 
   // ── Lade-Status ───────────────────────────────────────────
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
 
   // ── Fehler ────────────────────────────────────────────────
   String? _error;
+
   String? get error => _error;
 
   /// Wird nach dem Login aufgerufen: Setzt den Benutzernamen
@@ -55,7 +62,9 @@ class AppState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final gruppenResult = await _apiService.getGruppenByBenutzer(_benutzername);
+      final gruppenResult = await _apiService.getGruppenByBenutzer(
+        _benutzername,
+      );
       _gruppen = gruppenResult;
 
       // Aktive Gruppe per ID wiederfinden (nach Reload ist es ein neues Objekt)
@@ -90,16 +99,25 @@ class AppState extends ChangeNotifier {
 
     try {
       print('Suche Notizblock für Gruppe: ${_aktiveGruppe!.id}');
-      _aktiverNotizblock = await _notizService.getNotizblockByGruppe(_aktiveGruppe!.id);
+      _aktiverNotizblock = await _notizService.getNotizblockByGruppe(
+        _aktiveGruppe!.id,
+      );
 
       if (_aktiverNotizblock == null) {
-        print('Kein Notizblock gefunden, erstelle "Allgemein" für Gruppe ${_aktiveGruppe!.id}');
-        _aktiverNotizblock = await _notizService.createNotizblock(_aktiveGruppe!.id, "Allgemein");
+        print(
+          'Kein Notizblock gefunden, erstelle "Allgemein" für Gruppe ${_aktiveGruppe!.id}',
+        );
+        _aktiverNotizblock = await _notizService.createNotizblock(
+          _aktiveGruppe!.id,
+          "Allgemein",
+        );
       }
 
       if (_aktiverNotizblock != null) {
         print('Lade Notizen für Block: ${_aktiverNotizblock!.id}');
-        _notizen = await _notizService.getNotizenByNotizblock(_aktiverNotizblock!.id);
+        _notizen = await _notizService.getNotizenByNotizblock(
+          _aktiverNotizblock!.id,
+        );
         print('Anzahl Notizen geladen: ${_notizen.length}');
       }
     } catch (e) {
@@ -112,6 +130,7 @@ class AppState extends ChangeNotifier {
 
   // ── Navigation ────────────────────────────────────────────
   int _tabIndex = 0;
+
   int get tabIndex => _tabIndex;
 
   void setTabIndex(int index) {
@@ -233,4 +252,3 @@ class AppState extends ChangeNotifier {
     }
   }
 }
-

@@ -41,10 +41,7 @@ class TextInputField extends StatelessWidget {
           keyboardType: keyboardType,
           obscureText: obscureText,
           onChanged: onChanged,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 15,
-          ),
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
         ),
       ],
     );
@@ -105,46 +102,43 @@ class _DateInputFieldState extends State<DateInputField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 12),
-            child: Text(
-              widget.label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
+        Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Text(
+            widget.label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
-          const SizedBox(height: 2),
-          GestureDetector(
+        ),
+        const SizedBox(height: 2),
+        GestureDetector(
+          onTap: _pickDate,
+          child: TextField(
+            controller: widget.controller,
+            readOnly: true,
             onTap: _pickDate,
-            child: TextField(
-              controller: widget.controller,
-              readOnly: true,
-              onTap: _pickDate,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 15,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+            decoration: InputDecoration(
+              hintText: widget.hint ?? 'TT.MM.JJJJ',
+              hintStyle: const TextStyle(color: AppColors.textHint),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
               ),
-              decoration: InputDecoration(
-                hintText: widget.hint ?? 'TT.MM.JJJJ',
-                hintStyle: const TextStyle(color: AppColors.textHint),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 14,
-                ),
-                border: InputBorder.none,
-                suffixIcon: const Icon(
-                  Icons.calendar_today,
-                  size: 18,
-                  color: AppColors.textHint,
-                ),
+              border: InputBorder.none,
+              suffixIcon: const Icon(
+                Icons.calendar_today,
+                size: 18,
+                color: AppColors.textHint,
               ),
             ),
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 }
 
@@ -187,7 +181,8 @@ class _TimeInputFieldState extends State<TimeInputField> {
 
     if (picked != null) {
       setState(() => _selectedTime = picked);
-      final formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      final formatted =
+          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       widget.controller?.text = formatted;
       widget.onChanged?.call(picked);
     }
@@ -216,10 +211,7 @@ class _TimeInputFieldState extends State<TimeInputField> {
             controller: widget.controller,
             readOnly: true,
             onTap: _pickTime,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 15,
-            ),
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
             decoration: InputDecoration(
               hintText: widget.hint ?? 'HH:MM',
               hintStyle: const TextStyle(color: AppColors.textHint),

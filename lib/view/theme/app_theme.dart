@@ -38,9 +38,7 @@ class AppTheme {
         color: AppColors.card,
         elevation: 0,
         shadowColor: AppColors.shadow,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.divider,
@@ -74,9 +72,7 @@ class AppTheme {
           ),
         ),
       ),
-      iconTheme: const IconThemeData(
-        color: AppColors.textSecondary,
-      ),
+      iconTheme: const IconThemeData(color: AppColors.textSecondary),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
         headlineMedium: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold),
@@ -110,4 +106,3 @@ class AppTheme {
     );
   }
 }
-

@@ -111,7 +111,10 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
     // Validierung: Ende darf nicht vor Start liegen
     if (startDateTime != null && endDateTime != null) {
       if (endDateTime.isBefore(startDateTime)) {
-        setState(() => _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+        setState(
+          () =>
+              _dateError = 'Das Enddatum darf nicht vor dem Startdatum liegen.',
+        );
         return;
       }
     }
@@ -141,8 +144,10 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
         final message = e.toString();
         // Conflict → Name existiert bereits
         if (message.contains('409') || message.contains('Conflict')) {
-          setState(() => _nameError =
-              'Eine Gruppe mit dem Namen "$name" existiert bereits.');
+          setState(
+            () => _nameError =
+                'Eine Gruppe mit dem Namen "$name" existiert bereits.',
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -222,11 +227,19 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: DateInputField(label: 'Start', hint: 'TT.MM.JJJJ', controller: _startController),
+                    child: DateInputField(
+                      label: 'Start',
+                      hint: 'TT.MM.JJJJ',
+                      controller: _startController,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: DateInputField(label: 'Ende', hint: 'TT.MM.JJJJ', controller: _endeController),
+                    child: DateInputField(
+                      label: 'Ende',
+                      hint: 'TT.MM.JJJJ',
+                      controller: _endeController,
+                    ),
                   ),
                 ],
               ),
@@ -248,7 +261,7 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Expanded(
-                    child:  TextInputField(
+                    child: TextInputField(
                       label: 'Person hinzufügen',
                       hint: '',
                       controller: _personenInputController,
@@ -276,7 +289,8 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
               const SizedBox(height: 18),
               // here forEach for the Persons
               ..._personen.map((person) {
-                final isCurrentUser = person == context.read<AppState>().benutzername;
+                final isCurrentUser =
+                    person == context.read<AppState>().benutzername;
                 return Column(
                   children: [
                     Padding(
@@ -291,7 +305,9 @@ class _AddGruppeScreenState extends State<AddGruppeScreen> {
                               size: 44,
                               onPressed: isCurrentUser
                                   ? () {}
-                                  : () => setState(() => _personen.remove(person)),
+                                  : () => setState(
+                                      () => _personen.remove(person),
+                                    ),
                             ),
                           ),
                           const SizedBox(width: 10),

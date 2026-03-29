@@ -38,11 +38,7 @@ class StatSummaryTile extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: iconColor ?? AppColors.primary,
-              size: 28,
-            ),
+            Icon(icon, color: iconColor ?? AppColors.primary, size: 28),
             const SizedBox(height: 8),
             Text(
               value,

@@ -11,7 +11,7 @@ class DaySection extends StatelessWidget {
     super.key,
     required this.items,
     this.day,
-    this.isLeft = false
+    this.isLeft = false,
   });
 
   @override
@@ -24,19 +24,20 @@ class DaySection extends StatelessWidget {
           Align(
             alignment: isLeft ? Alignment.centerLeft : Alignment.centerRight,
             child: Padding(
-              padding: isLeft ? EdgeInsets.only(left: 12, bottom: 6) : EdgeInsets.only(right: 20, bottom: 2),
+              padding: isLeft
+                  ? EdgeInsets.only(left: 12, bottom: 6)
+                  : EdgeInsets.only(right: 20, bottom: 2),
               child: Text(
                 day!,
-                style:
-                  isLeft?
-                  Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
-                  ) :
-                  Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
-                  ),
+                style: isLeft
+                    ? Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                      )
+                    : Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textSecondary,
+                      ),
               ),
             ),
           ),

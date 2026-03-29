@@ -6,35 +6,35 @@ class PageHeader extends StatelessWidget {
   final String? label;
   final Widget child;
 
-  const PageHeader({
-    super.key,
-    this.label,
-    required this.child,
-  });
+  const PageHeader({super.key, this.label, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      if (label != null) Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: Text(
-          "$label",
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+    return Column(
+      children: [
+        if (label != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Text(
+                "$label",
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-      ),
-      Container(
+        Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.surface, // Nutzt jetzt AppColors.card
+            color: AppColors.surface,
+            // Nutzt jetzt AppColors.card
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.cardBorder, width: 1), // Optional: Subtile Kontur
+            border: Border.all(color: AppColors.cardBorder, width: 1),
+            // Optional: Subtile Kontur
             boxShadow: const [
               BoxShadow(
                 color: AppColors.shadow, // Nutzt jetzt AppColors.shadow
@@ -44,10 +44,9 @@ class PageHeader extends StatelessWidget {
             ],
           ),
           padding: const EdgeInsets.all(12),
-          child: child
-        )
+          child: child,
+        ),
       ],
     );
   }
 }
-

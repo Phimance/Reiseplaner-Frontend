@@ -37,16 +37,16 @@ class TransactionListItem extends StatelessWidget {
                   Text(
                     title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -54,12 +54,16 @@ class TransactionListItem extends StatelessWidget {
             Text(
               amount,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: amountColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: amountColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.textSecondary,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -67,16 +71,11 @@ class TransactionListItem extends StatelessWidget {
   }
 }
 
-
 class TransactionCard extends StatelessWidget {
   final List<TransactionListItem> items;
   final VoidCallback? onShowMore;
 
-  const TransactionCard({
-    super.key,
-    required this.items,
-    this.onShowMore,
-  });
+  const TransactionCard({super.key, required this.items, this.onShowMore});
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +97,9 @@ class TransactionCard extends StatelessWidget {
           elevation: 0,
           color: AppColors.surface,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24), // Stark abgerundete Ecken wie im Bild
+            borderRadius: BorderRadius.circular(
+              24,
+            ), // Stark abgerundete Ecken wie im Bild
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -117,7 +118,7 @@ class TransactionCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-              ]
+              ],
             ],
           ),
         ),

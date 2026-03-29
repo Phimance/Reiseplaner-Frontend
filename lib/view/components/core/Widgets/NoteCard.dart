@@ -37,9 +37,7 @@ class NoteCard extends StatelessWidget {
                   top: 0,
                   bottom: 0,
                   width: 5,
-                  child: Container(
-                    color: AppColors.primary,
-                  ),
+                  child: Container(color: AppColors.primary),
                 ),
                 // Inhalt
                 Row(
@@ -55,7 +53,8 @@ class NoteCard extends StatelessWidget {
                           children: [
                             Text(
                               title,
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: AppColors.textPrimary,
                                   ),
@@ -65,9 +64,8 @@ class NoteCard extends StatelessWidget {
                             const SizedBox(height: 6),
                             Text(
                               content,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
                               maxLines: 5,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -79,7 +77,10 @@ class NoteCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: IconButton(
-                          icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: AppColors.error,
+                          ),
                           onPressed: onDelete,
                         ),
                       ),

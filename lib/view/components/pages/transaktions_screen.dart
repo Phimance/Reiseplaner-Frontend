@@ -59,7 +59,11 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     return saldo;
   }
 
-  void _showSettleBottomSheet(BuildContext context, SaldoResult saldo, String gruppeId) {
+  void _showSettleBottomSheet(
+    BuildContext context,
+    SaldoResult saldo,
+    String gruppeId,
+  ) {
     final myDebts = saldo.debts.where((d) => d.from == saldo.name).toList();
 
     showModalBottomSheet(
@@ -129,8 +133,11 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                                   'bezahlername': debt.from,
                                   'gesamtwert': debt.amount,
                                   'transaktionspersonen': [
-                                    {'schuldner': debt.to, 'anteil': debt.amount}
-                                  ]
+                                    {
+                                      'schuldner': debt.to,
+                                      'anteil': debt.amount,
+                                    },
+                                  ],
                                 };
 
                                 // Schritt 2: UX optimieren
@@ -138,19 +145,28 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
 
                                 try {
                                   // Schritt 3: API & State-Update
-                                  await _apiService.createTransaktion(gruppeId, newTransaktion);
-                                  
-                                  // Methode im AppState gefunden: loadActivities() 
+                                  await _apiService.createTransaktion(
+                                    gruppeId,
+                                    newTransaktion,
+                                  );
+
+                                  // Methode im AppState gefunden: loadActivities()
                                   // Diese lädt ladeGruppen() und aktualisiert die aktiveGruppe
                                   await appState.loadActivities();
 
                                   // Schritt 4: Feedback
                                   messenger.showSnackBar(
-                                    const SnackBar(content: Text('Ausgleich gebucht')),
+                                    const SnackBar(
+                                      content: Text('Ausgleich gebucht'),
+                                    ),
                                   );
                                 } catch (e) {
                                   messenger.showSnackBar(
-                                    SnackBar(content: Text('Fehler beim Ausgleich: $e')),
+                                    SnackBar(
+                                      content: Text(
+                                        'Fehler beim Ausgleich: $e',
+                                      ),
+                                    ),
                                   );
                                 }
                               },
@@ -189,7 +205,10 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     final alleBenutzerNamen = aktiveGruppe.benutzer.map((b) => b.name).toList();
     final benutzername = context.watch<AppState>().benutzername;
 
-    final saldenListe = SaldoCalculator.calculateBalances(transaktionen, alleBenutzerNamen);
+    final saldenListe = SaldoCalculator.calculateBalances(
+      transaktionen,
+      alleBenutzerNamen,
+    );
     final saldo = _berechneSaldo(transaktionen, benutzername);
 
     // Subtitle: "von X, Y..." oder "an X, Y..."
@@ -219,7 +238,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     }
 
     final saldoSubtitle = _buildSaldoSubtitle();
-    
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -227,7 +246,11 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
               child: Column(
                 children: [
                   PageHeader(
-                    label: (saldo > 0) ? "Du bekommst" : (saldo < 0) ? "Du schuldest" : "Saldo ausgeglichen",
+                    label: (saldo > 0)
+                        ? "Du bekommst"
+                        : (saldo < 0)
+                        ? "Du schuldest"
+                        : "Saldo ausgeglichen",
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -241,7 +264,7 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                           ),
                         ),
                         if (saldoSubtitle.isNotEmpty)
-                        Padding(
+                          Padding(
                             padding: const EdgeInsets.only(bottom: 6, left: 12),
                             child: Text(
                               saldoSubtitle,
@@ -250,9 +273,9 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                        ),
+                          ),
                       ],
-                    )
+                    ),
                   ),
                   const SizedBox(height: 12),
                   SaldoCard(
@@ -277,7 +300,10 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                     },
                   ),
                   const SizedBox(height: 12),
-                  TransactionList(transaktionen: transaktionen, limitItems: false),
+                  TransactionList(
+                    transaktionen: transaktionen,
+                    limitItems: false,
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),

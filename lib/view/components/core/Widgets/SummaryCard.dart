@@ -29,14 +29,16 @@ class SummaryCard extends StatelessWidget {
   });
 
   static const double _avatarRadius = 16.0;
-  static const double _avatarOverlap = 10.0; // wie weit jeder Avatar unter dem nächsten versteckt wird
+  static const double _avatarOverlap =
+      10.0; // wie weit jeder Avatar unter dem nächsten versteckt wird
 
   static const double _stackBottomPadding = 4.0;
 
   Widget _buildAvatarStack(List<String> visible, int hiddenCount) {
     final stackWidth = visible.isEmpty
         ? 0.0
-        : _avatarRadius * 2 + (visible.length - 1) * (_avatarRadius * 2 - _avatarOverlap);
+        : _avatarRadius * 2 +
+              (visible.length - 1) * (_avatarRadius * 2 - _avatarOverlap);
 
     Widget avatarStack = SizedBox(
       width: stackWidth,
@@ -103,9 +105,11 @@ class SummaryCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: backgroundColor, // Nutzt jetzt AppColors.card
+        color: backgroundColor,
+        // Nutzt jetzt AppColors.card
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.cardBorder, width: 1), // Optional: Subtile Kontur
+        border: Border.all(color: AppColors.cardBorder, width: 1),
+        // Optional: Subtile Kontur
         boxShadow: const [
           BoxShadow(
             color: AppColors.shadow, // Nutzt jetzt AppColors.shadow
@@ -128,7 +132,10 @@ class SummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   leadingText,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 16,
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -141,8 +148,11 @@ class SummaryCard extends StatelessWidget {
                     highlightColor: AppColors.primary.withValues(alpha: 0.15),
                     splashColor: AppColors.primary.withValues(alpha: 0.25),
                     onTap: onSettings,
-                    child:
-                    Icon(Icons.settings, color: AppColors.textSecondary, size: 22),
+                    child: Icon(
+                      Icons.settings,
+                      color: AppColors.textSecondary,
+                      size: 22,
+                    ),
                   ),
                 ),
             ],
@@ -167,12 +177,20 @@ class SummaryCard extends StatelessWidget {
           // --- BOTTOM ROW ---
           Row(
             children: [
-              if(showCalendarIcon) Icon(Icons.calendar_today, color: AppColors.textSecondary, size: 20),
-              if(showCalendarIcon) const SizedBox(width: 8),
+              if (showCalendarIcon)
+                Icon(
+                  Icons.calendar_today,
+                  color: AppColors.textSecondary,
+                  size: 20,
+                ),
+              if (showCalendarIcon) const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   dateRange,
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 16,
+                  ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),

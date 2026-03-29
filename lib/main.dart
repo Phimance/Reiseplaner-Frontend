@@ -74,11 +74,7 @@ class _AuthCheckState extends State<AuthCheck> {
   @override
   Widget build(BuildContext context) {
     if (_isChecking) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_cachedUsername != null) {
@@ -121,14 +117,19 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     const double headerHeight = 92;
-    final double totalTopPadding = headerHeight + MediaQuery.of(context).padding.top;
+    final double totalTopPadding =
+        headerHeight + MediaQuery.of(context).padding.top;
 
     return Scaffold(
       body: Stack(
         children: [
           // Hauptinhalt mit Padding oben, damit er nicht vom Header verdeckt wird
           Padding(
-            padding: EdgeInsets.only(top: totalTopPadding + 16, left: 16, right: 16),
+            padding: EdgeInsets.only(
+              top: totalTopPadding + 16,
+              left: 16,
+              right: 16,
+            ),
             child: _screens[_currentIndex],
           ),
           // Floating Header oben
@@ -153,10 +154,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            height: 16,
-            color: AppColors.footerBackground,
-          ),
+          Container(height: 16, color: AppColors.footerBackground),
           BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentIndex,
@@ -165,8 +163,12 @@ class _MainScreenState extends State<MainScreen> {
             iconSize: standardIconSize,
             enableFeedback: false,
             mouseCursor: SystemMouseCursors.click,
-            selectedItemColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor,
-            unselectedItemColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+            selectedItemColor: Theme.of(
+              context,
+            ).bottomNavigationBarTheme.selectedItemColor,
+            unselectedItemColor: Theme.of(
+              context,
+            ).bottomNavigationBarTheme.unselectedItemColor,
             backgroundColor: AppColors.footerBackground,
             onTap: (index) {
               if (context.read<AppState>().aktiveGruppe == null) {
@@ -176,7 +178,9 @@ class _MainScreenState extends State<MainScreen> {
                   ScaffoldMessenger.of(context).clearSnackBars();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Bitte erstelle oder wähle zuerst eine Reisegruppe aus.'),
+                      content: Text(
+                        'Bitte erstelle oder wähle zuerst eine Reisegruppe aus.',
+                      ),
                       backgroundColor: AppColors.primary,
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -189,27 +193,42 @@ class _MainScreenState extends State<MainScreen> {
             items: [
               BottomNavigationBarItem(
                 icon: const Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home_outlined, size: highlightedIconSize),
+                activeIcon: Icon(
+                  Icons.home_outlined,
+                  size: highlightedIconSize,
+                ),
                 label: '',
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.compare_arrows_outlined),
-                activeIcon: Icon(Icons.compare_arrows_outlined, size: highlightedIconSize),
+                activeIcon: Icon(
+                  Icons.compare_arrows_outlined,
+                  size: highlightedIconSize,
+                ),
                 label: '',
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.list_outlined),
-                activeIcon: Icon(Icons.list_outlined, size: highlightedIconSize),
+                activeIcon: Icon(
+                  Icons.list_outlined,
+                  size: highlightedIconSize,
+                ),
                 label: '',
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.calendar_today_outlined),
-                activeIcon: Icon(Icons.calendar_today_outlined, size: highlightedIconSize),
+                activeIcon: Icon(
+                  Icons.calendar_today_outlined,
+                  size: highlightedIconSize,
+                ),
                 label: '',
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.person_outlined),
-                activeIcon: Icon(Icons.person_outlined, size: highlightedIconSize),
+                activeIcon: Icon(
+                  Icons.person_outlined,
+                  size: highlightedIconSize,
+                ),
                 label: '',
               ),
             ],

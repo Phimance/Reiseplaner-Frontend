@@ -4,6 +4,7 @@ class Debt {
   final String from;
   final String to;
   final double amount;
+
   Debt(this.from, this.to, this.amount);
 }
 
@@ -23,9 +24,11 @@ class SaldoResult {
 
 class SaldoCalculator {
   static List<SaldoResult> calculateBalances(
-      List<Transaktion> transaktionen, List<String> alleBenutzerNamen) {
+    List<Transaktion> transaktionen,
+    List<String> alleBenutzerNamen,
+  ) {
     Map<String, double> balances = {
-      for (var name in alleBenutzerNamen) name: 0.0
+      for (var name in alleBenutzerNamen) name: 0.0,
     };
 
     // 1. Netto-Bilanzen berechnen
@@ -52,17 +55,21 @@ class SaldoCalculator {
     Map<String, List<String>> bekommtVon = {};
     Map<String, List<String>> schuldetAn = {};
 
-    List<_PersonBalance> dTemp = debtors.map((e) => _PersonBalance(e.name, e.amount)).toList();
-    List<_PersonBalance> cTemp = creditors.map((e) => _PersonBalance(e.name, e.amount)).toList();
+    List<_PersonBalance> dTemp = debtors
+        .map((e) => _PersonBalance(e.name, e.amount))
+        .toList();
+    List<_PersonBalance> cTemp = creditors
+        .map((e) => _PersonBalance(e.name, e.amount))
+        .toList();
 
     int dIdx = 0;
     int cIdx = 0;
 
     while (dIdx < dTemp.length && cIdx < cTemp.length) {
-      double settleAmount = dTemp[dIdx].amount < cTemp[cIdx].amount 
-          ? dTemp[dIdx].amount 
+      double settleAmount = dTemp[dIdx].amount < cTemp[cIdx].amount
+          ? dTemp[dIdx].amount
           : cTemp[cIdx].amount;
-      
+
       String dName = dTemp[dIdx].name;
       String cName = cTemp[cIdx].name;
 
@@ -86,20 +93,22 @@ class SaldoCalculator {
 
       if (balance > 0.01) {
         List<String> von = bekommtVon[name] ?? [];
-        detailText = von.isEmpty 
-            ? 'Bekommt Geld zurück' 
+        detailText = von.isEmpty
+            ? 'Bekommt Geld zurück'
             : 'bekommt Geld von ${von.join(', ')}';
       } else if (balance < -0.01) {
         List<String> an = schuldetAn[name] ?? [];
-        detailText = an.isEmpty 
-            ? 'Schuldet Geld' 
+        detailText = an.isEmpty
+            ? 'Schuldet Geld'
             : 'schuldet Geld an ${an.join(', ')}';
       } else {
         detailText = 'Ausgeglichen';
       }
 
       // Filtere Schulden für diesen Benutzer (beteiligt als from oder to)
-      List<Debt> relatedDebts = allDebts.where((d) => d.from == name || d.to == name).toList();
+      List<Debt> relatedDebts = allDebts
+          .where((d) => d.from == name || d.to == name)
+          .toList();
 
       return SaldoResult(
         name: name,
@@ -114,5 +123,6 @@ class SaldoCalculator {
 class _PersonBalance {
   final String name;
   double amount;
+
   _PersonBalance(this.name, this.amount);
 }

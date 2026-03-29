@@ -64,7 +64,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     final startDatumText = _startDatumController.text.trim();
     final startZeitText = _startUhrzeitController.text.trim();
     if (startDatumText.isEmpty || startZeitText.isEmpty) {
-      setState(() => _startError = 'Bitte gib ein Startdatum und eine Startzeit ein.');
+      setState(
+        () => _startError = 'Bitte gib ein Startdatum und eine Startzeit ein.',
+      );
       return;
     }
 
@@ -78,11 +80,20 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
     try {
       final date = dateFormat.parseStrict(startDatumText);
       final time = timeFormat.parseStrict(startZeitText);
-      startCombined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      startCombined = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
       startDateTime = isoFormat.format(startCombined);
       setState(() => _startError = null);
     } catch (_) {
-      setState(() => _startError = 'Bitte gib ein gültiges Startdatum und eine gültige Startzeit ein.');
+      setState(
+        () => _startError =
+            'Bitte gib ein gültiges Startdatum und eine gültige Startzeit ein.',
+      );
       return;
     }
 
@@ -91,21 +102,36 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
 
     if (endDatumText.isNotEmpty || endZeitText.isNotEmpty) {
       if (endDatumText.isEmpty || endZeitText.isEmpty) {
-        setState(() => _endError = 'Bitte gib sowohl ein Enddatum als auch eine Endzeit ein.');
+        setState(
+          () => _endError =
+              'Bitte gib sowohl ein Enddatum als auch eine Endzeit ein.',
+        );
         return;
       }
       try {
         final date = dateFormat.parseStrict(endDatumText);
         final time = timeFormat.parseStrict(endZeitText);
-        final endCombined = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+        final endCombined = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
         if (endCombined.isBefore(startCombined)) {
-          setState(() => _endError = 'Das Enddatum darf nicht vor dem Startdatum liegen.');
+          setState(
+            () => _endError =
+                'Das Enddatum darf nicht vor dem Startdatum liegen.',
+          );
           return;
         }
         endDateTime = isoFormat.format(endCombined);
         setState(() => _endError = null);
       } catch (_) {
-        setState(() => _endError = 'Bitte gib ein gültiges Enddatum und eine gültige Endzeit ein.');
+        setState(
+          () => _endError =
+              'Bitte gib ein gültiges Enddatum und eine gültige Endzeit ein.',
+        );
         return;
       }
     } else {
@@ -150,10 +176,16 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
       if (mounted) {
         final message = e.toString();
         if (message.contains('409') || message.contains('Conflict')) {
-          setState(() => _nameError = 'Eine Aktivität mit dem Namen "$name" existiert bereits.');
+          setState(
+            () => _nameError =
+                'Eine Aktivität mit dem Namen "$name" existiert bereits.',
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Fehler: $message'), backgroundColor: AppColors.error),
+            SnackBar(
+              content: Text('Fehler: $message'),
+              backgroundColor: AppColors.error,
+            ),
           );
         }
       }
@@ -298,7 +330,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                 ),
               const SizedBox(height: 30),
               ReiseButton(
-                title: isEditing ? 'Aktivität speichern' : 'Aktivität hinzufügen',
+                title: isEditing
+                    ? 'Aktivität speichern'
+                    : 'Aktivität hinzufügen',
                 icon: isEditing ? Icons.save : Icons.add,
                 onPressed: _submitActivity,
               ),

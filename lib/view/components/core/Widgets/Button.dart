@@ -48,8 +48,9 @@ class _ReiseButtonState extends State<ReiseButton> {
           ],
         ),
         child: Row(
-          mainAxisAlignment:
-              widget.floatLeft ? MainAxisAlignment.start : MainAxisAlignment.center,
+          mainAxisAlignment: widget.floatLeft
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
           children: [
             widget.floatLeft
                 ? Row(
@@ -80,7 +81,7 @@ class _ReiseButtonState extends State<ReiseButton> {
                       const SizedBox(width: 8),
                       Icon(widget.icon, size: 32, color: AppColors.textPrimary),
                     ],
-                  )
+                  ),
           ],
         ),
       ),
@@ -112,14 +113,18 @@ class _SimpleButtonState extends State<SimpleButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: widget.isLoading ? null : (_) => setState(() => _pressed = true),
+      onTapDown: widget.isLoading
+          ? null
+          : (_) => setState(() => _pressed = true),
       onTapUp: widget.isLoading
           ? null
           : (_) {
               setState(() => _pressed = false);
               widget.onPressed();
             },
-      onTapCancel: widget.isLoading ? null : () => setState(() => _pressed = false),
+      onTapCancel: widget.isLoading
+          ? null
+          : () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         width: widget.size,

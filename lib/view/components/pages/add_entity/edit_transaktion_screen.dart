@@ -10,6 +10,7 @@ import '../../core/Widgets/InputField.dart';
 class _TransaktionspersonEntry {
   String? schuldner;
   final TextEditingController anteilController = TextEditingController();
+
   void dispose() => anteilController.dispose();
 }
 
@@ -45,8 +46,9 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
     super.initState();
     final t = widget.transaktion;
     _nameController = TextEditingController(text: t.transaktionsname);
-    _gesamtwertController =
-        TextEditingController(text: t.gesamtwert.toStringAsFixed(2));
+    _gesamtwertController = TextEditingController(
+      text: t.gesamtwert.toStringAsFixed(2),
+    );
     _bezahler = t.bezahlername;
 
     for (final tp in t.transaktionspersonen) {
@@ -88,8 +90,10 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
 
   void _verteileAnteile() {
     if (_transaktionspersonen.isEmpty) return;
-    final gesamtwert = double.tryParse(
-            _gesamtwertController.text.trim().replaceAll(',', '.')) ??
+    final gesamtwert =
+        double.tryParse(
+          _gesamtwertController.text.trim().replaceAll(',', '.'),
+        ) ??
         0.0;
     final anteil = gesamtwert / _transaktionspersonen.length;
     for (final tp in _transaktionspersonen) {
@@ -113,8 +117,10 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
     }
     setState(() => _bezahlerError = null);
 
-    final gesamtwertText =
-        _gesamtwertController.text.trim().replaceAll(',', '.');
+    final gesamtwertText = _gesamtwertController.text.trim().replaceAll(
+      ',',
+      '.',
+    );
     final gesamtwert = double.tryParse(gesamtwertText);
     if (gesamtwert == null || gesamtwert <= 0) {
       setState(() => _gesamtwertError = 'Bitte gib einen gültigen Betrag ein.');
@@ -125,24 +131,30 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
     for (int i = 0; i < _transaktionspersonen.length; i++) {
       if (_transaktionspersonen[i].schuldner == null ||
           _transaktionspersonen[i].schuldner!.isEmpty) {
-        setState(() => _anteilError =
-            'Transaktionsperson ${i + 1} hat keinen Schuldner zugewiesen.');
+        setState(
+          () => _anteilError =
+              'Transaktionsperson ${i + 1} hat keinen Schuldner zugewiesen.',
+        );
         return;
       }
     }
 
     double summeAnteile = 0;
     for (final tp in _transaktionspersonen) {
-      summeAnteile += double.tryParse(
-              tp.anteilController.text.trim().replaceAll(',', '.')) ??
+      summeAnteile +=
+          double.tryParse(
+            tp.anteilController.text.trim().replaceAll(',', '.'),
+          ) ??
           0.0;
     }
 
     if ((summeAnteile - gesamtwert).abs() >
         (0.01 * _transaktionspersonen.length)) {
-      setState(() => _anteilError =
-          'Die Summe der Anteile (${summeAnteile.toStringAsFixed(2)} €) '
-          'stimmt nicht mit dem Gesamtwert (${gesamtwert.toStringAsFixed(2)} €) überein.');
+      setState(
+        () => _anteilError =
+            'Die Summe der Anteile (${summeAnteile.toStringAsFixed(2)} €) '
+            'stimmt nicht mit dem Gesamtwert (${gesamtwert.toStringAsFixed(2)} €) überein.',
+      );
       return;
     }
     setState(() => _anteilError = null);
@@ -155,8 +167,10 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
       'bezahlername': _bezahler,
       'gesamtwert': gesamtwert,
       'transaktionspersonen': _transaktionspersonen.map((tp) {
-        final anteil = double.tryParse(
-                tp.anteilController.text.trim().replaceAll(',', '.')) ??
+        final anteil =
+            double.tryParse(
+              tp.anteilController.text.trim().replaceAll(',', '.'),
+            ) ??
             0.0;
         return {'schuldner': tp.schuldner, 'anteil': anteil};
       }).toList(),
@@ -172,10 +186,12 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Fehler: $e'),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     }
   }
@@ -187,8 +203,10 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surface,
-        title: const Text('Transaktion löschen',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: const Text(
+          'Transaktion löschen',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
         content: Text(
           'Möchtest du „${widget.transaktion.transaktionsname}" wirklich löschen?',
           style: const TextStyle(color: AppColors.textSecondary),
@@ -196,17 +214,23 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Abbrechen',
-                style: TextStyle(color: AppColors.textSecondary)),
+            child: const Text(
+              'Abbrechen',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
               await _delete();
             },
-            child: const Text('Löschen',
-                style: TextStyle(
-                    color: AppColors.error, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Löschen',
+              style: TextStyle(
+                color: AppColors.error,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -224,10 +248,12 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Fehler: $e'),
-          backgroundColor: AppColors.error,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fehler: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
       }
     }
   }
@@ -249,9 +275,10 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
         if (mitglieder.isEmpty) {
           return const Padding(
             padding: EdgeInsets.all(24),
-            child: Text('Keine Mitglieder vorhanden.',
-                style: TextStyle(
-                    color: AppColors.textSecondary, fontSize: 16)),
+            child: Text(
+              'Keine Mitglieder vorhanden.',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+            ),
           );
         }
         return SafeArea(
@@ -261,24 +288,32 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-                child: Text(title,
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary)),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
               ),
               const Divider(color: AppColors.divider),
-              ...mitglieder.map((b) => ListTile(
-                    leading: const Icon(Icons.person,
-                        color: AppColors.navInactive),
-                    title: Text(b.name,
-                        style:
-                            const TextStyle(color: AppColors.textPrimary)),
-                    onTap: () {
-                      onSelected(b.name);
-                      Navigator.pop(sheetContext);
-                    },
-                  )),
+              ...mitglieder.map(
+                (b) => ListTile(
+                  leading: const Icon(
+                    Icons.person,
+                    color: AppColors.navInactive,
+                  ),
+                  title: Text(
+                    b.name,
+                    style: const TextStyle(color: AppColors.textPrimary),
+                  ),
+                  onTap: () {
+                    onSelected(b.name);
+                    Navigator.pop(sheetContext);
+                  },
+                ),
+              ),
               const SizedBox(height: 8),
             ],
           ),
@@ -329,13 +364,20 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
 
               // ── Name ────────────────────────────────────
               TextInputField(
-                  label: 'Name', hint: '', controller: _nameController),
+                label: 'Name',
+                hint: '',
+                controller: _nameController,
+              ),
               if (_nameError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 4, left: 12),
-                  child: Text(_nameError!,
-                      style: const TextStyle(
-                          color: AppColors.error, fontSize: 13)),
+                  child: Text(
+                    _nameError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               const SizedBox(height: 12),
 
@@ -352,9 +394,13 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
               if (_bezahlerError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 4, left: 12),
-                  child: Text(_bezahlerError!,
-                      style: const TextStyle(
-                          color: AppColors.error, fontSize: 13)),
+                  child: Text(
+                    _bezahlerError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               const SizedBox(height: 12),
 
@@ -363,15 +409,20 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
                 label: 'Gesamtwert (€)',
                 hint: '0.00',
                 controller: _gesamtwertController,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
               ),
               if (_gesamtwertError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 4, left: 12),
-                  child: Text(_gesamtwertError!,
-                      style: const TextStyle(
-                          color: AppColors.error, fontSize: 13)),
+                  child: Text(
+                    _gesamtwertError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               const SizedBox(height: 12),
               const Divider(color: AppColors.divider),
@@ -383,16 +434,20 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
                   const Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(left: 12),
-                      child: Text('Transaktionspersonen',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary)),
+                      child: Text(
+                        'Transaktionspersonen',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                     ),
                   ),
                   SimpleButton(
-                      icon: Icons.add,
-                      onPressed: _addTransaktionsperson),
+                    icon: Icons.add,
+                    onPressed: _addTransaktionsperson,
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -402,9 +457,13 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
               if (_anteilError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 4, left: 12),
-                  child: Text(_anteilError!,
-                      style: const TextStyle(
-                          color: AppColors.error, fontSize: 13)),
+                  child: Text(
+                    _anteilError!,
+                    style: const TextStyle(
+                      color: AppColors.error,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
 
               const SizedBox(height: 20),
@@ -439,8 +498,9 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
                     placeholder: 'Auswählen',
                     onTap: () => _showBenutzerPicker(
                       title: 'Schuldner auswählen',
-                      onSelected: (name) =>
-                          setState(() => _transaktionspersonen[i].schuldner = name),
+                      onSelected: (name) => setState(
+                        () => _transaktionspersonen[i].schuldner = name,
+                      ),
                     ),
                   ),
                 ),
@@ -451,8 +511,9 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
                     label: 'Anteil (€)',
                     hint: '0.00',
                     controller: _transaktionspersonen[i].anteilController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -481,19 +542,21 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 12),
-          child: Text(label,
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary)),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
         ),
         const SizedBox(height: 2),
         GestureDetector(
           onTap: onTap,
           child: Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
             decoration: BoxDecoration(
               color: AppColors.inputSurface,
               borderRadius: BorderRadius.circular(8),
@@ -511,8 +574,11 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
                     ),
                   ),
                 ),
-                const Icon(Icons.arrow_drop_down,
-                    color: AppColors.textHint, size: 24),
+                const Icon(
+                  Icons.arrow_drop_down,
+                  color: AppColors.textHint,
+                  size: 24,
+                ),
               ],
             ),
           ),
@@ -521,4 +587,3 @@ class _EditTransaktionScreenState extends State<EditTransaktionScreen> {
     );
   }
 }
-

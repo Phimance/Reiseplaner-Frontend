@@ -29,7 +29,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
     final timeFormatter = DateFormat('HH:mm');
 
     for (final entry in entries) {
-      final dayKey = DateTime(entry.start.year, entry.start.month, entry.start.day);
+      final dayKey = DateTime(
+        entry.start.year,
+        entry.start.month,
+        entry.start.day,
+      );
       grouped.putIfAbsent(dayKey, () => []);
       grouped[dayKey]!.add(entry);
     }
@@ -57,10 +61,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           )
           .toList();
 
-      return DaySection(
-        day: dateFormatter.format(date),
-        items: items,
-      );
+      return DaySection(day: dateFormatter.format(date), items: items);
     }).toList();
   }
 
@@ -70,8 +71,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }) {
     final timeFormatter = DateFormat('dd.MM.yyyy');
 
-    final sorted = [...entries]
-      ..sort((a, b) => b.start.compareTo(a.start));
+    final sorted = [...entries]..sort((a, b) => b.start.compareTo(a.start));
 
     final items = sorted
         .map(
@@ -85,7 +85,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
         )
         .toList();
 
-    return DaySection(day: 'Vergangene Aktivitäten', items: items, isLeft: true);
+    return DaySection(
+      day: 'Vergangene Aktivitäten',
+      items: items,
+      isLeft: true,
+    );
   }
 
   @override
@@ -137,11 +141,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
               showCalendarIcon: false,
               leadingIcon: Icons.event_note_sharp,
               title: "$anstehendeAktivitaeten anstehende Events",
-              dateRange: '${_formatDate(appState.aktiveGruppe!.startDate)} - ${_formatDate(appState.aktiveGruppe!.endDate)}',
+              dateRange:
+                  '${_formatDate(appState.aktiveGruppe!.startDate)} - ${_formatDate(appState.aktiveGruppe!.endDate)}',
               avatars: appState.aktiveGruppe!.benutzer
                   .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
                   .toList(),
-              onSettings: null
+              onSettings: null,
             ),
             const SizedBox(height: 20),
             if (events.isEmpty)
@@ -159,7 +164,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     SectionList(items: upcomingSections)
                   else
                     const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Text(
                         'Keine anstehenden Aktivitäten.',
                         textAlign: TextAlign.center,
@@ -179,9 +187,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => const AddActivityScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => const AddActivityScreen()),
         ),
         backgroundColor: const Color(0xFF444444),
         elevation: 8,
@@ -189,7 +195,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFF666666), width: 1),
         ),
-        child: Icon(Icons.add_box_outlined, size: 30, color: AppColors.primary)
+        child: Icon(Icons.add_box_outlined, size: 30, color: AppColors.primary),
       ),
     );
   }

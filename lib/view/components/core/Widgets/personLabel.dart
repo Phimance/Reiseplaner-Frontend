@@ -35,13 +35,9 @@ class PersonLabel extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           name,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
         ),
       ],
     );
   }
 }
-

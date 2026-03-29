@@ -5,11 +5,7 @@ class Notizblock {
   final String name;
   final List<Notiz> notizen;
 
-  Notizblock({
-    required this.id,
-    required this.name,
-    required this.notizen,
-  });
+  Notizblock({required this.id, required this.name, required this.notizen});
 
   factory Notizblock.fromJson(Map<String, dynamic> json) {
     var list = json['notizen'] as List? ?? [];

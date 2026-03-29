@@ -28,7 +28,9 @@ class SaldoCard extends StatelessWidget {
             margin: EdgeInsets.zero,
             elevation: 0,
             color: AppColors.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
             child: const Padding(
               padding: EdgeInsets.all(16.0),
               child: Center(
@@ -75,7 +77,9 @@ class SaldoCard extends StatelessWidget {
               margin: EdgeInsets.zero,
               elevation: 0,
               color: AppColors.surface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -92,10 +96,18 @@ class SaldoCard extends StatelessWidget {
                       final isFirst = index == 0;
                       final isLast = index == salden.length - 1;
                       final radius = BorderRadius.only(
-                        topLeft: isFirst ? const Radius.circular(24) : Radius.zero,
-                        topRight: isFirst ? const Radius.circular(24) : Radius.zero,
-                        bottomLeft: isLast ? const Radius.circular(24) : Radius.zero,
-                        bottomRight: isLast ? const Radius.circular(24) : Radius.zero,
+                        topLeft: isFirst
+                            ? const Radius.circular(24)
+                            : Radius.zero,
+                        topRight: isFirst
+                            ? const Radius.circular(24)
+                            : Radius.zero,
+                        bottomLeft: isLast
+                            ? const Radius.circular(24)
+                            : Radius.zero,
+                        bottomRight: isLast
+                            ? const Radius.circular(24)
+                            : Radius.zero,
                       );
 
                       return ListTile(
@@ -143,7 +155,11 @@ class SaldoCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             if (isNegative) ...[
-                              const Icon(Icons.payment, color: AppColors.textSecondary, size: 16),
+                              const Icon(
+                                Icons.payment,
+                                color: AppColors.textSecondary,
+                                size: 16,
+                              ),
                               const SizedBox(width: 8),
                             ],
                             Text(
@@ -152,8 +168,8 @@ class SaldoCard extends StatelessWidget {
                                 color: isPositive
                                     ? AppColors.amountGreen
                                     : isNegative
-                                        ? AppColors.error
-                                        : AppColors.textSecondary,
+                                    ? AppColors.error
+                                    : AppColors.textSecondary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),

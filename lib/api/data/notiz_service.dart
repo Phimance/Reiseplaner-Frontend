@@ -32,7 +32,9 @@ class NotizService {
 
   /// 1) Existierenden Notizblock der Gruppe prüfen
   Future<Notizblock?> getNotizblockByGruppe(String gruppeId) async {
-    final response = await http.get(Uri.parse('$_baseUrl/notizblock/gruppe/$gruppeId'));
+    final response = await http.get(
+      Uri.parse('$_baseUrl/notizblock/gruppe/$gruppeId'),
+    );
     if (response.statusCode == 200) {
       return compute(_parseNotizblockFromList, response.body);
     }
@@ -46,7 +48,7 @@ class NotizService {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         "gruppe": {"id": gruppeId},
-        "name": name
+        "name": name,
       }),
     );
 
@@ -73,7 +75,7 @@ class NotizService {
   /// 4) Notiz aktualisieren (PUT)
   Future<Notiz> updateNotiz(Notiz notiz) async {
     if (notiz.id == null) throw Exception('Notiz ID fehlt für Update');
-    
+
     final response = await http.put(
       Uri.parse('$_baseUrl/notiz/${notiz.id}'),
       headers: {'Content-Type': 'application/json'},
@@ -83,20 +85,26 @@ class NotizService {
     if (response.statusCode == 200) {
       return compute(_parseSingleNotiz, response.body);
     }
-    throw Exception('Fehler beim Aktualisieren der Notiz: Status ${response.statusCode}');
+    throw Exception(
+      'Fehler beim Aktualisieren der Notiz: Status ${response.statusCode}',
+    );
   }
 
   /// 5) Notiz löschen (DELETE)
   Future<void> deleteNotiz(String id) async {
     final response = await http.delete(Uri.parse('$_baseUrl/notiz/$id'));
     if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('Fehler beim Löschen der Notiz: Status ${response.statusCode}');
+      throw Exception(
+        'Fehler beim Löschen der Notiz: Status ${response.statusCode}',
+      );
     }
   }
 
   /// Alle Notizen eines Notizblocks laden
   Future<List<Notiz>> getNotizenByNotizblock(String notizblockId) async {
-    final response = await http.get(Uri.parse('$_baseUrl/notiz/notizblock/$notizblockId'));
+    final response = await http.get(
+      Uri.parse('$_baseUrl/notiz/notizblock/$notizblockId'),
+    );
     if (response.statusCode == 200) {
       return compute(_parseNotizenList, response.body);
     }

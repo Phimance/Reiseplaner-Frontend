@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 class SectionList extends StatelessWidget {
   final List<DaySection> items;
 
-  const SectionList({
-    super.key,
-    required this.items,
-  });
+  const SectionList({super.key, required this.items});
 
   @override
   Widget build(BuildContext context) {
