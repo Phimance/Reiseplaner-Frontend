@@ -96,6 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final saldo = _berechneSaldo(transaktionen, benutzername);
     final saldoText = '${saldo >= 0 ? '+' : ''}${saldo.toStringAsFixed(2)} €';
     final tageInfo = _berechneTage(gruppe.startDate, gruppe.endDate);
+    final eventCount = gruppe.planer?.events.length ?? 0;
 
     return SingleChildScrollView(
       child: Column(
@@ -135,10 +136,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: tageInfo.label,
               ),
               const SizedBox(width: 12),
-              const StatSummaryTile(
+              StatSummaryTile(
                 icon: Icons.calendar_today_outlined,
-                value: "",
-                label: "Events",
+                value: '$eventCount',
+                label: eventCount == 1 ? '    Event    ' : '    Events    ',
               ),
             ],
           ),
