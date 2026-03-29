@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:reiseplaner/view/components/core/Widgets/activity_widgets/section_list.dart';
 import '../../../core/app_state.dart';
 import '../../theme/app_colors.dart';
+import '../core/Widgets/PageHeader.dart';
 import '../core/Widgets/activity_widgets/activity_item.dart';
 import '../core/Widgets/activity_widgets/activity_section.dart';
 import 'add_entity/add_activity_screen.dart';
 import 'show_details/activity_details_screen.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -22,6 +22,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final events = appState.events;
+    final now = DateTime.now();
 
     // Gruppen nach Datum sortieren
     final groupedByDate = <String, List<ActivityItem>>{};
@@ -48,26 +49,62 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
     // Sortierte Datum-Liste
     final sortedDates = groupedByDate.keys.toList();
+    final anstehendeAktivitaeten = events.where((event) {
+      try {
+        return DateTime.parse(event.datumStart).isAfter(now);
+      } catch (_) {
+        return false;
+      }
+    }).length;
 
     return Scaffold(
-      body: events.isEmpty
-          ? const Center(
-        child: Text(
-          'Keine Events vorhanden. Füge ein neues Event hinzu!',
-          textAlign: TextAlign.center,
-        ),
-      )
-          : SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
-            SectionList(
-              items: sortedDates.map((date) {
-                return DaySection(
-                  day: date,
-                  items: groupedByDate[date] ?? [],
-                );
-              }).toList(),
+            PageHeader(
+              label: 'Es stehen',
+              child: Text.rich(
+                TextSpan(
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '$anstehendeAktivitaeten',
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: ' Aktivitäten an',
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
             ),
+            const SizedBox(height: 12),
+            if (events.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+                child: Text(
+                  'Keine Events vorhanden. Füge ein neues Event hinzu!',
+                  textAlign: TextAlign.center,
+                ),
+              )
+            else
+              SectionList(
+                items: sortedDates.map((date) {
+                  return DaySection(
+                    day: date,
+                    items: groupedByDate[date] ?? [],
+                  );
+                }).toList(),
+              ),
             const SizedBox(height: 12),
           ],
         ),
