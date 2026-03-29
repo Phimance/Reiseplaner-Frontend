@@ -73,7 +73,7 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 							builder: (dialogContext) {
 							  return AlertDialog(
 								backgroundColor: AppColors.surface,
-								title: const Text('Event löschen?'),
+								title: const Text('Aktivität löschen?'),
 								content: const Text(
 								  'Diese Aktivität wird dauerhaft gelöscht.',
 								  style: TextStyle(color: AppColors.textSecondary),
@@ -102,7 +102,7 @@ Future<void> showActivityDetailsSheet(BuildContext context, Event event) async {
 							if (sheetContext.mounted) {
 							  Navigator.pop(sheetContext);
 							  ScaffoldMessenger.of(context).showSnackBar(
-								const SnackBar(content: Text('Event gelöscht.')),
+								const SnackBar(content: Text('Aktivität gelöscht.')),
 							  );
 							}
 						  } catch (e) {

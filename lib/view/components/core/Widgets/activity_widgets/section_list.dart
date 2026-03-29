@@ -1,6 +1,5 @@
 import 'activity_section.dart';
 import 'package:flutter/material.dart';
-import '../../../../theme/app_colors.dart';
 
 class SectionList extends StatelessWidget {
   final List<DaySection> items;
@@ -12,12 +11,13 @@ class SectionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              ...items,
-            ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: items,
+      ),
     );
   }
 }
