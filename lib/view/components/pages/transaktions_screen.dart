@@ -44,6 +44,21 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
     setState(() => _isLoading = false);
   }
 
+  double _berechneSaldo(List<dynamic> transaktionen, String benutzername) {
+    double saldo = 0;
+    for (final t in transaktionen) {
+      final eigenerAnteil = t.transaktionspersonen
+          .where((tp) => tp.schuldner == benutzername)
+          .fold(0.0, (sum, tp) => sum + tp.anteil);
+      if (t.bezahlername == benutzername) {
+        saldo += t.gesamtwert - eigenerAnteil;
+      } else {
+        saldo -= eigenerAnteil;
+      }
+    }
+    return saldo;
+  }
+
   void _showSettleBottomSheet(BuildContext context, SaldoResult saldo, String gruppeId) {
     final myDebts = saldo.debts.where((d) => d.from == saldo.name).toList();
 
@@ -172,9 +187,39 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
 
     final transaktionen = aktiveGruppe.transaktionen;
     final alleBenutzerNamen = aktiveGruppe.benutzer.map((b) => b.name).toList();
+    final benutzername = context.watch<AppState>().benutzername;
 
     final saldenListe = SaldoCalculator.calculateBalances(transaktionen, alleBenutzerNamen);
+    final saldo = _berechneSaldo(transaktionen, benutzername);
 
+    // Subtitle: "von X, Y..." oder "an X, Y..."
+    String _buildSaldoSubtitle() {
+      if (saldo > 0.01) {
+        final names = saldenListe
+            .expand((s) => s.debts)
+            .where((d) => d.to == benutzername)
+            .map((d) => d.from)
+            .toSet()
+            .toList();
+        if (names.isEmpty) return '';
+        final shown = names.take(2).join(', ');
+        return 'von $shown${names.length > 2 ? '...' : ''}';
+      } else if (saldo < -0.01) {
+        final names = saldenListe
+            .expand((s) => s.debts)
+            .where((d) => d.from == benutzername)
+            .map((d) => d.to)
+            .toSet()
+            .toList();
+        if (names.isEmpty) return '';
+        final shown = names.take(2).join(', ');
+        return 'an $shown${names.length > 2 ? '...' : ''}';
+      }
+      return '';
+    }
+
+    final saldoSubtitle = _buildSaldoSubtitle();
+    
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -182,9 +227,31 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
               child: Column(
                 children: [
                   PageHeader(
-                    label: "Transaktionen",
-                    child: Container(
-
+                    label: (saldo > 0) ? "Du bekommst" : (saldo < 0) ? "Du schuldest" : "Saldo ausgeglichen",
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${saldo.abs().toStringAsFixed(2)}€',
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        if (saldoSubtitle.isNotEmpty)
+                        Padding(
+                            padding: const EdgeInsets.only(bottom: 6, left: 12),
+                            child: Text(
+                              saldoSubtitle,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                        ),
+                      ],
                     )
                   ),
                   const SizedBox(height: 12),
