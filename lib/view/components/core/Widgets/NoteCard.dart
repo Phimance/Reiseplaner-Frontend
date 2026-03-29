@@ -57,7 +57,7 @@ class NoteCard extends StatelessWidget {
                               title,
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: AppColors.textPrimary,
                                   ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -68,6 +68,8 @@ class NoteCard extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                     color: AppColors.textSecondary,
                                   ),
+                              maxLines: 5,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
