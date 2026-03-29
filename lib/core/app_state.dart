@@ -176,6 +176,7 @@ class AppState extends ChangeNotifier {
     _aktiveGruppe = gruppe;
     _events = gruppe.planer?.events ?? [];
     notifyListeners();
+    await ladeNotizen();
   }
 
   /// Setzt den gesamten Zustand zurück (z. B. beim Logout).
