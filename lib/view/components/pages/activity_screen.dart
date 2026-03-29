@@ -24,31 +24,29 @@ class _ActivityScreenState extends State<ActivityScreen> {
     final events = appState.events;
     final now = DateTime.now();
 
-    // Gruppen nach Datum sortieren
-    final groupedByDate = <String, List<ActivityItem>>{};
+    // Nach echtem Datum gruppieren/sortieren (nicht nach formatiertem String)
+    final groupedByDate = <DateTime, List<({DateTime start, dynamic event})>>{};
     final dateFormatter = DateFormat('EEEE, dd.MM.yyyy', 'de_DE');
+    final timeFormatter = DateFormat('HH:mm');
 
     for (final event in events) {
       try {
-        final dateTime = DateTime.parse(event.datumStart);
-        final formattedDate = dateFormatter.format(dateTime);
-
-        groupedByDate.putIfAbsent(formattedDate, () => []);
-        groupedByDate[formattedDate]!.add(
-          ActivityItem(
-            title: event.titel,
-            date: event.datumStart.split('T')[1].substring(0, 5),
-            location: event.location,
-            onTap: () => showActivityDetailsSheet(context, event),
-          ),
-        );
+        final start = DateTime.parse(event.datumStart);
+        final dayKey = DateTime(start.year, start.month, start.day);
+        groupedByDate.putIfAbsent(dayKey, () => []);
+        groupedByDate[dayKey]!.add((start: start, event: event));
       } catch (_) {
         continue;
       }
     }
 
-    // Sortierte Datum-Liste
-    final sortedDates = groupedByDate.keys.toList();
+    final sortedDates = groupedByDate.keys.toList()
+      ..sort((a, b) => a.compareTo(b));
+
+    for (final date in sortedDates) {
+      groupedByDate[date]!.sort((a, b) => a.start.compareTo(b.start));
+    }
+
     final anstehendeAktivitaeten = events.where((event) {
       try {
         return DateTime.parse(event.datumStart).isAfter(now);
@@ -99,9 +97,20 @@ class _ActivityScreenState extends State<ActivityScreen> {
             else
               SectionList(
                 items: sortedDates.map((date) {
+                  final dayItems = groupedByDate[date]!
+                      .map(
+                        (item) => ActivityItem(
+                          title: item.event.titel,
+                          date: timeFormatter.format(item.start),
+                          location: item.event.location,
+                          onTap: () => showActivityDetailsSheet(context, item.event),
+                        ),
+                      )
+                      .toList();
+
                   return DaySection(
-                    day: date,
-                    items: groupedByDate[date] ?? [],
+                    day: dateFormatter.format(date),
+                    items: dayItems,
                   );
                 }).toList(),
               ),
