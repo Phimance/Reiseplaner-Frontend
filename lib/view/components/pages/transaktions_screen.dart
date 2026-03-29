@@ -203,6 +203,8 @@ class _TransaktionsScreenState extends State<TransaktionsScreen> {
                   ),
                   const SizedBox(height: 12),
                   TransactionList(transaktionen: transaktionen, limitItems: false),
+                  const SizedBox(height: 24),
+
                 ],
               ),
             ),
