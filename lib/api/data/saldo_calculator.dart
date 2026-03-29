@@ -23,6 +23,22 @@ class SaldoResult {
 }
 
 class SaldoCalculator {
+  static double berechneSaldoFuerBenutzer(
+      List<Transaktion> transaktionen, String benutzername) {
+    double saldo = 0;
+    for (final t in transaktionen) {
+      final eigenerAnteil = t.transaktionspersonen
+          .where((tp) => tp.schuldner == benutzername)
+          .fold(0.0, (sum, tp) => sum + tp.anteil);
+      if (t.bezahlername == benutzername) {
+        saldo += t.gesamtwert - eigenerAnteil;
+      } else {
+        saldo -= eigenerAnteil;
+      }
+    }
+    return saldo;
+  }
+
   static List<SaldoResult> calculateBalances(
     List<Transaktion> transaktionen,
     List<String> alleBenutzerNamen,
@@ -31,7 +47,6 @@ class SaldoCalculator {
       for (var name in alleBenutzerNamen) name: 0.0,
     };
 
-    // 1. Netto-Bilanzen berechnen
     for (var t in transaktionen) {
       balances[t.bezahlername] = (balances[t.bezahlername] ?? 0) + t.gesamtwert;
       for (var tp in t.transaktionspersonen) {
@@ -39,7 +54,6 @@ class SaldoCalculator {
       }
     }
 
-    // 2. Settlement berechnen
     List<_PersonBalance> debtors = [];
     List<_PersonBalance> creditors = [];
 
@@ -86,7 +100,6 @@ class SaldoCalculator {
       if (cTemp[cIdx].amount < 0.01) cIdx++;
     }
 
-    // 3. Ergebnisse zusammenbauen
     return alleBenutzerNamen.map((name) {
       double balance = balances[name] ?? 0.0;
       String detailText = '';
@@ -105,7 +118,6 @@ class SaldoCalculator {
         detailText = 'Ausgeglichen';
       }
 
-      // Filtere Schulden für diesen Benutzer (beteiligt als from oder to)
       List<Debt> relatedDebts = allDebts
           .where((d) => d.from == name || d.to == name)
           .toList();

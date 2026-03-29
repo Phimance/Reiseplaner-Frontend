@@ -5,18 +5,6 @@ import '../models/models.dart';
 class ApiService {
   final String _baseUrl = 'http://ubuntu.p-stephan.de:8081/api';
 
-  // 1. Simpler GET-Request
-  Future<dynamic> getGruppen() async {
-    final response = await http.get(Uri.parse('$_baseUrl/gruppe'));
-
-    if (response.statusCode == 200) {
-      return json.decode(response.body); // Text in JSON umwandeln
-    } else {
-      throw Exception('Fehler beim Laden: Status ${response.statusCode}');
-    }
-  }
-
-  // 2. Simpler POST-Request
   Future<dynamic> createGruppe(Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/gruppe'),
@@ -33,16 +21,13 @@ class ApiService {
     }
   }
 
-  // --- NEU: LOGIN & REGISTRIERUNG ---
-
-  // Prüft, ob der Benutzer existiert
   Future<bool> loginBenutzer(String name) async {
     final response = await http.get(Uri.parse('$_baseUrl/benutzer/$name'));
 
     if (response.statusCode == 200) {
-      return true; // Benutzer gefunden!
+      return true;
     } else if (response.statusCode == 404) {
-      return false; // Benutzer gibt es nicht
+      return false;
     } else {
       throw Exception('Fehler beim Login: Status ${response.statusCode}');
     }
@@ -53,12 +38,11 @@ class ApiService {
     final response = await http.post(
       Uri.parse('$_baseUrl/benutzer'),
       headers: {'Content-Type': 'application/json'},
-      // Das Backend erwartet laut Doku auch leere Arrays für Gruppen und Freunde
       body: json.encode({'name': name, 'gruppen': [], 'freunde': []}),
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      return true; // Erfolgreich erstellt
+      return true;
     } else {
       throw Exception(
         'Fehler bei der Registrierung: Status ${response.statusCode}',
@@ -66,9 +50,6 @@ class ApiService {
     }
   }
 
-  // --- NEU: Gruppen eines Benutzers laden ---
-
-  /// Ruft alle Gruppen eines Benutzers ab über GET /api/gruppe/benutzer/{name}
   Future<List<Gruppe>> getGruppenByBenutzer(String name) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/gruppe/benutzer/$name'),
@@ -80,10 +61,7 @@ class ApiService {
       for (int i = 0; i < jsonList.length; i++) {
         try {
           result.add(Gruppe.fromJson(jsonList[i] as Map<String, dynamic>));
-        } catch (e) {
-          print('⚠️ Fehler beim Parsen von Gruppe[$i]: $e');
-          print('   JSON: ${jsonList[i]}');
-        }
+        } catch (_) {}
       }
       return result;
     } else {
@@ -93,13 +71,7 @@ class ApiService {
     }
   }
 
-  // --- NEU: Transaktion erstellen ---
-
-  /// Erstellt eine Transaktion für eine Gruppe via POST /api/transaktion/gruppe/{gruppeId}
-  Future<dynamic> createTransaktion(
-    String gruppeId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<dynamic> createTransaktion(String gruppeId, Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/transaktion/gruppe/$gruppeId'),
       headers: {'Content-Type': 'application/json'},
@@ -115,13 +87,7 @@ class ApiService {
     }
   }
 
-  // --- NEU: Gruppe aktualisieren ---
-
-  /// Aktualisiert eine Gruppe via PUT /api/gruppe/{id}
-  Future<dynamic> updateGruppe(
-    String gruppeId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<dynamic> updateGruppe(String gruppeId, Map<String, dynamic> data) async {
     final response = await http.put(
       Uri.parse('$_baseUrl/gruppe/$gruppeId'),
       headers: {'Content-Type': 'application/json'},
@@ -139,9 +105,6 @@ class ApiService {
     }
   }
 
-  // --- NEU: Gruppe löschen ---
-
-  /// Löscht eine Gruppe via DELETE /api/gruppe/{id}
   Future<void> deleteGruppe(String gruppeId) async {
     final response = await http.delete(Uri.parse('$_baseUrl/gruppe/$gruppeId'));
 
@@ -173,9 +136,6 @@ class ApiService {
     }
   }
 
-  // --- Transaktion löschen ---
-
-  /// Löscht eine Transaktion via DELETE /api/transaktion/{id}
   Future<void> deleteTransaktion(String transaktionId) async {
     final response = await http.delete(
       Uri.parse('$_baseUrl/transaktion/$transaktionId'),
@@ -192,27 +152,7 @@ class ApiService {
     }
   }
 
-  /// Lädt eine einzelne Gruppe über ihre ID.
-  Future<Gruppe> getGruppeById(String gruppenId) async {
-    final response = await http.get(Uri.parse('$_baseUrl/gruppe/$gruppenId'));
-
-    if (response.statusCode == 200) {
-      return Gruppe.fromJson(
-        json.decode(response.body) as Map<String, dynamic>,
-      );
-    } else {
-      throw Exception(
-        'Fehler beim Laden der Gruppe: Status ${response.statusCode}',
-      );
-    }
-  }
-
-  /// Erstellt ein neues Event für einen Planer
-  /// POST /api/event/fuer-planer/{planerId}
-  Future<dynamic> createEvent(
-    String planerId,
-    Map<String, dynamic> data,
-  ) async {
+  Future<dynamic> createEvent(String planerId, Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/event/fuer-planer/$planerId'),
       headers: {'Content-Type': 'application/json'},
@@ -228,8 +168,6 @@ class ApiService {
     }
   }
 
-  /// Aktualisiert ein Event
-  /// PUT /api/event/{eventId}
   Future<dynamic> updateEvent(String eventId, Map<String, dynamic> data) async {
     final response = await http.put(
       Uri.parse('$_baseUrl/event/$eventId'),
@@ -246,8 +184,6 @@ class ApiService {
     }
   }
 
-  /// Loescht ein Event
-  /// DELETE /api/event/{eventId}
   Future<void> deleteEvent(String eventId) async {
     final response = await http.delete(Uri.parse('$_baseUrl/event/$eventId'));
 
