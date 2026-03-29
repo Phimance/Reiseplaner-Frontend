@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Icon(Icons.travel_explore, size: 80, color: AppColors.primary),
                         const SizedBox(height: 20),
                         const Text(
-                          'Willkommen beim Reiseplaner',
+                          'BananaSplit dein Reiseplaner',
                           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                           textAlign: TextAlign.center,
                         ),
