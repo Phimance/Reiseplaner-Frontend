@@ -127,27 +127,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
           children: [
             PageHeader(
               label: 'Es stehen',
-              child: Text.rich(
-                TextSpan(
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '$anstehendeAktivitaeten',
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 40,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text.rich(
+                  TextSpan(
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '$anstehendeAktivitaeten',
+                        style: const TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 40,
+                        ),
                       ),
-                    ),
-                    const TextSpan(
-                      text: ' Aktivitäten an',
-                      style: TextStyle(color: AppColors.textSecondary),
-                    ),
-                  ],
+                      const TextSpan(
+                        text: ' Aktivitäten an',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

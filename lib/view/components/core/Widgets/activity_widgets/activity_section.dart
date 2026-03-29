@@ -20,7 +20,7 @@ class DaySection extends StatelessWidget {
       children: [
         if (day != null && day!.isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(left: 6, bottom: 4),
+            padding: const EdgeInsets.only(left: 12, bottom: 4),
             child: Text(
               day!,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
