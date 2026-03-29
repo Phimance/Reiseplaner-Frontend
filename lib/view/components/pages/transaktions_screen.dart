@@ -7,7 +7,7 @@ import 'package:reiseplaner/core/app_state.dart';
 import 'package:reiseplaner/view/theme/app_colors.dart';
 import 'package:reiseplaner/view/components/core/Widgets/TransactionList.dart';
 import 'package:reiseplaner/view/components/core/Widgets/Button.dart';
-import 'package:reiseplaner/view/components/core/Widgets/saldo_card.dart';
+import 'package:reiseplaner/view/components/core/Widgets/SaldoCard.dart';
 
 class TransaktionsScreen extends StatefulWidget {
   const TransaktionsScreen({super.key});

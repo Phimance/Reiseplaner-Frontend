@@ -116,8 +116,6 @@ class SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- HEADER ---
-          // --- HEADER ---
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
