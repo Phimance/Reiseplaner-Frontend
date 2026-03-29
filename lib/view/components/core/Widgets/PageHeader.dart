@@ -43,7 +43,7 @@ class PageHeader extends StatelessWidget {
               ),
             ],
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: child
         )
       ],

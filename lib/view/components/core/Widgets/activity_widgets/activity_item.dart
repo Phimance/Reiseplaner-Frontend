@@ -6,6 +6,7 @@ class ActivityItem extends StatelessWidget {
   final String date;
   final String? location;
   final VoidCallback? onTap;
+  final bool isPast;
 
   const ActivityItem({
     super.key,
@@ -13,10 +14,13 @@ class ActivityItem extends StatelessWidget {
     required this.date,
     this.location,
     this.onTap,
+    this.isPast = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final titleColor = isPast ? AppColors.textSecondary : AppColors.textPrimary;
+
     return Column(
       children: [
         GestureDetector(
@@ -44,7 +48,7 @@ class ActivityItem extends StatelessWidget {
                         title,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                          color: titleColor,
                         ),
                       ),
                       Text(

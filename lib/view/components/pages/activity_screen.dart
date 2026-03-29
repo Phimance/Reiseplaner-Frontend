@@ -18,42 +18,115 @@ class ActivityScreen extends StatefulWidget {
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
+  List<DaySection> _buildSections({
+    required BuildContext context,
+    required List<({DateTime start, dynamic event})> entries,
+    required bool newestFirst,
+  }) {
+    final grouped = <DateTime, List<({DateTime start, dynamic event})>>{};
+    final dateFormatter = DateFormat('EEEE, dd.MM.yyyy', 'de_DE');
+    final timeFormatter = DateFormat('HH:mm');
+
+    for (final entry in entries) {
+      final dayKey = DateTime(entry.start.year, entry.start.month, entry.start.day);
+      grouped.putIfAbsent(dayKey, () => []);
+      grouped[dayKey]!.add(entry);
+    }
+
+    final dates = grouped.keys.toList()
+      ..sort((a, b) => newestFirst ? b.compareTo(a) : a.compareTo(b));
+
+    for (final date in dates) {
+      grouped[date]!.sort(
+        (a, b) => newestFirst
+            ? b.start.compareTo(a.start)
+            : a.start.compareTo(b.start),
+      );
+    }
+
+    return dates.map((date) {
+      final items = grouped[date]!
+          .map(
+            (item) => ActivityItem(
+              title: item.event.titel,
+              date: timeFormatter.format(item.start),
+              location: item.event.location,
+              onTap: () => showActivityDetailsSheet(context, item.event),
+            ),
+          )
+          .toList();
+
+      return DaySection(
+        day: dateFormatter.format(date),
+        items: items,
+      );
+    }).toList();
+  }
+
+  DaySection _buildSummarySection({
+    required BuildContext context,
+    required List<({DateTime start, dynamic event})> entries,
+  }) {
+    final timeFormatter = DateFormat('dd.MM.yyyy');
+
+    final sorted = [...entries]
+      ..sort((a, b) => b.start.compareTo(a.start));
+
+    final items = sorted
+        .map(
+          (item) => ActivityItem(
+            title: item.event.titel,
+            date: timeFormatter.format(item.start),
+            location: item.event.location,
+            isPast: true,
+            onTap: () => showActivityDetailsSheet(context, item.event),
+          ),
+        )
+        .toList();
+
+    return DaySection(day: 'Vergangene Aktivitäten', items: items);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final events = appState.events;
     final now = DateTime.now();
 
-    // Nach echtem Datum gruppieren/sortieren (nicht nach formatiertem String)
-    final groupedByDate = <DateTime, List<({DateTime start, dynamic event})>>{};
-    final dateFormatter = DateFormat('EEEE, dd.MM.yyyy', 'de_DE');
-    final timeFormatter = DateFormat('HH:mm');
+    final upcomingEntries = <({DateTime start, dynamic event})>[];
+    final pastEntries = <({DateTime start, dynamic event})>[];
 
     for (final event in events) {
       try {
         final start = DateTime.parse(event.datumStart);
-        final dayKey = DateTime(start.year, start.month, start.day);
-        groupedByDate.putIfAbsent(dayKey, () => []);
-        groupedByDate[dayKey]!.add((start: start, event: event));
+        DateTime end;
+        try {
+          end = DateTime.parse(event.datumEnde);
+        } catch (_) {
+          end = start;
+        }
+
+        if (end.isBefore(now)) {
+          pastEntries.add((start: start, event: event));
+        } else {
+          upcomingEntries.add((start: start, event: event));
+        }
       } catch (_) {
         continue;
       }
     }
 
-    final sortedDates = groupedByDate.keys.toList()
-      ..sort((a, b) => a.compareTo(b));
+    final upcomingSections = _buildSections(
+      context: context,
+      entries: upcomingEntries,
+      newestFirst: false,
+    );
+    final pastSummarySection = _buildSummarySection(
+      context: context,
+      entries: pastEntries,
+    );
 
-    for (final date in sortedDates) {
-      groupedByDate[date]!.sort((a, b) => a.start.compareTo(b.start));
-    }
-
-    final anstehendeAktivitaeten = events.where((event) {
-      try {
-        return DateTime.parse(event.datumStart).isAfter(now);
-      } catch (_) {
-        return false;
-      }
-    }).length;
+    final anstehendeAktivitaeten = upcomingEntries.length;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -95,24 +168,24 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ),
               )
             else
-              SectionList(
-                items: sortedDates.map((date) {
-                  final dayItems = groupedByDate[date]!
-                      .map(
-                        (item) => ActivityItem(
-                          title: item.event.titel,
-                          date: timeFormatter.format(item.start),
-                          location: item.event.location,
-                          onTap: () => showActivityDetailsSheet(context, item.event),
-                        ),
-                      )
-                      .toList();
-
-                  return DaySection(
-                    day: dateFormatter.format(date),
-                    items: dayItems,
-                  );
-                }).toList(),
+              Column(
+                children: [
+                  if (upcomingSections.isNotEmpty)
+                    SectionList(items: upcomingSections)
+                  else
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      child: Text(
+                        'Keine anstehenden Events.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  if (pastEntries.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    SectionList(items: [pastSummarySection]),
+                  ],
+                ],
               ),
             const SizedBox(height: 12),
           ],
