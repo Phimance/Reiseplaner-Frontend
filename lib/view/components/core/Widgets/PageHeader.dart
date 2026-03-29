@@ -15,7 +15,7 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      Align(
+      if (label != null) Align(
         alignment: Alignment.centerLeft,
         child: Padding(
         padding: const EdgeInsets.only(left: 12),
