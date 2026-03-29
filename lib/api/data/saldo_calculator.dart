@@ -1,14 +1,23 @@
 import '../models/models.dart';
 
+class Debt {
+  final String from;
+  final String to;
+  final double amount;
+  Debt(this.from, this.to, this.amount);
+}
+
 class SaldoResult {
   final String name;
   final double netBalance;
   final String detailText;
+  final List<Debt> debts;
 
   SaldoResult({
     required this.name,
     required this.netBalance,
     required this.detailText,
+    required this.debts,
   });
 }
 
@@ -21,17 +30,13 @@ class SaldoCalculator {
 
     // 1. Netto-Bilanzen berechnen
     for (var t in transaktionen) {
-      // Bezahler bekommt den Gesamtwert gutgeschrieben
       balances[t.bezahlername] = (balances[t.bezahlername] ?? 0) + t.gesamtwert;
-
-      // Schuldner wird ihr Anteil abgezogen
       for (var tp in t.transaktionspersonen) {
         balances[tp.schuldner] = (balances[tp.schuldner] ?? 0) - tp.anteil;
       }
     }
 
-    // 2. Settlement berechnen für detailText
-    // Wir trennen Schuldner und Gläubiger
+    // 2. Settlement berechnen
     List<_PersonBalance> debtors = [];
     List<_PersonBalance> creditors = [];
 
@@ -43,10 +48,10 @@ class SaldoCalculator {
       }
     });
 
+    List<Debt> allDebts = [];
     Map<String, List<String>> bekommtVon = {};
     Map<String, List<String>> schuldetAn = {};
 
-    // Kopien für den Settlement-Algorithmus
     List<_PersonBalance> dTemp = debtors.map((e) => _PersonBalance(e.name, e.amount)).toList();
     List<_PersonBalance> cTemp = creditors.map((e) => _PersonBalance(e.name, e.amount)).toList();
 
@@ -62,6 +67,7 @@ class SaldoCalculator {
       String cName = cTemp[cIdx].name;
 
       if (settleAmount > 0.01) {
+        allDebts.add(Debt(dName, cName, settleAmount));
         bekommtVon.putIfAbsent(cName, () => []).add(dName);
         schuldetAn.putIfAbsent(dName, () => []).add(cName);
       }
@@ -92,10 +98,14 @@ class SaldoCalculator {
         detailText = 'Ausgeglichen';
       }
 
+      // Filtere Schulden für diesen Benutzer (beteiligt als from oder to)
+      List<Debt> relatedDebts = allDebts.where((d) => d.from == name || d.to == name).toList();
+
       return SaldoResult(
         name: name,
         netBalance: balance,
         detailText: detailText,
+        debts: relatedDebts,
       );
     }).toList();
   }

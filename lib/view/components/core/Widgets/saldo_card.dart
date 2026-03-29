@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../../api/data/saldo_calculator.dart';
-import '../../../theme/app_colors.dart';
+import 'package:reiseplaner/api/data/saldo_calculator.dart';
+import 'package:reiseplaner/view/theme/app_colors.dart';
 
 class SaldoCard extends StatelessWidget {
   final List<SaldoResult> salden;
+  final Function(SaldoResult)? onSettleTapped;
 
-  const SaldoCard({super.key, required this.salden});
+  const SaldoCard({super.key, required this.salden, this.onSettleTapped});
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +39,7 @@ class SaldoCard extends StatelessWidget {
           final bool isNegative = saldo.netBalance < -0.01;
 
           return ListTile(
+            onTap: () => onSettleTapped?.call(saldo),
             leading: const CircleAvatar(
               backgroundColor: AppColors.primary,
               radius: 12,
@@ -56,17 +58,26 @@ class SaldoCard extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
-            trailing: Text(
-              '${saldo.netBalance.abs().toStringAsFixed(2)}€',
-              style: TextStyle(
-                color: isPositive
-                    ? Colors.greenAccent
-                    : isNegative
-                        ? Colors.redAccent
-                        : AppColors.textSecondary,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isNegative) ...[
+                  const Icon(Icons.payment, color: AppColors.textSecondary, size: 16),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  '${saldo.netBalance.abs().toStringAsFixed(2)}€',
+                  style: TextStyle(
+                    color: isPositive
+                        ? Colors.greenAccent
+                        : isNegative
+                            ? Colors.redAccent
+                            : AppColors.textSecondary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
           );
         },
