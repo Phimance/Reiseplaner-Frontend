@@ -11,6 +11,7 @@ class SummaryCard extends StatelessWidget {
   final Color backgroundColor;
   final Color avatarColor;
   final int maxVisibleAvatars;
+  final bool showCalendarIcon;
 
   const SummaryCard({
     super.key,
@@ -24,6 +25,7 @@ class SummaryCard extends StatelessWidget {
     this.backgroundColor = AppColors.card,
     this.avatarColor = AppColors.primary,
     this.maxVisibleAvatars = 3,
+    this.showCalendarIcon = true,
   });
 
   static const double _avatarRadius = 16.0;
@@ -165,12 +167,12 @@ class SummaryCard extends StatelessWidget {
           // --- BOTTOM ROW ---
           Row(
             children: [
-              const Icon(Icons.calendar_today, color: AppColors.textPrimary, size: 20),
-              const SizedBox(width: 8),
+              if(showCalendarIcon) Icon(Icons.calendar_today, color: AppColors.textSecondary, size: 20),
+              if(showCalendarIcon) const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   dateRange,
-                  style: const TextStyle(color: AppColors.textPrimary, fontSize: 16),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),

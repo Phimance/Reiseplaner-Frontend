@@ -21,62 +21,51 @@ class ActivityItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final titleColor = isPast ? AppColors.textSecondary : AppColors.textPrimary;
 
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: onTap,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: const [
-                BoxShadow(
-                  color: AppColors.shadow,
-                  blurRadius: 4,
-                  offset: Offset(0, 2),
-                ),
-              ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(
+              isPast ? Icons.event_available_outlined : Icons.event_outlined,
+              color: isPast ? AppColors.textSecondary : AppColors.primary,
+              size: 26,
             ),
-            child: Padding(
-              padding: EdgeInsetsGeometry.symmetric(horizontal: 24, vertical: 20),
+            const SizedBox(width: 16),
+            Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: titleColor,
                         ),
-                      ),
-                      Text(
-                        date,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
                   ),
-                  if (location != null && location!.isNotEmpty)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          location!,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  if (!isPast && location != null && location!.isNotEmpty)
+                    Text(
+                      location!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: AppColors.textSecondary,
                           ),
-                        ),
-                      ],
                     ),
                 ],
               ),
             ),
-          ),
+            Text(
+              date,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

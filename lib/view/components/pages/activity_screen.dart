@@ -5,6 +5,7 @@ import 'package:reiseplaner/view/components/core/Widgets/activity_widgets/sectio
 import '../../../core/app_state.dart';
 import '../../theme/app_colors.dart';
 import '../core/Widgets/PageHeader.dart';
+import '../core/Widgets/SummaryCard.dart';
 import '../core/Widgets/activity_widgets/activity_item.dart';
 import '../core/Widgets/activity_widgets/activity_section.dart';
 import 'add_entity/add_activity_screen.dart';
@@ -84,7 +85,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         )
         .toList();
 
-    return DaySection(day: 'Vergangene Aktivitäten', items: items);
+    return DaySection(day: 'Vergangene Aktivitäten', items: items, isLeft: true);
   }
 
   @override
@@ -108,6 +109,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
         continue;
       }
     }
+    String _formatDate(String? date) {
+      if (date == null || date.isEmpty) return '';
+      final dt = DateTime.tryParse(date);
+      if (dt == null) return date;
+      return DateFormat('d. MMMM yyyy', 'de').format(dt);
+    }
 
     final upcomingSections = _buildSections(
       context: context,
@@ -125,36 +132,18 @@ class _ActivityScreenState extends State<ActivityScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            PageHeader(
-              label: 'Es stehen',
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: Text.rich(
-                  TextSpan(
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '$anstehendeAktivitaeten',
-                        style: const TextStyle(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 40,
-                        ),
-                      ),
-                      const TextSpan(
-                        text: ' Aktivitäten an',
-                        style: TextStyle(color: AppColors.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            SummaryCard(
+              leadingText: "Events",
+              showCalendarIcon: false,
+              leadingIcon: Icons.event_note_sharp,
+              title: "$anstehendeAktivitaeten anstehende Events",
+              dateRange: '${_formatDate(appState.aktiveGruppe!.startDate)} - ${_formatDate(appState.aktiveGruppe!.endDate)}',
+              avatars: appState.aktiveGruppe!.benutzer
+                  .map((b) => b.name.isNotEmpty ? b.name[0].toUpperCase() : '?')
+                  .toList(),
+              onSettings: null
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             if (events.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
