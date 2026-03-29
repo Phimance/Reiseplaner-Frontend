@@ -63,17 +63,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   ({int tage, String label}) _berechneTage(String? startDate, String? endDate) {
-    final heute = DateTime.now();
-    final start = startDate != null ? DateTime.tryParse(startDate) : null;
-    final ende = endDate != null ? DateTime.tryParse(endDate) : null;
+    // 1. Alles auf UTC Mitternacht normalisieren
+    final nun = DateTime.now();
+    final heute = DateTime.utc(nun.year, nun.month, nun.day);
 
-    if (start != null && heute.isBefore(start)) {
-      final diff = start.difference(DateTime(heute.year, heute.month, heute.day)).inDays;
-      return (tage: diff, label: 'Tage bis Start');
-    } else if (ende != null && heute.isBefore(ende)) {
-      final diff = ende.difference(DateTime(heute.year, heute.month, heute.day)).inDays;
-      return (tage: diff, label: 'Tage noch');
-    } else {
+    final startRaw = startDate != null ? DateTime.tryParse(startDate) : null;
+    final endeRaw = endDate != null ? DateTime.tryParse(endDate) : null;
+
+    // Wenn keine Daten da sind, direkt raus
+    if (startRaw == null || endeRaw == null) return (tage: 0, label: 'Kein Datum');
+
+    final start = DateTime.utc(startRaw.year, startRaw.month, startRaw.day);
+    final ende = DateTime.utc(endeRaw.year, endeRaw.month, endeRaw.day);
+
+    // FALL A: Vor der Reise
+    if (heute.isBefore(start)) {
+      final diff = start.difference(heute).inDays;
+      // Hier KEIN +1, denn wenn heute der 29. und Start der 30. ist, ist es genau 1 Tag.
+      return (tage: diff, label: diff == 1 ? 'Tag bis Start' : 'Tage bis Start');
+    }
+
+    // FALL B: Während der Reise (Heute ist Starttag oder danach)
+    else if (!heute.isAfter(ende)) {
+      // Hier +1, weil der heutige Tag als voller Reisetag zählt
+      final diff = ende.difference(heute).inDays;
+      return (tage: diff, label: diff == 1 ? 'Letzter Tag' : 'Tage noch');
+    }
+
+    // FALL C: Reise vorbei
+    else {
       return (tage: 0, label: 'Reise beendet');
     }
   }
