@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
     final transaktionen = gruppe.transaktionen;
     final benutzername = appState.benutzername;
     final saldo = SaldoCalculator.berechneSaldoFuerBenutzer(transaktionen, benutzername);
-    final saldoText = '${saldo >= 0 ? '+' : ''}${saldo.toStringAsFixed(2)} €';
+    final saldoText = '${saldo >= 0 ? '' : ''}${saldo.toStringAsFixed(0)} €';
     final tageInfo = _berechneTage(gruppe.startDate, gruppe.endDate);
     final eventCount = gruppe.planer?.events.length ?? 0;
 
