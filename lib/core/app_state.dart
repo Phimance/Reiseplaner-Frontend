@@ -174,6 +174,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> setAktiveGruppe(Gruppe gruppe) async {
     _aktiveGruppe = gruppe;
+    _events = gruppe.planer?.events ?? [];
     notifyListeners();
   }
 

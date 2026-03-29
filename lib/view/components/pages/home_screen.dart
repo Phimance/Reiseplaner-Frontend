@@ -139,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               StatSummaryTile(
                 icon: Icons.calendar_today_outlined,
                 value: '$eventCount',
-                label: eventCount == 1 ? 'Event' : 'Events',
+                label: eventCount == 1 ? '    Event    ' : '    Events    ',
               ),
             ],
           ),
