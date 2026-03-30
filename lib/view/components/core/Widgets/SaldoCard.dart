@@ -85,6 +85,7 @@ class SaldoCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ListView.builder(
+                    padding: EdgeInsets.zero,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: salden.length,
