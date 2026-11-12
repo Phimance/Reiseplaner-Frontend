@@ -1,7 +1,6 @@
 # 🍌 Bananasplit – Reiseplaner
 
 <div align="center">
-  <img src="./assets/images/bananasplit_logo.png" alt="Bananasplit Logo" height="120" />
   <p><em>Zusammen auf Reisen – gemeinsam verrechnen</em></p>
 </div>
 
@@ -220,7 +219,6 @@ Dieses Projekt steht unter der MIT-Lizenz. Details in der [LICENSE](LICENSE)-Dat
 
 <div align="center">
   <!-- Optional: Social Links -->
-  <img src="./assets/images/bananasplit_screenshot.png" alt="App Screenshot" width="300" />
 </div>
 
 ---
