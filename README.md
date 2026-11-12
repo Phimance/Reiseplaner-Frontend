@@ -4,10 +4,6 @@
   <p><em>Zusammen auf Reisen – gemeinsam verrechnen</em></p>
 </div>
 
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.24-blue.svg)](https://flutter.dev)
-[![Dart SDK](https://img.shields.io/badge/Dart-3.10-blue.svg)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
 **Bananasplit** ist eine moderne Flutter-App, die Reisegruppen dabei hilft, ihre Reisen gemeinsam zu organisieren – von der Planung bis zur Abrechnung. Plane Events, tracke Ausgaben und halte den Überblick über offene Beträge.
 
 ---
