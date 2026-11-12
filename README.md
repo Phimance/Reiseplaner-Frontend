@@ -1,13 +1,8 @@
 # 🍌 Bananasplit – Reiseplaner
 
 <div align="center">
-  <img src="./assets/images/bananasplit_logo.png" alt="Bananasplit Logo" height="120" />
   <p><em>Zusammen auf Reisen – gemeinsam verrechnen</em></p>
 </div>
-
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.24-blue.svg)](https://flutter.dev)
-[![Dart SDK](https://img.shields.io/badge/Dart-3.10-blue.svg)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **Bananasplit** ist eine moderne Flutter-App, die Reisegruppen dabei hilft, ihre Reisen gemeinsam zu organisieren – von der Planung bis zur Abrechnung. Plane Events, tracke Ausgaben und halte den Überblick über offene Beträge.
 
@@ -220,7 +215,6 @@ Dieses Projekt steht unter der MIT-Lizenz. Details in der [LICENSE](LICENSE)-Dat
 
 <div align="center">
   <!-- Optional: Social Links -->
-  <img src="./assets/images/bananasplit_screenshot.png" alt="App Screenshot" width="300" />
 </div>
 
 ---
